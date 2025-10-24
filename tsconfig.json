@@ -1,8 +1,6 @@
 {
   "compilerOptions": {
-//    "module": "ESNext",
     "target": "ES2020",
-//    "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -23,7 +21,7 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "type": "module"
+//    "type": "module"
   },
   "include": [
     "next-env.d.ts",

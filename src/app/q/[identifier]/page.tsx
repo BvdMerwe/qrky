@@ -15,5 +15,7 @@ export default async function Page({
         .eq('url_objects.enabled', true)
 
         .maybeSingle();
+
+    // @ts-expect-error -- Supabase not correctly creating the types.
     await redirectUser(data?.url_objects?.url ?? null, error, "qr_codes", data?.id);
 }

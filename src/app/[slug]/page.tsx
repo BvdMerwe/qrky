@@ -20,5 +20,6 @@ export default async function Page({
         .maybeSingle();
 
 
+    // @ts-expect-error -- Supabase not correctly creating the types.
     await redirectUser(data?.url_objects?.url ?? null, error, "aliases", data?.id);
 }

@@ -70,7 +70,6 @@ async function generateQrCode(data: string): Promise<Uint8Array> {
             svgViewBoxSize: 1080,
             outputBase64: false,
             returnAsDomElement: false,
-            outputType: 'OUTPUT_CUSTOM'
         });
 
         const qrcode: string = (new QRCode(options)).render(data);
