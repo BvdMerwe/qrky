@@ -18,6 +18,6 @@ export default async function redirectUser(
     } else {
         // record view and redirect to actual URL
         await recordView(await headers(), source, identifier);
-        // redirect(url, RedirectType.replace);
+        redirect(url, RedirectType.replace);
     }
 }
