@@ -1,4 +1,4 @@
-import {createClient} from "@/lib/server-client";
+import {createClient} from "@/lib/supabase/server";
 import redirectUser from "@/lib/redirectUser";
 
 export default async function Page({

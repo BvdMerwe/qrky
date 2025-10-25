@@ -18,7 +18,7 @@ Review this code for potential issues, including:
 - **Cookie handling**: Verify async `cookies()` and `headers()` usage
 
 ## Supabase Integration
-- **Server-side client usage**: Ensure `createClient()` from `server-client.ts` is used in server components
+- **Server-side client usage**: Ensure `createClient()` from `server.ts` is used in server components
 - **Query patterns**: Check `.maybeSingle()` usage for optional results
 - **Error handling**: Verify `PostgrestError` is properly handled
 - **RPC calls**: Validate `record_view()` RPC function is called with correct parameters

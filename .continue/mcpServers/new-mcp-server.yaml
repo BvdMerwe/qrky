@@ -1,0 +1,7 @@
+name: Context7
+version: 0.0.1
+schema: v1
+mcpServers:
+  - name: Context7
+    url: https://mcp.context7.com/mcp
+    apiKey: ctx7sk-a7673ec3-43ea-4cae-b981-293000f8475d
