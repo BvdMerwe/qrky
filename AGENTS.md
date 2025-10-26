@@ -68,9 +68,9 @@ Client Request → Next.js App Router → Route Handler/Page Component
 │   │   ├── q/[identifier]/      # QR code redirects
 │   │   ├── u/[identifier]/      # URL object redirects
 │   │   ├── qr/[uuid]/route.ts   # QR code SVG API endpoint
-│   │   ├── 404/page.tsx         # Not found page
+│   │   ├── 404/not-found.tsx         # Not found page
 │   │   ├── layout.tsx           # Root layout
-│   │   └── page.tsx             # Home page
+│   │   └── not-found.tsx             # Home page
 │   │
 │   ├── lib/                     # Shared utilities
 │   │   ├── qrcode/              # Custom QR code library
@@ -158,7 +158,7 @@ The custom QR library (`QRkySVG`) provides:
 - **TypeScript Port**: Direct port of PHP `NovaQRCodeSVG` implementation
 
 ### Database Schema (Inferred)
-```sql
+```
 qr_codes:
   - id (identifier)
   - url_objects (relation)
@@ -183,7 +183,7 @@ NEXT_PUBLIC_SUPABASE_ADMIN_KEY # Service role key (server-side only)
 ## Common Patterns
 
 ### Adding New Routes
-1. Create page in `src/app/[route]/page.tsx`
+1. Create page in `src/app/[route]/not-found.tsx`
 2. Use `createClient()` for database access
 3. Implement redirect logic via `redirectUser()`
 4. Track views with `recordView()`

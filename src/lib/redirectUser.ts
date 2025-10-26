@@ -1,5 +1,5 @@
 import {PostgrestError} from "@supabase/supabase-js";
-import {redirect, RedirectType} from "next/navigation";
+import {notFound, redirect, RedirectType} from "next/navigation";
 import recordView from "@/lib/record-view";
 import {headers} from "next/headers";
 
@@ -14,7 +14,7 @@ export default async function redirectUser(
         redirect('/500', RedirectType.push);
     } else if (url === null) {
         // redirect to 404
-        redirect('/404', RedirectType.push);
+        notFound();
     } else {
         // record view and redirect to actual URL
         await recordView(await headers(), source, identifier);

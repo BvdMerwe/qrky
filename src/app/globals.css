@@ -1,8 +1,16 @@
 @import "tailwindcss";
+
 @plugin "@tailwindcss/typography";
 @plugin "daisyui";
 
-* {
+:root {
+    --bg-pos-x: 0;
+    --animation-duration: 20s;
+    --bg-size-x: 20em;
+    --text-w: 20em;
+}
+
+body > * {
     @apply font-mono;
 }
 
@@ -12,4 +20,28 @@ h1, h2, h3, h4, h5, h6 {
 
 .input {
     @apply focus-within:outline-none
+}
+
+.rainbow {
+    @apply bg-clip-text text-transparent;
+
+    background-size: var(--bg-size-x) 100%;
+    background-image: linear-gradient(
+            to left in hsl,
+            hsl(359deg, 100%, 50%),
+            hsl(180deg, 100%, 50%),
+            hsl(0deg, 100%, 50%)
+    );
+    animation: animate-bg-rainbow var(--animation-duration) infinite linear;
+}
+
+@keyframes animate-bg-rainbow {
+    from {
+        background-position: calc(var(--bg-pos-x) * var(--text-w)) 0;
+    }
+    to {
+        background-position: calc(
+            100% - var(--text-w) + calc(var(--bg-pos-x) * var(--text-w))
+        ) 0;
+    }
 }

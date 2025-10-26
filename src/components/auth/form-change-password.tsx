@@ -20,7 +20,7 @@ export default function FormChangePassword() {
 
     let authCode = null;
 
-    if (window) {
+    if (typeof window !== "undefined") {
         authCode = (new URLSearchParams(window.location.search)).get("code");
     }
 

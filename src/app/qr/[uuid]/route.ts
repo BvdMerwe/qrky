@@ -3,7 +3,7 @@ import {DOMParser} from '@xmldom/xmldom';
 import {QRkyOptions, QRkySVG} from '@/lib/qrcode';
 import sharp from "sharp";
 import {createClient} from "@/lib/supabase/server";
-import {redirect, RedirectType} from "next/navigation";
+import {notFound, redirect, RedirectType} from "next/navigation";
 import {NextRequest} from "next/server";
 import path from "node:path";
 
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest, {
         console.error(error);
         return redirect('/500', RedirectType.push);
     } else if (qrCodeCount === 0) {
-        return redirect("/404", RedirectType.push);
+        notFound();
     }
 
     const url = buildQrCodeUrl(uuid);
