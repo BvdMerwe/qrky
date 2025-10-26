@@ -15,24 +15,31 @@
   },
   "dependencies": {
     "@chillerlan/qrcode": "1.0.1",
+    "@supabase/auth-js": "^2.76.1",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.76.1",
     "@xmldom/xmldom": "^0.8.11",
+    "classcat": "^5.0.5",
     "next": "16.0.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "react-icons": "^5.5.0",
     "sharp": "^0.34.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@tailwindcss/typography": "^0.5.19",
     "@types/node": "^20",
     "@types/qrcode": "^1.5.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "daisyui": "^5.3.9",
     "eslint": "^9",
     "eslint-config-next": "16.0.0",
     "qrcode": "link:@types/chillerlan/qrcode",
+    "supabase": "^2.53.6",
     "tailwindcss": "^4",
     "typescript": "^5"
-  }
+  },
+  "browserslist": "> 1%"
 }

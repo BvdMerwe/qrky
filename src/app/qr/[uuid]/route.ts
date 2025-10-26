@@ -2,7 +2,7 @@ import {ECC_H, QRCode} from '@chillerlan/qrcode/dist/js-qrcode-node-src.cjs';
 import {DOMParser} from '@xmldom/xmldom';
 import {QRkyOptions, QRkySVG} from '@/lib/qrcode';
 import sharp from "sharp";
-import {createClient} from "@/lib/server-client";
+import {createClient} from "@/lib/supabase/server";
 import {redirect, RedirectType} from "next/navigation";
 import {NextRequest} from "next/server";
 import path from "node:path";
@@ -12,6 +12,7 @@ const APP_URL = process.env.APP_URL || 'http://localhost:3000';
 
 // Polyfill DOMParser for Node.js environment
 if (typeof globalThis.DOMParser === 'undefined') {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Need to use any for polyfill.
     (globalThis as any).DOMParser = DOMParser;
 }
 

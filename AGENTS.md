@@ -43,8 +43,8 @@ Client Request → Next.js App Router → Route Handler/Page Component
    - `/qr/[uuid]/route.ts`: Dynamic QR code SVG generation
 
 3. **Database Layer**
-   - `server-client.ts`: Supabase server-side client with cookie management
-   - `browser-client.ts`: Client-side Supabase instance
+   - `server.ts`: Supabase server-side client with cookie management
+   - `browser.ts`: Client-side Supabase instance
    - `record-view.ts`: Analytics tracking with IP and user-agent
 
 4. **Redirect Logic**
@@ -80,8 +80,8 @@ Client Request → Next.js App Router → Route Handler/Page Component
 │   │   │   ├── index.ts        # Public exports
 │   │   │   └── README.md       # Library documentation
 │   │   │
-│   │   ├── server-client.ts    # Supabase server client
-│   │   ├── browser-client.ts   # Supabase browser client
+│   │   ├── server.ts    # Supabase server client
+│   │   ├── browser.ts   # Supabase browser client
 │   │   ├── redirectUser.ts     # Redirect logic
 │   │   └── record-view.ts      # Analytics tracking
 │   │
