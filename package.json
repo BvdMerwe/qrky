@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@chillerlan/qrcode": "1.0.1",
+    "@supabase/auth-js": "^2.76.1",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.76.1",
     "@xmldom/xmldom": "^0.8.11",

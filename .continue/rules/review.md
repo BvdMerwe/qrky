@@ -2,7 +2,7 @@
 invokable: true
 ---
 
-Review this code for potential issues, including:
+Review the changed code for potential issues, including:
 
 ## TypeScript & Type Safety
 - **Strict type checking**: Ensure no `any` types or type assertions without justification

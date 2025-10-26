@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- Library types */
+
 declare module '@chillerlan/qrcode/dist/js-qrcode-node-src.cjs' {
     // Error Correction Level constants
     export const ECC_L: number; // 7% error correction

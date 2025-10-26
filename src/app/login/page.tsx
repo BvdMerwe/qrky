@@ -13,7 +13,7 @@ export default async function LoginPage() {
     }
 
     return (
-        <div className="flex flex-col gap-4 rounded-box bg-base-200 p-6 max-w-md mx-auto mt-20">
+        <div className="flex flex-col gap-4 rounded-box bg-base-200 p-6 max-w-md mx-auto my-20">
             <h1 className="text-3xl font-bold self-center">Log in and get QRky</h1>
 
             <span className="self-center">

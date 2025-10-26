@@ -3,7 +3,6 @@ import {redirect} from "next/navigation";
 import Link from "next/link";
 import {FaGithub, FaGoogle} from "react-icons/fa6";
 import FormRegisterComponent from "@/components/auth/form-register";
-import {register} from "@/app/register/actions";
 
 export default async function RegisterPage() {
     const supabase = await createClient()
@@ -14,7 +13,7 @@ export default async function RegisterPage() {
     }
 
     return (
-        <div className="flex flex-col gap-4 rounded-box bg-base-200 p-6 max-w-md mx-auto mt-20">
+        <div className="flex flex-col gap-4 rounded-box bg-base-200 p-6 max-w-md mx-auto my-20">
             <h1 className="text-3xl font-bold self-center">Create a QRky account</h1>
 
             <span className="self-center">
@@ -34,7 +33,7 @@ export default async function RegisterPage() {
 
             <div className="divider">OR</div>
 
-            <FormRegisterComponent registerAction={register} />
+            <FormRegisterComponent />
 
         </div>
     )
