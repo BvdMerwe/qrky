@@ -35,7 +35,7 @@ export default async function LoginPage() {
 
             <FormLoginComponent />
 
-            <a className="link link-accent">Forgot password?</a>
+            <Link className="link link-accent" href="/login/forgot-password">Forgot password?</Link>
         </div>
     )
 }

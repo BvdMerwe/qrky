@@ -1,48 +1,75 @@
 "use client"
 
 import {changePassword} from "@/app/dashboard/user/actions";
-import {useActionState, useRef, useState} from "react";
-import ErrorMessageComponent from "@/components/ui/error-message";
-import {TbLockCheck} from "react-icons/tb";
+import {useActionState, useState} from "react";
+import ErrorMessageComponent from "@/components/ui/alert/error-message";
+import {TbLockCheck, TbMailCheck} from "react-icons/tb";
 import InputPassword from "@/components/ui/form/input-password";
+import Input from "@/components/ui/form/input";
+import SuccessMessageComponent from "@/components/ui/alert/success-message";
+import InfoMessageComponent from "@/components/ui/alert/info-message";
+import {stringIsValid} from "@/lib/strings";
 
-const initialState = {message: ""};
+const initialState = {message: "", success: false};
 
 export default function FormChangePassword() {
     const [changePasswordState, changePasswordFormAction, changePasswordPending] = useActionState(changePassword, initialState);
-    const [currentPassword, setCurrentPassword] = useState("");
+    const [securityCode, setSecurityCode] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [passwordConfirm, setPasswordConfirm] = useState("");
-    const passwordModalRef = useRef<HTMLDialogElement>(null);
+
+    let authCode = null;
+
+    if (window) {
+        authCode = (new URLSearchParams(window.location.search)).get("code");
+    }
 
     return (
         <>
-            {changePasswordPending
-                ? null
-                : <button className="btn btn-ghost w-full mt-4" onClick={() => passwordModalRef.current?.showModal()}>Change Password</button>
-            }
+            <form className="flex flex-col gap-4">
+                {changePasswordState?.success === false && <>
+                    <InfoMessageComponent message="We&#39;ve sent you an email with a One Time Pin (OTP), please fill it below with your new password."/>
+                    <Input
+                        value={securityCode}
+                        onChange={setSecurityCode}
+                        name="securityCode"
+                        placeholder="One Time Pin (OTP)"
+                        icon={<TbMailCheck/>}
+                    />
+                    <InputPassword
+                        value={newPassword}
+                        onChange={setNewPassword}
+                        name="newPassword"
+                        placeholder="New password"
+                    />
+                    <InputPassword
+                        value={passwordConfirm}
+                        onChange={setPasswordConfirm}
+                        name="confirmNewPassword"
+                        placeholder="Confirm new password"
+                        icon={<TbLockCheck/>}
+                    />
 
-            <dialog id="password-modal" className="modal" ref={passwordModalRef}>
-                <div className="modal-box prose">
-                    <h2 className="text-center">Update your password</h2>
-                    <form className="flex flex-col gap-4">
-                        <InputPassword value={currentPassword} onChange={setCurrentPassword} name="currentPassword" placeholder="Current password" />
-                        <InputPassword value={newPassword} onChange={setNewPassword} name="newPassword" placeholder="New password" />
-                        <InputPassword value={passwordConfirm} onChange={setPasswordConfirm} name="confirmNewPassword" placeholder="Confirm new password" icon={<TbLockCheck />} />
+                    {stringIsValid(authCode) &&
+                        <input type="hidden" defaultValue={authCode} name="code" />
+                    }
 
-                        {changePasswordState?.message
-                            ? <div className="col-span-2"><ErrorMessageComponent message={changePasswordState.message} /></div>
-                            : null
-                        }
+                    {changePasswordPending
+                        ? <button className="btn btn-primary" disabled>Update password</button>
+                        : <button className="btn btn-primary" formAction={changePasswordFormAction}>Update password</button>
+                    }
+                </>}
 
-                        <button className="btn btn-primary" formAction={changePasswordFormAction}>Update password</button>
-                    </form>
+                {changePasswordState?.message && changePasswordState?.success === false
+                    ? <ErrorMessageComponent message={changePasswordState.message} className="col-span-2"/>
+                    : null
+                }
 
-                </div>
-                <form method="dialog" className="modal-backdrop">
-                    <button>close</button>
-                </form>
-            </dialog>
+                {changePasswordState?.message && changePasswordState?.success
+                    ? <SuccessMessageComponent message={changePasswordState.message} className="col-span-2"/>
+                    : null
+                }
+            </form>
         </>
     )
 }

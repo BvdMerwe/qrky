@@ -3,72 +3,63 @@
 import {createClient} from "@/lib/supabase/server";
 import {redirect, RedirectType} from "next/navigation";
 import {stringIsValid} from "@/lib/strings";
-import {ErrorInterface} from "@/interfaces/error";
+import {ActionResponseInterface} from "@/interfaces/action-response";
 import {authGeneratePasswordFormula, authIsPasswordValid} from "@/lib/auth";
 
-export async function changePassword(_state: ErrorInterface | void, formData: FormData): Promise<ErrorInterface | void> {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+const TEXT_SUCCESS_CHANGED = "Woohoo! Your password has been changed.";
+const TEXT_SUCCESS_USER_UPDATED = "Your user has been updated.";
+const TEXT_ERROR_MISSING_FIELDS = "None of the fields can be empty.";
+const TEXT_ERROR_PASSWORD_MISMATCH = "New passwords do not match.";
+const TEXT_ERROR_NAMES_INVALID = "First name or last name is invalid:";
 
-    if (user === null) {
-        redirect("/login");
+export async function changePassword(_state: ActionResponseInterface, formData: FormData): Promise<ActionResponseInterface> {
+    const supabase = await createClient();
+    const code = formData.get('code') as string
+
+    if (stringIsValid(code)) {
+        const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+        console.log(data, error, code);
+
+        if (error) {
+            return { message: error.message, success: false };
+        }
+
     }
 
     const data = {
-        email: user.email as string,
-        password: formData.get('currentPassword') as string,
+        securityCode: formData.get('securityCode') as string,
         newPassword: formData.get('newPassword') as string,
         confirmNewPassword: formData.get('confirmNewPassword') as string,
     }
 
-    if (!stringIsValid(data.newPassword) || !stringIsValid(data.password) || !stringIsValid(data.confirmNewPassword)) {
-        return { message: `None of the passwords can be empty.`};
-    } else if (data.newPassword !== data.confirmNewPassword) {
-        return { message: `New passwords do not match.` };
+    if (!stringIsValid(data.newPassword) || !stringIsValid(data.securityCode) || !stringIsValid(data.confirmNewPassword)) {
+        return { message: TEXT_ERROR_MISSING_FIELDS, success: false };
     } else if (!authIsPasswordValid(data.newPassword)) {
-        return { message: authGeneratePasswordFormula() };
+        return { message: authGeneratePasswordFormula(), success: false };
+    } else if (data.newPassword !== data.confirmNewPassword) {
+        return { message: TEXT_ERROR_PASSWORD_MISMATCH, success: false };
     }
 
-    const { error } = await supabase.auth.signInWithPassword(data)
 
-    if (error) {
-        return { message: error.message };
-    }
-
-    await supabase.auth.updateUser({
+    const { error: updateError } = await supabase.auth.updateUser({
         password: data.newPassword,
+        nonce: data.securityCode,
     });
 
-    redirect("/dashboard/user");
-}
-
-export async function resetPassword(): Promise<ErrorInterface | void> {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (user === null) {
-        redirect("/login");
-    } else if (typeof user.email === "undefined") {
-        return { message: "Email is required" };
-    } else {
-        const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-            redirectTo: "/dashboard/user/update-password",
-        })
-
-        if (error) {
-            return { message: error.message };
-        } else {
-
-        }
+    if (updateError) {
+        return { message: updateError.message, success: false };
     }
+    console.log(data);
+
+    return { message: TEXT_SUCCESS_CHANGED, success: true };
 }
 
-export async function saveUser(_state: ErrorInterface | void, formData: FormData): Promise<ErrorInterface | void> {
+export async function saveUser(_state: ActionResponseInterface, formData: FormData): Promise<ActionResponseInterface> {
     const firstName = formData.get('firstName');
     const lastName = formData.get('lastName');
 
     if (!stringIsValid(firstName) || !stringIsValid(lastName)) {
-        return { message: `First name or last name is invalid: "${firstName}" "${lastName}"` }
+        return { message: `${TEXT_ERROR_NAMES_INVALID} "${firstName}" "${lastName}"`, success: false };
     }
 
     const supabase = await createClient();
@@ -82,8 +73,9 @@ export async function saveUser(_state: ErrorInterface | void, formData: FormData
                 last_name: lastName,
             }
         });
+
+         return { message: TEXT_SUCCESS_USER_UPDATED, success: true };
     } else {
         redirect("/login", RedirectType.push);
     }
-
 }

@@ -5,10 +5,15 @@ import {redirect} from 'next/navigation'
 
 import {createClient} from '@/lib/supabase/server'
 import {stringIsValid} from "@/lib/strings";
-import {ErrorInterface} from "@/interfaces/error";
+import {ActionResponseInterface} from "@/interfaces/action-response";
 import {authIsPasswordValid} from "@/lib/auth";
 
-export async function login(state: ErrorInterface | void, formData: FormData): Promise<ErrorInterface | void> {
+const TEXT_SUCCESS_PASSWORD_RESET = "A password reset message has been sent to your email address.";
+const TEXT_ERROR_PASSWORD_FORMAT = "Password should contain at least 8 characters, an uppercase letter, lowercase letter, a number and a symbol.";
+const TEXT_ERROR_GENERIC = "Email or password is invalid. Please try again.";
+const TEXT_ERROR_EMAIL_REQUIRED = "Email is required.";
+
+export async function login(_state: ActionResponseInterface, formData: FormData): Promise<ActionResponseInterface> {
     const supabase = await createClient()
 
     const data = {
@@ -17,16 +22,16 @@ export async function login(state: ErrorInterface | void, formData: FormData): P
     }
 
     if (!stringIsValid(data.email) || !stringIsValid(data.password)) {
-        return generateErrorGeneric();
+        return { message: TEXT_ERROR_GENERIC, success: false };
     } else if (!authIsPasswordValid(data.password)) {
-        return { message: `Password should contain at least 8 characters, an uppercase letter and lowercase letter, a number and a symbol.` };
+        return { message: TEXT_ERROR_PASSWORD_FORMAT, success: false };
     }
 
     const { error } = await supabase.auth.signInWithPassword(data)
 
     if (error) {
         if (error.code === 'invalid_credentials') {
-            return generateErrorGeneric();
+            return { message: error.message, success: false };
         } else {
             console.error(error);
             redirect('/500');
@@ -37,6 +42,22 @@ export async function login(state: ErrorInterface | void, formData: FormData): P
     redirect('/dashboard/user');
 }
 
-function generateErrorGeneric(): ErrorInterface {
-    return { message: `Email or password is invalid. Please try again.` }
+export async function resetPassword(_state: ActionResponseInterface, formData: FormData): Promise<ActionResponseInterface> {
+    const email = formData.get('email');
+
+    if (!stringIsValid(email)) {
+        return { message: TEXT_ERROR_EMAIL_REQUIRED, success: false };
+    }
+
+    const supabase = await createClient();
+    const { error } = await supabase.auth.resetPasswordForEmail(
+        email,
+        { redirectTo: "/login/reset-password" }
+    );
+
+    if (error) {
+        return { message: error.message, success: false };
+    } else {
+        return { message: TEXT_SUCCESS_PASSWORD_RESET, success: true };
+    }
 }

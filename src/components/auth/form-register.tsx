@@ -5,9 +5,9 @@ import {register} from "@/app/register/actions";
 import {useActionState, useState} from "react";
 import cc from "classcat";
 import InputPassword from "@/components/ui/form/input-password";
-import ErrorMessageComponent from "@/components/ui/error-message";
+import ErrorMessageComponent from "@/components/ui/alert/error-message";
 
-const initialState = {message: ""};
+const initialState = { message: "", success: false };
 
 export default function FormRegisterComponent() {
     const [email, setEmail] = useState<string>("");
