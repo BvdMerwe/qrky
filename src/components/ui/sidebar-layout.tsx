@@ -1,6 +1,6 @@
 "use client"
 
-import {TbHome, TbHomeStats, TbLayoutSidebar, TbLink, TbSettings} from "react-icons/tb";
+import {TbHomeStats, TbLayoutSidebar, TbLink} from "react-icons/tb";
 import Link from "next/link";
 import {createClient} from "@/lib/supabase/browser";
 import React, {useEffect, useMemo, useState} from "react";

@@ -1,5 +1,5 @@
 import React from "react";
-import {TbLockPassword, TbPencil} from "react-icons/tb";
+import {TbPencil} from "react-icons/tb";
 
 export interface InputProps {
     name: string;
