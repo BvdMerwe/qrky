@@ -1,9 +1,9 @@
 "use client"
 
-import {TbHome, TbLayoutSidebar, TbSettings} from "react-icons/tb";
+import {TbHome, TbHomeStats, TbLayoutSidebar, TbLink, TbSettings} from "react-icons/tb";
 import Link from "next/link";
 import {createClient} from "@/lib/supabase/browser";
-import {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {User} from "@supabase/auth-js";
 import {SupabaseClient} from "@supabase/supabase-js";
 import {redirect, RedirectType} from "next/navigation";
@@ -12,11 +12,18 @@ interface Props {
     children?: React.ReactNode;
 }
 
+interface Link {
+    name: string;
+    to: string;
+    icon: React.ReactNode;
+}
 
 export default function SidebarLayout({children}: Props) {
     const supabase = createClient();
-    const [_user, setUser] = useState<User>();
+    const [user, setUser] = useState<User>();
     const [userName, setUserName] = useState<string>();
+    const [firstName, setFirstName] = useState<string>();
+    const [lastName, setLastName] = useState<string>();
 
     useEffect(() => {
         supabase.auth.getUser()
@@ -24,13 +31,28 @@ export default function SidebarLayout({children}: Props) {
                 if (error) throw error;
                 setUser(data.user);
                 setUserName(renderName(data.user ?? null));
+                setFirstName(data.user?.user_metadata?.first_name);
+                setLastName(data.user?.user_metadata?.last_name);
             })
     }, [supabase]);
+
+    const links = useMemo<Link[]>(() => ([
+        {
+            name: "Dashboard",
+            icon: <TbHomeStats className="min-h-6" />,
+            to: "/dashboard",
+        },
+        {
+            name: "URLs",
+            icon: <TbLink className="min-h-6" />,
+            to: "/dashboard/urls",
+        },
+    ]), [user]);
 
     return (
         <div className="drawer drawer-open">
             <input id="my-drawer-4" type="checkbox" className="drawer-toggle"/>
-            <div className="drawer-content">
+            <div className="drawer-content px-4">
                 {children}
             </div>
 
@@ -40,33 +62,27 @@ export default function SidebarLayout({children}: Props) {
                     {/* Sidebar content here */}
                     <ul className="menu w-full grow">
 
-                        {/* list item */}
-                        <li>
-                            <button className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Homepage">
-                                <TbHome/>
-                                <span className="is-drawer-close:hidden">Homepage</span>
-                            </button>
-                        </li>
-
-                        {/* list item */}
-                        <li>
-                            <button className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Settings">
-                                <TbSettings/>
-                                <span className="is-drawer-close:hidden">Settings</span>
-                            </button>
-                        </li>
+                        {links.map((link: Link) => (
+                            <li key={link.name}>
+                                <Link href={link.to} className="is-drawer-close:tooltip is-drawer-close:tooltip-right is-drawer-close:btn-ghost" data-tip={link.name}>
+                                    {link.icon}
+                                    <span className="is-drawer-close:hidden">{link.name}</span>
+                                </Link>
+                            </li>
+                        ))}
                     </ul>
 
-                    <div className="m-2">
-                        <div className="dropdown dropdown-right dropdown-end">
-                            <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
-                                <div className="avatar avatar-placeholder">
+                    <div className="m-2 is-drawer-open:min-w-[230px]">
+                        <div className="dropdown dropdown-top dropdown-start w-full">
+                            <button tabIndex={0} role="button" className="cursor pointer rounded is-drawer-open:hover:bg-base-100 is-drawer-open:p-1 is-drawer-close:w-full text-start is-drawer-open:w-full">
+                                <div className="is-drawer-close:btn is-drawer-close:btn-circle is-drawer-close:btn-ghost avatar avatar-placeholder">
                                     <div className="bg-neutral text-neutral-content w-8 rounded-full">
                                         <span className="text-xs uppercase">{userName}</span>
                                     </div>
-                                </div>
-                            </div>
-                            <ul tabIndex={-1} className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
+                                </div>{" "}
+                                <span className="is-drawer-close:hidden">{firstName ?? "QR"} {lastName ?? "ky"}</span>
+                            </button>
+                            <ul tabIndex={-1} className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm mb-2">
                                 <li><a onClick={() => logOut(supabase)}>Log out</a></li>
                                 <li><Link href="/dashboard/user">User Preferences</Link></li>
                             </ul>

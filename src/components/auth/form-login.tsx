@@ -5,6 +5,7 @@ import {useActionState, useState} from "react";
 import ErrorMessageComponent from "@/components/ui/alert/error-message";
 import InputPassword from "@/components/ui/form/input-password";
 import Input from "@/components/ui/form/input";
+import {TbMail} from "react-icons/tb";
 
 const initialState = {
     message: "",
@@ -21,9 +22,10 @@ export default function FormLoginComponent() {
             <Input
                 type="email"
                 name="email"
-                placeholder="luke@rebels.space"
+                placeholder="Email"
                 value={email}
                 onChange={setEmail}
+                icon={<TbMail />}
             />
 
             <InputPassword value={password} onChange={setPassword} name="password" placeholder="Password" />
