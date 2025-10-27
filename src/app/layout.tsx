@@ -3,6 +3,8 @@ import {DynaPuff, Funnel_Sans} from "next/font/google";
 import "./globals.css";
 import FooterComponent from "@/components/ui/footer";
 
+const ENV = process.env.NODE_ENV || "development";
+
 const sans = DynaPuff({
     variable: "--font-sans",
     subsets: ["latin"],
@@ -32,6 +34,11 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
+            {ENV === "production" &&
+                <head>
+                    <script defer src="https://umami.bernardus.dev/script.js" data-website-id="438f3f32-4ded-419a-b07b-21831bc4e14c"></script>
+                </head>
+            }
             <body
                 className={`${sans.variable} ${mono.variable} antialiased min-h-screen`}
             >
