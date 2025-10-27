@@ -7,7 +7,7 @@ import {notFound, redirect, RedirectType} from "next/navigation";
 import {NextRequest} from "next/server";
 import path from "node:path";
 
-const LOGO_PATH = path.join(process.cwd(), 'public', 'qr-logo-round.svg');
+const LOGO_PATH = path.join(process.cwd(), 'public', 'qrky-logo.svg');
 const APP_URL = process.env.APP_URL || 'http://localhost:3000';
 
 // Polyfill DOMParser for Node.js environment
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest, {
         .eq('id', uuid);
 
     if (error) {
-        console.error(error);
+        console.error(error, qrCodeCount);
         return redirect('/500', RedirectType.push);
     } else if (qrCodeCount === 0) {
         notFound();

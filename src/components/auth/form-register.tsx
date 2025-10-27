@@ -106,11 +106,9 @@ function meetsCondition(password: string, condition: "length" | "uppercase" | "l
             return password.length >= 8;
         case "uppercase":
             regex = new RegExp(/[A-Z]+/, "u");
-            console.log(regex.source, password, regex.test(password));
             break;
         case "lowercase":
             regex = new RegExp(/[a-z]+/, "u");
-            console.log(regex.source, password, regex.test(password));
             break;
         case "digit":
             regex = new RegExp(/[\d]+/, "u");

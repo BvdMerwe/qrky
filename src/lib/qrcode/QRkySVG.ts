@@ -214,12 +214,10 @@ export class QRkySVG extends QRMarkupSVG {
             const width = this.options.svgViewBoxSize;
             const height = this.options.svgViewBoxSize;
             const sizeMax = Math.max(width, height);
-            console.log(width, height);
 
             // Normalize to QR code size and scale
             const sizeRelative = this.moduleCount / sizeMax;
             const sizeScaled = sizeRelative * (this.options.svgLogoScale ?? 0.2);
-            console.log(sizeMax, sizeScaled);
             const eol = this.options.eol ?? '\n';
             const cssClass = this.options.svgLogoCssClass ?? 'logo';
             const logoScale = this.options.svgLogoScale ?? 0.2;

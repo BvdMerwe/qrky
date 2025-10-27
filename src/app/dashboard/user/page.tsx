@@ -7,8 +7,8 @@ import {useActionState, useEffect, useState} from "react";
 import {User} from "@supabase/auth-js";
 import ErrorMessageComponent from "@/components/ui/alert/error-message";
 import LayoutChangePassword from "@/components/auth/layout-change-password";
-import {router} from "next/client";
 import InfoMessageComponent from "@/components/ui/alert/info-message";
+import {redirect} from "next/navigation";
 
 const initialState = {
     message: '',
@@ -26,10 +26,10 @@ export default function DashboardUserPage() {
         supabase.auth.getUser()
             .then(({data, error}) => {
                 if (error || !data?.user) {
-                    router.push('/login')
-                    return;
+                    redirect('/login')
+                } else {
+                    setUser(data.user);
                 }
-                setUser(data.user);
             });
     }, [userFormPending]);
 

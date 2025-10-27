@@ -17,13 +17,11 @@ export async function changePassword(_state: ActionResponseInterface, formData: 
     const code = formData.get('code') as string
 
     if (stringIsValid(code)) {
-        const { data, error } = await supabase.auth.exchangeCodeForSession(code)
-        console.log(data, error, code);
+        const { error } = await supabase.auth.exchangeCodeForSession(code)
 
         if (error) {
             return { message: error.message, success: false };
         }
-
     }
 
     const data = {
@@ -49,7 +47,6 @@ export async function changePassword(_state: ActionResponseInterface, formData: 
     if (updateError) {
         return { message: updateError.message, success: false };
     }
-    console.log(data);
 
     return { message: TEXT_SUCCESS_CHANGED, success: true };
 }
