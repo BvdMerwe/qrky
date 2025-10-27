@@ -1,8 +1,20 @@
 import Link from "next/link";
 import {TbQrcode, TbLink, TbChartBar, TbSparkles, TbLock, TbBolt} from "react-icons/tb";
 import Image from "next/image";
+import {createClient} from "@/lib/supabase/server";
 
-export default function Home() {
+export default async function Home() {
+    const supabase = await createClient();
+    const { count: visitCount } = await supabase
+        .from('visits')
+        .select('*', {count: "planned", head: true});
+    const { count: userCount } = await supabase
+        .from('url_objects')
+        .select('*', {count: "exact", head: true});
+    const { count: urlCount } = await supabase
+        .from('url_objects')
+        .select('*', {count: "planned", head: true});
+
     return (
         <div className="flex flex-col">
             {/* Hero Section */}
@@ -161,18 +173,18 @@ export default function Home() {
                 <div className="container mx-auto px-4">
                     <div className="stats stats-vertical lg:stats-horizontal shadow w-full">
                         <div className="stat place-items-center">
-                            <div className="stat-title">QR Codes Generated</div>
-                            <div className="stat-value text-primary">1+</div>
+                            <div className="stat-title">URLs Shortened</div>
+                            <div className="stat-value text-primary">{ urlCount }</div>
                             <div className="stat-desc">And counting</div>
                         </div>
                         <div className="stat place-items-center">
-                            <div className="stat-title">Total Scans</div>
-                            <div className="stat-value text-secondary">~100</div>
-                            <div className="stat-desc">Across all QR codes</div>
+                            <div className="stat-title">Total Visits</div>
+                            <div className="stat-value text-secondary">{ visitCount }</div>
+                            <div className="stat-desc">Across all URLs</div>
                         </div>
                         <div className="stat place-items-center">
                             <div className="stat-title">Active Users</div>
-                            <div className="stat-value text-accent">1</div>
+                            <div className="stat-value text-accent">{ userCount }</div>
                             <div className="stat-desc">Worldwide</div>
                         </div>
                     </div>

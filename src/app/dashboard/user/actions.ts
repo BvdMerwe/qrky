@@ -38,7 +38,6 @@ export async function changePassword(_state: ActionResponseInterface, formData: 
         return { message: TEXT_ERROR_PASSWORD_MISMATCH, success: false };
     }
 
-
     const { error: updateError } = await supabase.auth.updateUser({
         password: data.newPassword,
         nonce: data.securityCode,
