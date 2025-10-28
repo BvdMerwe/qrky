@@ -12,7 +12,7 @@ export default function DeleteButtonComponent({onClick}: Props): React.ReactNode
 
     return (
         <div className="">
-            <button className="btn btn-xs btn-error join-item tooltip tooltip-top" onClick={() => confirmationModalRef?.current?.showModal()} data-tip="Delete">
+            <button className="btn btn-xs btn-soft btn-error join-item tooltip tooltip-top" onClick={() => confirmationModalRef?.current?.showModal()} data-tip="Delete">
                 <TbTrash/>
             </button>
             <dialog id="password-modal" className="modal" ref={confirmationModalRef}>

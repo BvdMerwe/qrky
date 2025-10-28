@@ -3,7 +3,7 @@
 import React, {useCallback} from "react";
 import TableComponent, {TableProps} from "@/components/ui/table";
 import {UrlObject} from "@/types/db/url-object";
-import {TbExternalLink, TbPencil, TbPlus, TbTrash} from "react-icons/tb";
+import {TbExternalLink, TbGraph, TbPencil, TbPlus} from "react-icons/tb";
 import Link from "next/link";
 import {deleteUrl, fetchUrlsBrowser, toggleEnabled} from "@/app/dashboard/urls/actions-browser";
 import CopyToClipboardComponent from "@/components/ui/copy-to-clipboard";
@@ -52,7 +52,7 @@ export default function UrlTableComponent({
                     <td colSpan={4} className="prose text-center mx-auto">
                         <h2>You don&apos;t have any URLs!</h2>
 
-                        <Link className="btn btn-primary btn-xs" href="/dashboard/urls/new">
+                        <Link className="btn btn-soft btn-primary btn-xs" href="/dashboard/urls/new">
                             <TbPlus/>
                             Add A URL
                         </Link>
@@ -89,20 +89,23 @@ export default function UrlTableComponent({
                     </td>
 
                     <td>
-                        <Link className="btn btn-primary btn-xs tooltip tooltip-top" data-tip="Add a QR code" href={`/dashboard/urls/${url.uuid}/qr/new`}>
+                        <Link className="btn btn-soft btn-primary btn-xs tooltip tooltip-top" data-tip="Add a QR code" href={`/dashboard/urls/${url.uuid}/qr/new`}>
                             <TbPlus/>
                         </Link>
                     </td>
 
                     <td>
-                        <Link className="btn btn-primary btn-xs tooltip tooltip-top" data-tip="Add an alias" href={`/dashboard/urls/${url.uuid}/alias/new`}>
+                        <Link className="btn btn-soft btn-primary btn-xs tooltip tooltip-top" data-tip="Add an alias" href={`/dashboard/urls/${url.uuid}/alias/new`}>
                             <TbPlus/>
                         </Link>
                     </td>
 
                     <td>
                         <div className="join join-horizontal">
-                            <Link className="btn btn-xs btn-primary join-item tooltip tooltip-top" href={`/dashboard/urls/${url.uuid}`} data-tip="Edit">
+                            <Link className="btn btn-xs btn-soft btn-primary join-item tooltip tooltip-top" href={`/dashboard/urls/${url.uuid}/analytics`} data-tip="Analytics">
+                                <TbGraph/>
+                            </Link>
+                            <Link className="btn btn-xs btn-soft btn-primary join-item tooltip tooltip-top" href={`/dashboard/urls/${url.uuid}/edit`} data-tip="Edit">
                                 <TbPencil/>
                             </Link>
                             <DeleteButtonComponent onClick={() => deleteUrlAction(url.uuid)} />
