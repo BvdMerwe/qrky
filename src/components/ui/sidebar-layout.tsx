@@ -52,7 +52,7 @@ export default function SidebarLayout({children}: Props) {
     return (
         <div className="drawer drawer-open">
             <input id="my-drawer-4" type="checkbox" className="drawer-toggle"/>
-            <div className="drawer-content px-4">
+            <div className="drawer-content px-4 m-0">
                 {children}
             </div>
 

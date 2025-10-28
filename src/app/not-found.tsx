@@ -32,7 +32,7 @@ export default function NotFound() {
                 Your <span className="rainbow text-md">QRky</span> likes {facts[currentFact % facts.length]}
             </span>
             <div className="divider uppercase">or</div>
-            <Link href="/public" className="btn btn-primary w-full">Return home</Link>
+            <Link href="/" className="btn btn-primary w-full">Return home</Link>
             <p className="text-sm text-center opacity-30"><sup>*</sup>Enjoy each fact equally.</p>
         </div>
     )
