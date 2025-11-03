@@ -36,7 +36,7 @@ export default function RootLayout({
         <html lang="en">
             {ENV === "production" &&
                 <head>
-                    <script defer src="https://umami.bernardus.dev/script.js" data-website-id="438f3f32-4ded-419a-b07b-21831bc4e14c"></script>
+                    <script defer src="https://overarch.bernardus.dev/overarch" data-website-id="438f3f32-4ded-419a-b07b-21831bc4e14c"></script>
                 </head>
             }
             <body
