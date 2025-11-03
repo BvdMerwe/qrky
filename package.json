@@ -37,7 +37,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.0.0",
     "qrcode": "link:@types/chillerlan/qrcode",
-    "supabase": "^2.53.6",
+    "supabase": "^2.54.11",
     "tailwindcss": "^4",
     "typescript": "^5"
   },

@@ -89,15 +89,22 @@ export default function UrlTableComponent({
                     </td>
 
                     <td>
-                        <Link className="btn btn-soft btn-primary btn-xs tooltip tooltip-top" data-tip="Add a QR code" href={`/dashboard/urls/${url.uuid}/qr/new`}>
-                            <TbPlus/>
-                        </Link>
+                        {url.qr_codes === null || typeof url.qr_codes === "undefined"
+                            ? <Link className="btn btn-soft btn-primary btn-xs tooltip tooltip-top" data-tip="Add a QR code" href={`/dashboard/urls/${url.uuid}/qr/new`}>
+                                <TbPlus/>
+                            </Link>
+                            : <button className="btn btn-soft btn-primary btn-xs tooltip tooltip-top" data-tip="Edit QR code" onClick={() => null }>
+                                <TbPencil/>
+                            </button>
+                        }
                     </td>
 
                     <td>
-                        <Link className="btn btn-soft btn-primary btn-xs tooltip tooltip-top" data-tip="Add an alias" href={`/dashboard/urls/${url.uuid}/alias/new`}>
-                            <TbPlus/>
-                        </Link>
+                        {url.aliases === null || typeof url.aliases === "undefined"
+                            ? <Link className="btn btn-soft btn-primary btn-xs tooltip tooltip-top" data-tip="Add an alias" href={`/dashboard/urls/${url.uuid}/alias/new`}>
+                                <TbPlus/>
+                            </Link>
+                            : <CopyToClipboardComponent value={`${process.env.NEXT_PUBLIC_APP_URL}/${url.aliases.value}`}><>/{url.aliases.value}</></CopyToClipboardComponent>}
                     </td>
 
                     <td>

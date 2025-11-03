@@ -8,7 +8,7 @@ export async function fetchUrls(supabase: SupabaseClient): Promise<UrlObject[]> 
         .select(`
             *,
             aliases ( * ),
-            qr_codes ( * ) 
+            qr_codes ( * )
         `)
         .order("id", {ascending: false});
 
