@@ -1,6 +1,6 @@
 "use client"
 
-import React, {useCallback} from "react";
+import React, {useCallback, useState} from "react";
 import TableComponent, {TableProps} from "@/components/ui/table";
 import {UrlObject} from "@/types/db/url-object";
 import {TbExternalLink, TbGraph, TbPencil, TbPlus} from "react-icons/tb";
@@ -16,7 +16,7 @@ interface Props extends TableProps {
 export default function UrlTableComponent({
   urlsInitial
 }: Props): React.ReactNode {
-    const [urls, setUrls] = React.useState<UrlObject[]>(urlsInitial);
+    const [urls, setUrls] = useState<UrlObject[]>(urlsInitial);
     const toggleUrlEnabled = useCallback(async (uuid: string) => {
         await toggleEnabled(uuid);
         setUrls(await fetchUrlsBrowser());
@@ -49,7 +49,7 @@ export default function UrlTableComponent({
             <tbody>
             {urls?.length === 0 &&
                 <tr>
-                    <td colSpan={4} className="prose text-center mx-auto">
+                    <td colSpan={100} className="text-center">
                         <h2>You don&apos;t have any URLs!</h2>
 
                         <Link className="btn btn-soft btn-primary btn-xs" href="/dashboard/urls/new">
@@ -68,6 +68,7 @@ export default function UrlTableComponent({
                             href={url.url}
                             title={url.url}
                             prefetch={false}
+                            target="_blank"
                         >
                             <span className="truncate elipses align-middle inline-block max-w-xs">{url.url}</span> <TbExternalLink className="inline"/>
                         </Link>

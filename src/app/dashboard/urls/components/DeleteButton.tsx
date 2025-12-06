@@ -16,7 +16,7 @@ export default function DeleteButtonComponent({onClick}: Props): React.ReactNode
                 <TbTrash/>
             </button>
             <dialog id="password-modal" className="modal" ref={confirmationModalRef}>
-                <div className="modal-box prose">
+                <div className="modal-box">
                     <h2 className="text-center">Are you sure you want to delete this URL?</h2>
                     <p className="alert alert-error">This operation is permanent and cannot be undone.</p>
 

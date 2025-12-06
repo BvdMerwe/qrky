@@ -1,12 +1,13 @@
 "use client"
 
-import {TbHomeStats, TbLayoutSidebar, TbLink} from "react-icons/tb";
+import {TbLayoutSidebar, TbLink} from "react-icons/tb";
 import Link from "next/link";
 import {createClient} from "@/lib/supabase/browser";
 import React, {useEffect, useMemo, useState} from "react";
 import {User} from "@supabase/auth-js";
 import {SupabaseClient} from "@supabase/supabase-js";
-import {redirect, RedirectType} from "next/navigation";
+import {redirect, RedirectType, usePathname} from "next/navigation";
+import cc from "classcat";
 
 interface Props {
     children?: React.ReactNode;
@@ -24,6 +25,7 @@ export default function SidebarLayout({children}: Props) {
     const [userName, setUserName] = useState<string>();
     const [firstName, setFirstName] = useState<string>();
     const [lastName, setLastName] = useState<string>();
+    const pathname = usePathname();
 
     useEffect(() => {
         supabase.auth.getUser()
@@ -37,11 +39,6 @@ export default function SidebarLayout({children}: Props) {
     }, [supabase]);
 
     const links = useMemo<Link[]>(() => ([
-        {
-            name: "Dashboard",
-            icon: <TbHomeStats className="min-h-6" />,
-            to: "/dashboard",
-        },
         {
             name: "URLs",
             icon: <TbLink className="min-h-6" />,
@@ -64,7 +61,12 @@ export default function SidebarLayout({children}: Props) {
 
                         {links.map((link: Link) => (
                             <li key={link.name}>
-                                <Link href={link.to} className="is-drawer-close:tooltip is-drawer-close:tooltip-right is-drawer-close:btn-ghost" data-tip={link.name}>
+                                <Link href={link.to} className={cc([
+                                    "is-drawer-close:tooltip is-drawer-close:tooltip-right is-drawer-close:btn-ghost",
+                                    {
+                                        "menu-active": link.to == pathname
+                                    }
+                                ])} data-tip={link.name}>
                                     {link.icon}
                                     <span className="is-drawer-close:hidden">{link.name}</span>
                                 </Link>

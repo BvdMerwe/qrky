@@ -7,7 +7,7 @@ import {createUrl} from "@/app/dashboard/urls/new/actions-browser";
 
 export default function NewUrl(): React.ReactNode {
     return (
-        <div className="prose text-center mx-auto mt-20">
+        <div className="prose mx-auto text-center mt-20">
             <h1>Create a new shortened URL</h1>
             <form className="flex flex-col gap-4 max-w-md mx-auto" action={createUrl}>
                 <Input name="url" icon={<TbLink/>} defaultValue="" placeholder="https://luke.space/skywalker" />

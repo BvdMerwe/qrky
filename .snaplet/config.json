@@ -1,0 +1,4 @@
+{
+  "adapter": "pg",
+  "projectDescription": "This project is about a web application or API service that involves various functionalities such as authentication, authorization, storage management, real-time features, and subscriptions. It includes tables for managing HTTP responses and requests, user identities, audit logs, buckets for data storage, extensions, hooks for events, multi-factor authentication, object storage, OAuth functionalities, session management, schema migrations, secrets management, and user management. There are also tables related to SAML providers, real-time schema migrations, S3 multipart uploads, and various other aspects of a complex web application or service."
+}

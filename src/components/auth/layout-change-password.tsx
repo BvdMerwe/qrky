@@ -28,7 +28,7 @@ export default function LayoutChangePassword() {
             </button>
 
             <dialog id="password-modal" className="modal" ref={passwordModalRef}>
-                <div className="modal-box prose">
+                <div className="prose modal-box">
                     <h2 className="text-center">Update your password</h2>
 
                     <FormChangePassword />
