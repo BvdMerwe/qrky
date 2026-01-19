@@ -28,7 +28,7 @@ export default function NotFound() {
             <p>It seems this page went out soul searching and could not be found :(</p>
 
             <p>Stick around and enjoy<sup>*</sup> this list of facts about your QRky:</p>
-            <span className="text-2xl !font-sans">
+            <span className="text-2xl font-sans!">
                 Your <span className="rainbow text-md">QRky</span> likes {facts[currentFact % facts.length]}
             </span>
             <div className="divider uppercase">or</div>
