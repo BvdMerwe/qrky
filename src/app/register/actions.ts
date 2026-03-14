@@ -24,14 +24,15 @@ export async function register(_state: ActionResponseInterface, formData: FormDa
         return { message: `New passwords do not match.`, success: false };
     }
 
-    const { error } = await supabase.auth.signUp({
+    const { error, data } = await supabase.auth.signUp({
         email,
         password,
         options: {
             data: {
                 first_name: firstName,
                 last_name: lastName,
-            }
+            },
+            emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
         }
     })
 
@@ -40,6 +41,10 @@ export async function register(_state: ActionResponseInterface, formData: FormDa
         return { message: error.message, success: false };
     }
 
-    revalidatePath('/', 'layout')
-    redirect('/dashboard/user')
+    if (data.user && data.session) {
+        revalidatePath('/', 'layout')
+        redirect('/dashboard/user')
+    }
+
+    return { message: 'Registration successful! Please check your email to verify your account before logging in.', success: true };
 }

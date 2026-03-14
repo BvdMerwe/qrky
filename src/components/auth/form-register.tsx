@@ -6,6 +6,7 @@ import {useActionState, useState} from "react";
 import cc from "classcat";
 import InputPassword from "@/components/ui/form/input-password";
 import ErrorMessageComponent from "@/components/ui/alert/error-message";
+import SuccessMessageComponent from "@/components/ui/alert/success-message";
 
 const initialState = { message: "", success: false };
 
@@ -82,7 +83,9 @@ export default function FormRegisterComponent() {
 
         <InputPassword value={passwordConfirm} onChange={setPasswordConfirm} name="confirmPassword" placeholder="Confirm password"/>
 
-        {state?.message && <ErrorMessageComponent message={state.message}/>}
+        {state?.success && state?.message && <SuccessMessageComponent message={state.message}/>}
+
+        {!state?.success && state?.message && <ErrorMessageComponent message={state.message}/>}
 
         {pending
             ? <button className="btn btn-primary" disabled>Register</button>
