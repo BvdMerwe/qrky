@@ -68,7 +68,7 @@ export default function SidebarLayout({children}: Props) {
                                 </div>
                             </div>
                             <ul tabIndex={-1} className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
-                                <li><a onClick={() => logOut(supabase)}>Log out</a></li>
+                                <li><a onClick={async () => { try { await logOut(supabase); } catch (e) { console.error(e); } }}>Log out</a></li>
                                 <li><Link href="/dashboard/user">User Preferences</Link></li>
                             </ul>
                         </div>
