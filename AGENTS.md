@@ -1,323 +1,37 @@
-# Repository Overview
+# AGENTS.md - QRky
 
-## Project Description
-
-**QRky** is a Next.js-based QR code generation and URL shortening service with custom styled QR codes and tracking capabilities.
-
-### Main Purpose
-- Generate customizable QR codes with rounded corners and embedded logos
-- Provide URL shortening with multiple identifier patterns (`/q/`, `/u/`, `/qr/`)
-- Track views and analytics through Supabase integration
-- Serve SVG QR codes dynamically via API routes
-
-### Key Technologies
-- **Framework**: Next.js 16.0 (App Router with TypeScript)
-- **UI**: React 19.2, Tailwind CSS 4
-- **QR Generation**: Custom TypeScript port of `@chillerlan/qrcode` with SVG enhancements
-- **Database**: Supabase (PostgreSQL with real-time capabilities)
-- **Runtime**: Node.js with XMLDom for server-side SVG manipulation
-
-## Architecture Overview
-
-### High-Level Architecture
-```
-Client Request → Next.js App Router → Route Handler/Page Component
-                                    ↓
-                              Supabase Client
-                                    ↓
-                        Database (qr_codes, url_objects, views)
-                                    ↓
-                            Analytics/Redirect
-```
-
-### Main Components
-
-1. **QR Code Generation Library** (`src/lib/qrcode/`)
-   - `QRkySVG`: Custom SVG renderer with rounded module shapes
-   - `QRkyOptions`: Configuration class with validation
-   - `ModuleTypeEnum`: Connection pattern detection for smart corner rounding
-
-2. **URL Shortening Routes**
-   - `/q/[identifier]`: QR code identifier redirects
-   - `/u/[identifier]`: URL object identifier redirects
-   - `/qr/[uuid]/route.ts`: Dynamic QR code SVG generation
-
-3. **Database Layer**
-   - `server.ts`: Supabase server-side client with cookie management
-   - `browser.ts`: Client-side Supabase instance
-   - `record-view.ts`: Analytics tracking with IP and user-agent
-
-4. **Redirect Logic**
-   - `redirectUser.ts`: Centralized redirect handler with error management
-   - Tracks views before redirecting
-   - Handles 404/500 error cases
-
-### Data Flow
-1. User visits shortened URL (`/q/[id]` or `/u/[id]`)
-2. Next.js page component queries Supabase for URL mapping
-3. View is recorded with metadata (IP, user-agent, timestamp)
-4. User is redirected to destination URL or error page
-5. QR codes are generated on-demand via `/qr/[uuid]` route
-
-## Directory Structure
-
-```
-├── src/
-│   ├── app/                      # Next.js App Router
-│   │   ├── [slug]/              # Dynamic slug routing
-│   │   ├── q/[identifier]/      # QR code redirects
-│   │   ├── u/[identifier]/      # URL object redirects
-│   │   ├── qr/[uuid]/route.ts   # QR code SVG API endpoint
-│   │   ├── 404/not-found.tsx         # Not found page
-│   │   ├── layout.tsx           # Root layout
-│   │   └── not-found.tsx             # Home page
-│   │
-│   ├── lib/                     # Shared utilities
-│   │   ├── qrcode/              # Custom QR code library
-│   │   │   ├── QRkySVG.ts      # SVG renderer with rounded corners
-│   │   │   ├── QRkyOptions.ts  # Options class with validation
-│   │   │   ├── module-type.enum.ts # Module connection patterns
-│   │   │   ├── index.ts        # Public exports
-│   │   │   └── README.md       # Library documentation
-│   │   │
-│   │   ├── server.ts    # Supabase server client
-│   │   ├── browser.ts   # Supabase browser client
-│   │   ├── redirectUser.ts     # Redirect logic
-│   │   └── record-view.ts      # Analytics tracking
-│   │
-│   └── functions/               # Serverless functions
-│       └── generate.ts
-│
-├── types/                       # TypeScript declarations
-│   └── chillerlan-qrcode.d.ts  # QR library type definitions
-│
-├── public/                      # Static assets
-├── NovaQRCodeOptions.php        # PHP reference implementation
-└── Configuration files
-```
-
-### Key Files
-- **Entry Point**: `src/app/layout.tsx` (root layout)
-- **QR API**: `src/app/qr/[uuid]/route.ts` (SVG generation endpoint)
-- **Database Config**: Environment variables for Supabase
-- **Type Definitions**: `types/chillerlan-qrcode.d.ts`
-
-## Development Workflow
-
-### Setup
+## Quick Start
 ```bash
-# Install dependencies (using pnpm)
 pnpm install
-
-# Set up environment variables
-# Required: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ADMIN_KEY
-
-# Run development server
 pnpm dev
 ```
 
-### Build & Deploy
+Required env vars: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ADMIN_KEY`
+
+## Quality Gates (run before pushing)
 ```bash
-# Production build
+pnpm lint
 pnpm build
-
-# Start production server
-pnpm start
-
-# Run linter
-pnpm lint
 ```
 
-### Testing Approach
-- **No explicit test framework** currently configured
-- Manual testing via development server
-- QR code validation through visual inspection
+## Project-Specific Gotchas
 
-### Development Environment
-- **Node.js**: v20+ recommended
-- **Package Manager**: pnpm (lockfile present)
-- **Editor**: TypeScript-aware (VSCode recommended)
-- **Database**: Supabase project with proper schema
+1. **Supabase client**: Use `lib/server.ts` for server-side (cookies), `lib/browser.ts` for client-side
+2. **QR generation**: Uses custom TypeScript port in `src/lib/qrcode/` - SVG rendering only, no canvas/PNG
+3. **No test framework**: Manual testing via dev server
+4. **Routes**: `/q/[id]` = QR redirects, `/u/[id]` = URL redirects, `/qr/[uuid]` = SVG generation
 
-### Lint and Format
-```bash
-# Run ESLint (Next.js config with TypeScript)
-pnpm lint
+## Issue Tracking
+Use **bd (beads)** exclusively via the `bd` skill.
 
-# ESLint configuration: eslint.config.mjs
-# Includes: next/core-web-vitals, TypeScript support
-```
-
-## Key Implementation Details
-
-### QR Code Customization
-The custom QR library (`QRkySVG`) provides:
-- **Smart Corner Rounding**: Detects neighbor modules using binary flags
-- **Logo Embedding**: SVG logos centered with configurable scale
-- **Module Types**: 16 connection patterns for optimal aesthetics
-- **TypeScript Port**: Direct port of PHP `NovaQRCodeSVG` implementation
-
-### Database Schema (Inferred)
-```
-qr_codes:
-  - id (identifier)
-  - url_objects (relation)
-
-url_objects:
-  - id
-  - identifier
-  - url
-  - enabled
-
-views (via RPC):
-  - recorded via record_view() function
-  - tracks: objecttype, identifier, ip, useragent
-```
-
-### Environment Variables
-```env
-NEXT_PUBLIC_SUPABASE_URL       # Supabase project URL
-NEXT_PUBLIC_SUPABASE_ADMIN_KEY # Service role key (server-side only)
-```
-
-## Common Patterns
-
-### Adding New Routes
-1. Create page in `src/app/[route]/not-found.tsx`
-2. Use `createClient()` for database access
-3. Implement redirect logic via `redirectUser()`
-4. Track views with `recordView()`
-
-### Customizing QR Codes
-```typescript
-import { QRCode, ECC_H } from '@chillerlan/qrcode/dist/js-qrcode-node-src.cjs';
-import { QRkySVG, QRkyOptions } from '@/lib/qrcode';
-
-const options = new QRkyOptions({
-  outputInterface: QRkySVG,
-  circleRadius: 0.45,        // Roundness (0-0.5)
-  svgLogo: '/path/to/logo',  // Optional logo
-  svgLogoScale: 0.35,        // Logo size (10-30%)
-  clearLogoSpace: true,      // Clear space for logo
-  svgViewBoxSize: 1920,      // SVG dimensions
-});
-```
-
-### Extending the Library
-- Add new module types in `module-type.enum.ts`
-- Implement shape logic in `QRkySVG.determineModuleShape()`
-- Update options in `QRkyOptions` with validation
-- Document changes in `src/lib/qrcode/README.md`
-
-<!-- BEGIN BEADS INTEGRATION -->
-## Issue Tracking with bd (beads)
-
-**IMPORTANT**: This project uses **bd (beads)** for ALL issue tracking. Do NOT use markdown TODOs, task lists, or other tracking methods.
-
-### Why bd?
-
-- Dependency-aware: Track blockers and relationships between issues
-- Git-friendly: Dolt-powered version control with native sync
-- Agent-optimized: JSON output, ready work detection, discovered-from links
-- Prevents duplicate tracking systems and confusion
-
-### Quick Start
-
-**Check for ready work:**
-
-```bash
-bd ready --json
-```
-
-**Create new issues:**
-
-```bash
-bd create "Issue title" --description="Detailed context" -t bug|feature|task -p 0-4 --json
-bd create "Issue title" --description="What this issue is about" -p 1 --deps discovered-from:bd-123 --json
-```
-
-**Claim and update:**
-
-```bash
-bd update <id> --claim --json
-bd update bd-42 --priority 1 --json
-```
-
-**Complete work:**
-
-```bash
-bd close bd-42 --reason "Completed" --json
-```
-
-### Issue Types
-
-- `bug` - Something broken
-- `feature` - New functionality
-- `task` - Work item (tests, docs, refactoring)
-- `epic` - Large feature with subtasks
-- `chore` - Maintenance (dependencies, tooling)
-
-### Priorities
-
-- `0` - Critical (security, data loss, broken builds)
-- `1` - High (major features, important bugs)
-- `2` - Medium (default, nice-to-have)
-- `3` - Low (polish, optimization)
-- `4` - Backlog (future ideas)
-
-### Workflow for AI Agents
-
-1. **Check ready work**: `bd ready` shows unblocked issues
-2. **Claim your task atomically**: `bd update <id> --claim`
-3. **Work on it**: Implement, test, document
-4. **Discover new work?** Create linked issue:
-   - `bd create "Found bug" --description="Details about what was found" -p 1 --deps discovered-from:<parent-id>`
-5. **Complete**: `bd close <id> --reason "Done"`
-
-### Auto-Sync
-
-bd automatically syncs via Dolt:
-
-- Each write auto-commits to Dolt history
-- Use `bd dolt push`/`bd dolt pull` for remote sync
-- No manual export/import needed!
-
-### Important Rules
-
-- ✅ Use bd for ALL task tracking
-- ✅ Always use `--json` flag for programmatic use
-- ✅ Link discovered work with `discovered-from` dependencies
-- ✅ Check `bd ready` before asking "what should I work on?"
-- ❌ Do NOT create markdown TODO lists
-- ❌ Do NOT use external issue trackers
-- ❌ Do NOT duplicate tracking systems
-
-For more details, see README.md and docs/QUICKSTART.md.
-
-## Landing the Plane (Session Completion)
-
-**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
-
-**MANDATORY WORKFLOW:**
-
-1. **File issues for remaining work** - Create issues for anything that needs follow-up
-2. **Run quality gates** (if code changed) - Tests, linters, builds
-3. **Update issue status** - Close finished work, update in-progress items
-4. **PUSH TO REMOTE** - This is MANDATORY:
+## Session Completion (MANDATORY)
+1. Run `pnpm lint && pnpm build`
+2. Create issues for any follow-up work
+3. Close/complete bd issues
+4. Push:
    ```bash
    git pull --rebase
    bd dolt push
    git push
-   git status  # MUST show "up to date with origin"
    ```
-5. **Clean up** - Clear stashes, prune remote branches
-6. **Verify** - All changes committed AND pushed
-7. **Hand off** - Provide context for next session
-
-**CRITICAL RULES:**
-- Work is NOT complete until `git push` succeeds
-- NEVER stop before pushing - that leaves work stranded locally
-- NEVER say "ready to push when you are" - YOU must push
-- If push fails, resolve and retry until it succeeds
-
-<!-- END BEADS INTEGRATION -->
+   Must see "up to date with origin" in git status before ending.
