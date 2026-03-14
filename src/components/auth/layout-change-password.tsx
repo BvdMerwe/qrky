@@ -1,24 +1,28 @@
 "use client"
 
-import {useCallback, useRef} from "react";
+import {useCallback, useRef, useState} from "react";
 import {createClient} from "@/lib/supabase/browser";
+import {AuthError, User} from "@supabase/auth-js";
 import FormChangePassword from "@/components/auth/form-change-password";
-
-const initialState = {message: "", success: false};
 
 export default function LayoutChangePassword() {
     const supabase = createClient();
     const passwordModalRef = useRef<HTMLDialogElement>(null);
+    const [, setFormState] = useState({message: "", success: false});
 
     const initiatePasswordChange = useCallback(() => {
-        // Reset form state when opening modal
-        initialState.success = false;
+        setFormState({message: "", success: false});
 
-        supabase.auth.reauthenticate().then(({error, data}) => {
-            if (error) return console.error(error);
-            if (data)
-                passwordModalRef.current?.showModal();
-        });
+        supabase.auth.reauthenticate()
+            .then(({ error, data }: { data: { user: User | null }; error: AuthError | null }) => {
+                if (error) {
+                    console.error(error);
+                    return;
+                }
+                if (data)
+                    passwordModalRef.current?.showModal();
+            })
+            .catch(console.error);
     }, [passwordModalRef, supabase]);
 
     return (

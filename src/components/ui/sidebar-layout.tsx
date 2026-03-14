@@ -4,7 +4,7 @@ import {TbHome, TbLayoutSidebar, TbSettings} from "react-icons/tb";
 import Link from "next/link";
 import {createClient} from "@/lib/supabase/browser";
 import {useEffect, useState} from "react";
-import {User} from "@supabase/auth-js";
+import {User, AuthError} from "@supabase/auth-js";
 import {SupabaseClient} from "@supabase/supabase-js";
 import {redirect, RedirectType} from "next/navigation";
 
@@ -15,16 +15,17 @@ interface Props {
 
 export default function SidebarLayout({children}: Props) {
     const supabase = createClient();
-    const [_user, setUser] = useState<User>();
+    const [, setUser] = useState<User>();
     const [userName, setUserName] = useState<string>();
 
     useEffect(() => {
         supabase.auth.getUser()
-            .then(({data, error}) => {
+            .then(({ data, error }: { data: { user: User | null }; error: AuthError | null }) => {
                 if (error) throw error;
-                setUser(data.user);
+                setUser(data.user ?? undefined);
                 setUserName(renderName(data.user ?? null));
             })
+            .catch(console.error);
     }, [supabase]);
 
     return (
