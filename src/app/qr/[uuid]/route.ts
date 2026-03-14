@@ -8,7 +8,7 @@ import {NextRequest} from "next/server";
 import path from "node:path";
 
 const LOGO_PATH = path.join(process.cwd(), 'public', 'qrky-logo.svg');
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+const NEXT_PUBLIC_APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
 // Polyfill DOMParser for Node.js environment
 if (typeof globalThis.DOMParser === 'undefined') {
@@ -89,5 +89,5 @@ async function generateQrCode(data: string): Promise<Uint8Array> {
 }
 
 function buildQrCodeUrl(data: string): string{
-    return `${APP_URL}/q/${data}`;
+    return `${NEXT_PUBLIC_APP_URL}/q/${data}`;
 }

@@ -39,7 +39,7 @@ export async function login(_state: ActionResponseInterface, formData: FormData)
     }
 
     revalidatePath('/', 'layout');
-    redirect('/dashboard/user');
+    redirect('/dashboard/urls');
 }
 
 export async function resetPassword(_state: ActionResponseInterface, formData: FormData): Promise<ActionResponseInterface> {
