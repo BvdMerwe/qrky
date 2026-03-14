@@ -22,7 +22,7 @@ pnpm build
 4. **Routes**: `/q/[id]` = QR redirects, `/u/[id]` = URL redirects, `/qr/[uuid]` = SVG generation
 
 ## Issue Tracking
-Use **beads** exclusively via the `beads` skill.
+Use **beads** exclusively via the `beads` skill. When defining tasks, use the `defining-tasks` skill.
 
 ## Session Completion (MANDATORY)
 1. Run `pnpm lint && pnpm build`
