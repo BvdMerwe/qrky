@@ -6,7 +6,7 @@ pnpm install
 pnpm dev
 ```
 
-Required env vars: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ADMIN_KEY`
+Required env vars: `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_ADMIN_KEY`
 
 ## Quality Gates (run before pushing)
 ```bash

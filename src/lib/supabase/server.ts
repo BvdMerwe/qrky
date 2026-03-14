@@ -6,7 +6,7 @@ export const createClient = cache(async () => {
     const cookieStore = await cookies();
     return createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ADMIN_KEY!,
+        process.env.SUPABASE_ADMIN_KEY!,
         {
             cookies: {
                 getAll() {
