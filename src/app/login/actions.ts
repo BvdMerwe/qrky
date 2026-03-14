@@ -6,10 +6,8 @@ import {redirect} from 'next/navigation'
 import {createClient} from '@/lib/supabase/server'
 import {stringIsValid} from "@/lib/strings";
 import {ActionResponseInterface} from "@/interfaces/action-response";
-import {authIsPasswordValid} from "@/lib/auth";
 
 const TEXT_SUCCESS_PASSWORD_RESET = "A password reset message has been sent to your email address.";
-const TEXT_ERROR_PASSWORD_FORMAT = "Password should contain at least 8 characters, an uppercase letter, lowercase letter, a number and a symbol.";
 const TEXT_ERROR_GENERIC = "Email or password is invalid. Please try again.";
 const TEXT_ERROR_EMAIL_REQUIRED = "Email is required.";
 
@@ -23,8 +21,6 @@ export async function login(_state: ActionResponseInterface, formData: FormData)
 
     if (!stringIsValid(data.email) || !stringIsValid(data.password)) {
         return { message: TEXT_ERROR_GENERIC, success: false };
-    } else if (!authIsPasswordValid(data.password)) {
-        return { message: TEXT_ERROR_PASSWORD_FORMAT, success: false };
     }
 
     const { error } = await supabase.auth.signInWithPassword(data)
