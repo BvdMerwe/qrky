@@ -29,9 +29,9 @@ export default function SidebarLayout({children}: Props) {
 
     useEffect(() => {
         supabase.auth.getUser()
-            .then(({data, error}) => {
+            .then(({data, error}: { data: { user: User | null }; error: AuthError | null }) => {
                 if (error) throw error;
-                setUser(data.user);
+                setUser(data.user ?? undefined);
                 setUserName(renderName(data.user ?? null));
                 setFirstName(data.user?.user_metadata?.first_name);
                 setLastName(data.user?.user_metadata?.last_name);
