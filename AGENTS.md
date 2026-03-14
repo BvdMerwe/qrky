@@ -35,3 +35,9 @@ Use **beads** exclusively via the `beads` skill. When defining tasks, use the `d
    git push
    ```
    Must see "up to date with origin" in git status before ending.
+
+## Commit Conventions
+- Use [Conventional Commits](https://www.conventionalcommits.org/) format: `<type>(<scope>): <description>`
+- Always include issue reference (e.g., "fix(login): remove password validation (#qrky-nw8)")
+- Types: `fix`, `feat`, `docs`, `style`, `refactor`, `test`, `chore`
+- Keep subject line under 72 characters
