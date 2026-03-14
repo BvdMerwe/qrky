@@ -1,19 +1,32 @@
 import Link from "next/link";
 import {TbQrcode, TbLink, TbChartBar, TbSparkles, TbLock, TbBolt} from "react-icons/tb";
 import Image from "next/image";
-import {createClient} from "@/lib/supabase/server";
+import { unstable_cache } from "next/cache";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+
+const getStats = unstable_cache(
+  async () => {
+    const supabase = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_ADMIN_KEY!
+    );
+    const [visitResult, userResult, urlResult] = await Promise.all([
+      supabase.from('visits').select('*', { count: "planned", head: true }),
+      supabase.from('url_objects').select('*', { count: "exact", head: true }),
+      supabase.from('url_objects').select('*', { count: "planned", head: true }),
+    ]);
+    return {
+      visitCount: visitResult.count || 0,
+      userCount: userResult.count || 0,
+      urlCount: urlResult.count || 0,
+    };
+  },
+  ['homepage-stats'],
+  { revalidate: 60 }
+);
 
 export default async function Home() {
-    const supabase = await createClient();
-    const { count: visitCount } = await supabase
-        .from('visits')
-        .select('*', {count: "planned", head: true});
-    const { count: userCount } = await supabase
-        .from('url_objects')
-        .select('*', {count: "exact", head: true});
-    const { count: urlCount } = await supabase
-        .from('url_objects')
-        .select('*', {count: "planned", head: true});
+  const { visitCount, userCount, urlCount } = await getStats();
 
     return (
         <div className="flex flex-col">
