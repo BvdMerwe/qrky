@@ -1,5 +1,5 @@
 export function authIsPasswordValid(password: string) {
-    const match = new RegExp(/^.*(?=.{8,})(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*([^\w\d]|[_])).*$/, 'i');
+    const match = new RegExp(/^.*(?=.{8,})(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*([^\w\d]|[_])).*$/);
 
     return match.test(password);
 }
