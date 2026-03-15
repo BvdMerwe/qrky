@@ -12,7 +12,7 @@ export default async function UrlAnalyticsPage({
 
     const { data: url, error: urlError } = await supabase
         .from("url_objects")
-        .select("*, visits(*)")
+        .select("*, qr_codes(id), aliases(id)")
         .eq("uuid", uuid)
         .maybeSingle();
 
@@ -25,7 +25,30 @@ export default async function UrlAnalyticsPage({
         );
     }
 
-    const visits = url.visits || [];
+    const qrCodeIds = url.qr_codes?.map((qr: { id: string }) => qr.id) || [];
+    const aliasIds = url.aliases?.map((alias: { id: string }) => alias.id) || [];
+
+    const { data: directVisits } = await supabase
+        .from("visits")
+        .select("*")
+        .eq("url_object_id", url.id);
+
+    const { data: qrVisits } = qrCodeIds.length > 0
+        ? await supabase
+            .from("visits")
+            .select("*")
+            .in("qr_code_id", qrCodeIds)
+        : { data: [] };
+
+    const { data: aliasVisits } = aliasIds.length > 0
+        ? await supabase
+            .from("visits")
+            .select("*")
+            .in("alias_id", aliasIds)
+        : { data: [] };
+
+    const allVisits = [...(directVisits || []), ...(qrVisits || []), ...(aliasVisits || [])];
+    const visits = allVisits || [];
     const totalVisits = visits.length;
 
     const sortedVisits = [...visits].sort(
@@ -58,6 +81,7 @@ export default async function UrlAnalyticsPage({
                                 <thead>
                                     <tr>
                                         <th>Time</th>
+                                        <th>Type</th>
                                         <th>User Agent</th>
                                         <th>IP Address</th>
                                     </tr>
@@ -70,6 +94,12 @@ export default async function UrlAnalyticsPage({
                                                     new Date(visit.created_at),
                                                     { addSuffix: true }
                                                 )}
+                                            </td>
+                                            <td>
+                                                {visit.url_object_id ? "Direct" 
+                                                    : visit.qr_code_id ? "QR Code" 
+                                                    : visit.alias_id ? "Alias" 
+                                                    : "Unknown"}
                                             </td>
                                             <td className="max-w-xs truncate" title={visit.user_agent}>
                                                 {visit.user_agent || "Unknown"}
