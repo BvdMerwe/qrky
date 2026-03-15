@@ -41,6 +41,10 @@ export async function register(_state: ActionResponseInterface, formData: FormDa
         return { message: error.message, success: false };
     }
 
+    if (data.user && !data.session) {
+        redirect('/email-verification-waiting')
+    }
+
     if (data.user && data.session) {
         revalidatePath('/', 'layout')
         redirect('/dashboard/user')
