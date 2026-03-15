@@ -25,9 +25,9 @@ At the START OF EACH NEW SESSION, first invoke the `using-superpowers` skill to 
    d. Implement the solution
    e. Run `pnpm lint && pnpm build` to verify quality gates
    f. Run `bd close <id> --reason "<description>"` to complete
-   d. Commit the changes.
+   d. Commit the changes according to the specification in AGENTS.md
 6. Re-run `bd ready` after each completion to get next task
-7. When all work is done, output:
+7. When all work is done, and there are no more beads left, output:
    <promise>COMPLETE</promise>
 
 ## Allowed Actions
