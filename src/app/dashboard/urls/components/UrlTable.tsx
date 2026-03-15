@@ -8,6 +8,7 @@ import Link from "next/link";
 import {deleteUrl, fetchUrlsBrowser, toggleEnabled} from "@/app/dashboard/urls/actions-browser";
 import CopyToClipboardComponent from "@/components/ui/copy-to-clipboard";
 import DeleteButtonComponent from "@/app/dashboard/urls/components/DeleteButton";
+import QrCodePreviewComponent from "./QrCodePreview";
 
 interface Props extends TableProps {
     urlsInitial: UrlObject[];
@@ -94,9 +95,10 @@ export default function UrlTableComponent({
                             ? <Link className="btn btn-soft btn-primary btn-xs tooltip tooltip-top" data-tip="Add a QR code" href={`/dashboard/urls/${url.uuid}/qr/new`}>
                                 <TbPlus/>
                             </Link>
-                            : <button className="btn btn-soft btn-primary btn-xs tooltip tooltip-top" data-tip="Edit QR code" onClick={() => null }>
-                                <TbPencil/>
-                            </button>
+                            : <QrCodePreviewComponent 
+                                qrCodeId={url.qr_codes.id} 
+                                urlIdentifier={url.identifier}
+                            />
                         }
                     </td>
 

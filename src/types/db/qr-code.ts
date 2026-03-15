@@ -4,6 +4,6 @@ export interface QrCodeSettings {
 }
 
 export interface QrCode {
-    id: number;
+    id: string; // UUID
     settings: QrCodeSettings;
 }
