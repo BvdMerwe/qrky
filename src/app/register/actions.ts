@@ -32,7 +32,7 @@ export async function register(_state: ActionResponseInterface, formData: FormDa
                 first_name: firstName,
                 last_name: lastName,
             },
-            emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
+            emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/confirm`,
         }
     })
 

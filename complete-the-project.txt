@@ -1,0 +1,45 @@
+# Work through beads from the issue tracker
+
+## Context
+You are working on the QRky project (Next.js + Supabase). Use the beads issue tracker to manage and complete work items.
+
+## Session Start
+At the START OF EACH NEW SESSION, first invoke the `using-superpowers` skill to establish how to find and use skills throughout the session.
+
+## Process
+1. Run `bd ready --json` to find unblocked beads ready to work on
+2. If no beads are ready, check for in-progress beads: `bd list --status in_progress --json`
+3. If still nothing, look at all open beads: `bd list --status open --json`
+4. For creating new beads, use `bd create "<title>" -t <type> -p <priority>` where:
+   - type: task, bug, or epic
+   - priority: 1 (high), 2 (medium), 3 (low)
+5. For each bead to work on:
+   a. Run `bd show <id>` to get full details
+   b. Run `bd update <id> --claim` to claim it
+   c. Use appropriate skills:
+      - Bugs: Use `systematic-debugging` skill
+      - New features: Use `brainstorming` skill first
+      - Tests: Use `test-driven-development` skill
+      - Before completing: Use `verification-before-completion` skill
+      - Database work: Use `supabase-postgres-best-practices` skill
+   d. Implement the solution
+   e. Run `pnpm lint && pnpm build` to verify quality gates
+   f. Run `bd close <id> --reason "<description>"` to complete
+   d. Commit the changes.
+6. Re-run `bd ready` after each completion to get next task
+7. When all work is done, output:
+   <promise>COMPLETE</promise>
+
+## Allowed Actions
+- Create new tasks, bugs, or epics as needed with `bd create`
+- Add notes to beads with `bd update <id> --note "..."`
+- Check dependencies with `bd show <id>` 
+- Request code review when needed using `requesting-code-review` skill
+- Handle blocked beads by working on unblocked ones
+
+## Quality Gates
+Before closing any bead, always ensure:
+- `pnpm lint` passes
+- `pnpm build` passes
+
+Output <promise>READY_FOR_NEXT_TASK</promise> after each bead is completed.
