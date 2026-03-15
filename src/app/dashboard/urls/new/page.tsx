@@ -11,6 +11,7 @@ export default function NewUrl(): React.ReactNode {
             <h1>Create a new shortened URL</h1>
             <form className="flex flex-col gap-4 max-w-md mx-auto" action={createUrl}>
                 <Input name="url" icon={<TbLink/>} defaultValue="" placeholder="https://luke.space/skywalker" />
+                <Input name="alias" icon={<TbLink/>} defaultValue="" placeholder="my-custom-alias (optional)" />
                 <button className="btn btn-primary">Create</button>
             </form>
         </div>

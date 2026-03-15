@@ -2,13 +2,13 @@
   "active": true,
   "iteration": 1,
   "minIterations": 1,
-  "maxIterations": 100,
+  "maxIterations": 10,
   "completionPromise": "COMPLETE",
   "tasksMode": false,
   "taskPromise": "READY_FOR_NEXT_TASK",
   "prompt": "Work through beads from the issue tracker",
   "promptTemplate": "complete-the-project.txt",
-  "startedAt": "2026-03-15T00:28:45.961Z",
+  "startedAt": "2026-03-15T00:59:47.773Z",
   "model": "",
   "agent": "opencode"
 }
