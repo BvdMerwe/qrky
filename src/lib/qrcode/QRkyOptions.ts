@@ -46,14 +46,15 @@ export class QRkyOptions extends QROptions implements QRkyOptionsInterface {
         if (options) {
             // Apply all options
             Object.keys(options).forEach(key => {
-                const value = options[key];
+                const value = (options as Record<string, unknown>)[key];
                 if (value !== undefined) {
                     // Use setter methods if they exist
                     const setterName = `set_${key}`;
-                    if (typeof (this as any)[setterName] === 'function') {
-                        (this as any)[setterName](value);
+                    const self = this as unknown as Record<string, unknown>;
+                    if (typeof self[setterName] === 'function') {
+                        (self[setterName] as (value: unknown) => void)(value);
                     } else {
-                        (this as any)[key] = value;
+                        self[key] = value;
                     }
                 }
             });
