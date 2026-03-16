@@ -33,7 +33,7 @@ Current baseline: 96.59% statements, 95.23% branches, 100% functions
 Use **beads** exclusively via the `beads` skill. When defining tasks, use the `defining-tasks` skill.
 
 ## Session Completion (MANDATORY)
-1. Run `pnpm lint && pnpm build`
+1. Run `pnpm lint && pnpm test && pnpm build`
 2. Create issues for any follow-up work
 3. Close/complete bd issues
 4. Push:
