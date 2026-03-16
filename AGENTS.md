@@ -27,7 +27,12 @@ Current baseline: 96.59% statements, 95.23% branches, 100% functions
 1. **Supabase client**: Use `lib/server.ts` for server-side (cookies), `lib/browser.ts` for client-side
 2. **QR generation**: Uses custom TypeScript port in `src/lib/qrcode/` - SVG rendering only, no canvas/PNG
 3. **Tests**: Vitest with 153 tests (run with `pnpm test`)
-4. **Routes**: `/q/[id]` = QR redirects, `/u/[id]` = URL redirects, `/qr/[uuid]` = SVG generation
+4. **Testing Strategy (3-Layer):**
+   - **Unit tests** (`pnpm test`): Vitest tests for logic/functions (157 tests)
+   - **Build validation** (`pnpm build`): Catches Server/Client serialization errors, prerender issues
+   - **Component integration** (page.test.tsx): Tests page rendering with mocked data
+   
+   Always run all three before pushing. Build catches what unit tests miss (e.g., passing JSX from Server → Client Components).
 
 ## Issue Tracking
 Use **beads** exclusively via the `beads` skill. When defining tasks, use the `defining-tasks` skill.
