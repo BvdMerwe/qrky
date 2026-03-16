@@ -12,23 +12,23 @@ export default async function EditQrCodePage({
     const { uuid } = await params;
     const supabase = await createClient();
     
-    // Fetch URL with its QR code
-    const { data: url, error } = await supabase.from("url_objects")
-        .select(`
-            uuid, 
-            url, 
-            identifier,
-            qr_codes (id, settings)
-        `)
+    // Fetch URL first
+    const { data: url, error: urlError } = await supabase.from("url_objects")
+        .select("uuid, url, identifier")
         .eq("uuid", uuid)
         .maybeSingle();
 
-    if (error || !url) {
+    if (urlError || !url) {
         notFound();
     }
 
+    // Fetch QR code separately
+    const { data: qrCodes, error: qrError } = await supabase.from("qr_codes")
+        .select("id, settings")
+        .eq("url_object_uuid", uuid);
+
     // If URL exists but has no QR code, show helpful message instead of 404
-    if (!url.qr_codes || (Array.isArray(url.qr_codes) && url.qr_codes.length === 0)) {
+    if (!qrCodes || qrCodes.length === 0) {
         return (
             <div className="prose mx-auto text-center mt-20">
                 <h1>No QR Code Yet</h1>
@@ -50,7 +50,7 @@ export default async function EditQrCodePage({
         );
     }
 
-    const qrCode = Array.isArray(url.qr_codes) ? url.qr_codes[0] : url.qr_codes;
+    const qrCode = qrCodes[0];
 
     return (
         <div className="prose mx-auto text-center mt-20">
