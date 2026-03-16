@@ -11,14 +11,22 @@ Required env vars: `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_ADMIN_KEY`
 ## Quality Gates (run before pushing)
 ```bash
 pnpm lint
+pnpm test
 pnpm build
 ```
+
+## Test Coverage
+```bash
+pnpm test:coverage    # Generate coverage report (HTML + JSON + terminal)
+```
+
+Current baseline: 96.59% statements, 95.23% branches, 100% functions
 
 ## Project-Specific Gotchas
 
 1. **Supabase client**: Use `lib/server.ts` for server-side (cookies), `lib/browser.ts` for client-side
 2. **QR generation**: Uses custom TypeScript port in `src/lib/qrcode/` - SVG rendering only, no canvas/PNG
-3. **No test framework**: Manual testing via dev server
+3. **Tests**: Vitest with 153 tests (run with `pnpm test`)
 4. **Routes**: `/q/[id]` = QR redirects, `/u/[id]` = URL redirects, `/qr/[uuid]` = SVG generation
 
 ## Issue Tracking
