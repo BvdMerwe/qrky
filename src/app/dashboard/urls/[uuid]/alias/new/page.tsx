@@ -1,8 +1,6 @@
 import React from "react";
 import {createClient} from "@/lib/supabase/server";
-import Input from "@/components/ui/form/input";
-import {TbLink} from "react-icons/tb";
-import {createAlias} from "./actions";
+import {AliasForm} from "./components/form/alias-form";
 
 export default async function NewAliasPage({
   params
@@ -20,15 +18,5 @@ export default async function NewAliasPage({
         throw new Error("URL not found");
     }
 
-    return (
-        <div className="prose mx-auto text-center mt-20">
-            <h1>Add alias to URL</h1>
-            <p className="text-sm opacity-70">{url.url}</p>
-            <form className="flex flex-col gap-4 max-w-md mx-auto" action={createAlias}>
-                <input type="hidden" name="uuid" value={uuid} />
-                <Input name="alias" icon={<TbLink/>} defaultValue="" placeholder="my-custom-alias" />
-                <button className="btn btn-primary">Add Alias</button>
-            </form>
-        </div>
-    );
+    return <AliasForm uuid={uuid} url={url.url} />;
 }
