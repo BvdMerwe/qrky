@@ -31,4 +31,13 @@ Description:
 
 # What is the defninition of done?
 <!-- here we define the acceptance criteria - e.g the user can log in with a username and password -->
+
+# Testing Required
+<!-- All tasks must include tests. Specify what needs testing: -->
+- [ ] Unit tests for new functions/actions (server-side logic)
+- [ ] Component tests for new pages/UI components (client-side rendering)
+- [ ] Integration tests for data fetching (Supabase queries, API calls)
+- [ ] Error handling and edge cases tested
+- [ ] All tests pass (pnpm test)
+- [ ] For complex features, create separate testing subtask if needed
 ```
