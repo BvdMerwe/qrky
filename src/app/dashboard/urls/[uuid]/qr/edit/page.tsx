@@ -1,6 +1,7 @@
 import React from "react";
 import {createClient} from "@/lib/supabase/server";
-import {notFound} from "next/navigation";
+import {notFound, redirect} from "next/navigation";
+import Link from "next/link";
 import {updateQrCode} from "./actions";
 
 export default async function EditQrCodePage({
@@ -22,8 +23,31 @@ export default async function EditQrCodePage({
         .eq("uuid", uuid)
         .maybeSingle();
 
-    if (error || !url || !url.qr_codes) {
+    if (error || !url) {
         notFound();
+    }
+
+    // If URL exists but has no QR code, show helpful message instead of 404
+    if (!url.qr_codes || (Array.isArray(url.qr_codes) && url.qr_codes.length === 0)) {
+        return (
+            <div className="prose mx-auto text-center mt-20">
+                <h1>No QR Code Yet</h1>
+                <p className="text-sm opacity-70">{url.url}</p>
+                
+                <div className="alert alert-info max-w-md mx-auto mt-8">
+                    <span>This URL does not have a QR code associated with it yet.</span>
+                </div>
+                
+                <div className="mt-8 flex flex-col gap-4 max-w-md mx-auto">
+                    <Link href={`/dashboard/urls/${uuid}/qr/new`} className="btn btn-primary">
+                        Create QR Code
+                    </Link>
+                    <Link href={`/dashboard/urls`} className="btn btn-outline">
+                        Back to URLs
+                    </Link>
+                </div>
+            </div>
+        );
     }
 
     const qrCode = Array.isArray(url.qr_codes) ? url.qr_codes[0] : url.qr_codes;
