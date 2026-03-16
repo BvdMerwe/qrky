@@ -107,7 +107,7 @@ describe('Alias Actions', () => {
                 })
             } as any);
 
-            const { createAlias } = await import('@/app/dashboard/urls/[uuid]/alias/new/actions');
+            const { createAlias } = await import('./actions');
             
             const formData = new FormData();
             formData.append('uuid', 'abc-123');
@@ -157,7 +157,7 @@ describe('Alias Actions', () => {
                 })
             } as any);
 
-            const { createAlias } = await import('@/app/dashboard/urls/[uuid]/alias/new/actions');
+            const { createAlias } = await import('./actions');
             
             const formData = new FormData();
             formData.append('uuid', 'abc-123');
@@ -171,7 +171,7 @@ describe('Alias Actions', () => {
         });
 
         it('throws error for invalid uuid', async () => {
-            const { createAlias } = await import('@/app/dashboard/urls/[uuid]/alias/new/actions');
+            const { createAlias } = await import('./actions');
             
             const formData = new FormData();
             formData.append('uuid', '');
@@ -181,7 +181,7 @@ describe('Alias Actions', () => {
         });
 
         it('throws error for invalid alias', async () => {
-            const { createAlias } = await import('@/app/dashboard/urls/[uuid]/alias/new/actions');
+            const { createAlias } = await import('./actions');
             
             const formData = new FormData();
             formData.append('uuid', 'abc-123');
@@ -202,7 +202,7 @@ describe('Alias Actions', () => {
                 from: vi.fn(() => mockFromImplementation())
             } as any);
 
-            const { createAlias } = await import('@/app/dashboard/urls/[uuid]/alias/new/actions');
+            const { createAlias } = await import('./actions');
             
             const formData = new FormData();
             formData.append('uuid', 'non-existent');
@@ -240,7 +240,7 @@ describe('Alias Actions', () => {
                 from: vi.fn(() => mockFromImplementation())
             } as any);
 
-            const { createAlias } = await import('@/app/dashboard/urls/[uuid]/alias/new/actions');
+            const { createAlias } = await import('./actions');
             
             const formData = new FormData();
             formData.append('uuid', 'abc-123');
@@ -285,7 +285,7 @@ describe('Alias Actions', () => {
                 from: vi.fn(() => mockFromImplementation())
             } as any);
 
-            const { createAlias } = await import('@/app/dashboard/urls/[uuid]/alias/new/actions');
+            const { createAlias } = await import('./actions');
             
             const formData = new FormData();
             formData.append('uuid', 'abc-123');
@@ -310,7 +310,7 @@ describe('Alias Actions', () => {
                 from: vi.fn(() => mockFromImplementation())
             } as any);
 
-            const { createAlias } = await import('@/app/dashboard/urls/[uuid]/alias/new/actions');
+            const { createAlias } = await import('./actions');
             
             // Only test reserved names with at least 3 characters (minimum length requirement)
             const reservedNames = ['dashboard', 'api', 'login', 'logout', 'admin', 'analytics', 'settings'];
@@ -339,7 +339,7 @@ describe('Alias Actions', () => {
                 from: vi.fn(() => mockFromImplementation())
             } as any);
 
-            const { createAlias } = await import('@/app/dashboard/urls/[uuid]/alias/new/actions');
+            const { createAlias } = await import('./actions');
             
             const invalidAliases = ['my alias', 'my@alias', 'my#alias', 'my$alias', 'space here'];
             
@@ -367,7 +367,7 @@ describe('Alias Actions', () => {
                 from: vi.fn(() => mockFromImplementation())
             } as any);
 
-            const { createAlias } = await import('@/app/dashboard/urls/[uuid]/alias/new/actions');
+            const { createAlias } = await import('./actions');
             
             const formData = new FormData();
             formData.append('uuid', 'abc-123');
@@ -390,7 +390,7 @@ describe('Alias Actions', () => {
                 from: vi.fn(() => mockFromImplementation())
             } as any);
 
-            const { createAlias } = await import('@/app/dashboard/urls/[uuid]/alias/new/actions');
+            const { createAlias } = await import('./actions');
             
             const formData = new FormData();
             formData.append('uuid', 'abc-123');

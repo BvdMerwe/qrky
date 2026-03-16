@@ -39,7 +39,7 @@ describe('Auth Callback Route', () => {
         mockRedirect.mockImplementation((url: string) => ({ url }));
 
         // Import after mocks are set up
-        const { GET } = await import('@/app/auth/callback/route');
+        const { GET } = await import('./route');
         
         const request = new Request('http://localhost:3000/auth/callback?code=test-code&next=/dashboard');
         await GET(request);
@@ -51,7 +51,7 @@ describe('Auth Callback Route', () => {
         mockExchangeCodeForSession.mockResolvedValue({ error: null });
         mockRedirect.mockImplementation((url: string) => ({ url }));
 
-        const { GET } = await import('@/app/auth/callback/route');
+        const { GET } = await import('./route');
         
         const request = new Request('http://localhost:3000/auth/callback?code=test-code&next=/dashboard/user');
         await GET(request);
@@ -63,7 +63,7 @@ describe('Auth Callback Route', () => {
         mockExchangeCodeForSession.mockResolvedValue({ error: null });
         mockRedirect.mockImplementation((url: string) => ({ url }));
 
-        const { GET } = await import('@/app/auth/callback/route');
+        const { GET } = await import('./route');
         
         const request = new Request('http://localhost:3000/auth/callback?code=test-code');
         await GET(request);
@@ -75,7 +75,7 @@ describe('Auth Callback Route', () => {
         mockExchangeCodeForSession.mockResolvedValue({ error: new Error('Invalid code') });
         mockRedirect.mockImplementation((url: string) => ({ url }));
 
-        const { GET } = await import('@/app/auth/callback/route');
+        const { GET } = await import('./route');
         
         const request = new Request('http://localhost:3000/auth/callback?code=invalid-code');
         await GET(request);
@@ -86,7 +86,7 @@ describe('Auth Callback Route', () => {
     it('redirects to login with error when no code provided', async () => {
         mockRedirect.mockImplementation((url: string) => ({ url }));
 
-        const { GET } = await import('@/app/auth/callback/route');
+        const { GET } = await import('./route');
         
         const request = new Request('http://localhost:3000/auth/callback');
         await GET(request);

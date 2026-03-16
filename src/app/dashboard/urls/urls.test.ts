@@ -93,7 +93,7 @@ describe('URL Actions', () => {
                 }))
             } as any);
 
-            const { createUrl } = await import('@/app/dashboard/urls/new/actions-browser');
+            const { createUrl } = await import('./new/actions-browser');
             
             const formData = new FormData();
             formData.append('url', 'https://example.com');
@@ -123,7 +123,7 @@ describe('URL Actions', () => {
                 from: mockFrom
             } as any);
 
-            const { createUrl } = await import('@/app/dashboard/urls/new/actions-browser');
+            const { createUrl } = await import('./new/actions-browser');
             
             const formData = new FormData();
             formData.append('url', 'https://example.com');
@@ -138,7 +138,7 @@ describe('URL Actions', () => {
         });
 
         it('throws error for invalid URL without protocol', async () => {
-            const { createUrl } = await import('@/app/dashboard/urls/new/actions-browser');
+            const { createUrl } = await import('./new/actions-browser');
             
             const formData = new FormData();
             formData.append('url', 'example.com');
@@ -147,7 +147,7 @@ describe('URL Actions', () => {
         });
 
         it('throws error for empty URL', async () => {
-            const { createUrl } = await import('@/app/dashboard/urls/new/actions-browser');
+            const { createUrl } = await import('./new/actions-browser');
             
             const formData = new FormData();
             formData.append('url', '');
@@ -167,7 +167,7 @@ describe('URL Actions', () => {
                 }))
             } as any);
 
-            const { createUrl } = await import('@/app/dashboard/urls/new/actions-browser');
+            const { createUrl } = await import('./new/actions-browser');
             
             const formData = new FormData();
             formData.append('url', 'https://example.com');
@@ -198,7 +198,7 @@ describe('URL Actions', () => {
                 from: mockFrom
             } as any);
 
-            const { createUrl } = await import('@/app/dashboard/urls/new/actions-browser');
+            const { createUrl } = await import('./new/actions-browser');
             
             const formData = new FormData();
             formData.append('url', 'https://example.com');
@@ -239,7 +239,7 @@ describe('URL Actions', () => {
                 from: mockFrom
             } as any);
 
-            const { toggleEnabled } = await import('@/app/dashboard/urls/actions-browser');
+            const { toggleEnabled } = await import('./actions-browser');
             
             const result = await toggleEnabled('abc-123');
             
@@ -276,7 +276,7 @@ describe('URL Actions', () => {
                 from: mockFrom
             } as any);
 
-            const { toggleEnabled } = await import('@/app/dashboard/urls/actions-browser');
+            const { toggleEnabled } = await import('./actions-browser');
             
             const result = await toggleEnabled('abc-123');
             
@@ -293,7 +293,7 @@ describe('URL Actions', () => {
                 }))
             } as any);
 
-            const { toggleEnabled } = await import('@/app/dashboard/urls/actions-browser');
+            const { toggleEnabled } = await import('./actions-browser');
             
             await expect(toggleEnabled('non-existent')).rejects.toThrow('URL object non-existent not found.');
         });
@@ -308,7 +308,7 @@ describe('URL Actions', () => {
                 }))
             } as any);
 
-            const { toggleEnabled } = await import('@/app/dashboard/urls/actions-browser');
+            const { toggleEnabled } = await import('./actions-browser');
             
             await expect(toggleEnabled('abc-123')).rejects.toThrow('URL object abc-123 not found.');
         });
@@ -342,7 +342,7 @@ describe('URL Actions', () => {
                 from: mockFrom
             } as any);
 
-            const { toggleEnabled } = await import('@/app/dashboard/urls/actions-browser');
+            const { toggleEnabled } = await import('./actions-browser');
             
             await expect(toggleEnabled('abc-123')).rejects.toThrow('Update failed');
         });
@@ -358,7 +358,7 @@ describe('URL Actions', () => {
                 from: vi.fn(() => ({ delete: mockDeleteFn }))
             } as any);
 
-            const { deleteUrl } = await import('@/app/dashboard/urls/actions-browser');
+            const { deleteUrl } = await import('./actions-browser');
             
             await expect(deleteUrl('abc-123')).resolves.not.toThrow();
         });
@@ -373,7 +373,7 @@ describe('URL Actions', () => {
                 from: vi.fn(() => ({ delete: mockDeleteFn }))
             } as any);
 
-            const { deleteUrl } = await import('@/app/dashboard/urls/actions-browser');
+            const { deleteUrl } = await import('./actions-browser');
             
             await expect(deleteUrl('abc-123')).rejects.toThrow('Delete failed - foreign key constraint');
         });
@@ -389,7 +389,7 @@ describe('URL Actions', () => {
                 from: vi.fn(() => ({ update: mockUpdateFn }))
             } as any);
 
-            const { updateUrl } = await import('@/app/dashboard/urls/[uuid]/edit/actions-browser');
+            const { updateUrl } = await import('./[uuid]/edit/actions-browser');
             
             const formData = new FormData();
             formData.append('url', 'https://updated-example.com');
@@ -399,7 +399,7 @@ describe('URL Actions', () => {
         });
 
         it('throws error for invalid URL', async () => {
-            const { updateUrl } = await import('@/app/dashboard/urls/[uuid]/edit/actions-browser');
+            const { updateUrl } = await import('./[uuid]/edit/actions-browser');
             
             const formData = new FormData();
             formData.append('url', 'not-a-valid-url');
@@ -409,7 +409,7 @@ describe('URL Actions', () => {
         });
 
         it('throws error for empty URL', async () => {
-            const { updateUrl } = await import('@/app/dashboard/urls/[uuid]/edit/actions-browser');
+            const { updateUrl } = await import('./[uuid]/edit/actions-browser');
             
             const formData = new FormData();
             formData.append('url', '');
@@ -428,7 +428,7 @@ describe('URL Actions', () => {
                 from: vi.fn(() => ({ update: mockUpdateFn }))
             } as any);
 
-            const { updateUrl } = await import('@/app/dashboard/urls/[uuid]/edit/actions-browser');
+            const { updateUrl } = await import('./[uuid]/edit/actions-browser');
             
             const formData = new FormData();
             formData.append('url', 'https://example.com');
@@ -466,7 +466,7 @@ describe('URL Actions', () => {
                 from: vi.fn(() => ({ select: mockSelect }))
             } as any);
 
-            const { fetchUrlsBrowser } = await import('@/app/dashboard/urls/actions-browser');
+            const { fetchUrlsBrowser } = await import('./actions-browser');
             
             const result = await fetchUrlsBrowser();
             
@@ -482,7 +482,7 @@ describe('URL Actions', () => {
                 from: vi.fn(() => ({ select: mockSelect }))
             } as any);
 
-            const { fetchUrlsBrowser } = await import('@/app/dashboard/urls/actions-browser');
+            const { fetchUrlsBrowser } = await import('./actions-browser');
             
             const result = await fetchUrlsBrowser();
             
@@ -498,7 +498,7 @@ describe('URL Actions', () => {
                 from: vi.fn(() => ({ select: mockSelect }))
             } as any);
 
-            const { fetchUrlsBrowser } = await import('@/app/dashboard/urls/actions-browser');
+            const { fetchUrlsBrowser } = await import('./actions-browser');
             
             await expect(fetchUrlsBrowser()).rejects.toThrow('Query failed');
         });
