@@ -442,35 +442,52 @@ describe('URL Actions', () => {
     describe('fetchUrls and fetchUrlsBrowser', () => {
         it('returns URLs with aliases and qr_codes on success', async () => {
             const mockUrls = [
-                { 
-                    id: 1, 
-                    uuid: 'abc-1', 
-                    url: 'https://example1.com',
-                    aliases: { id: 101, value: 'alias1' },
-                    qr_codes: { id: 201, uuid: 'qr-1' }
-                },
-                { 
-                    id: 2, 
-                    uuid: 'abc-2', 
-                    url: 'https://example2.com',
-                    aliases: null,
-                    qr_codes: null
-                }
+                { id: 1, uuid: 'abc-1', url: 'https://example1.com' },
+                { id: 2, uuid: 'abc-2', url: 'https://example2.com' }
+            ];
+            const mockAliases = [
+                { id: 101, url_object_id: 1, value: 'alias1' }
+            ];
+            const mockQrCodes = [
+                { id: 201, url_object_id: 1, uuid: 'qr-1' }
             ];
             
-            mockOrder.mockReturnValue({ data: mockUrls, error: null });
-            mockSelect.mockReturnValue({ order: mockOrder });
+            const mockSupabaseFrom = vi.fn((table: string) => {
+                if (table === 'url_objects') {
+                    return {
+                        select: vi.fn(() => ({ 
+                            order: vi.fn(() => ({ data: mockUrls, error: null })) 
+                        }))
+                    };
+                }
+                if (table === 'aliases') {
+                    return {
+                        select: vi.fn(() => ({ 
+                            in: vi.fn(() => ({ data: mockAliases, error: null })) 
+                        }))
+                    };
+                }
+                if (table === 'qr_codes') {
+                    return {
+                        select: vi.fn(() => ({ 
+                            in: vi.fn(() => ({ data: mockQrCodes, error: null })) 
+                        }))
+                    };
+                }
+                return { select: vi.fn() };
+            });
+            const mockSupabase = { from: mockSupabaseFrom };
 
-            const { createClient } = await import('@/lib/supabase/browser');
-            vi.mocked(createClient).mockReturnValue({
-                from: vi.fn(() => ({ select: mockSelect }))
-            } as any);
-
-            const { fetchUrlsBrowser } = await import('./actions-browser');
+            const { fetchUrls } = await import('@/app/dashboard/urls/actions');
             
-            const result = await fetchUrlsBrowser();
+            const result = await fetchUrls(mockSupabase as any);
             
-            expect(result).toEqual(mockUrls);
+            // Verify URLs have aliases and qr_codes attached
+            expect(result).toHaveLength(2);
+            expect(result[0].aliases).toHaveLength(1);
+            expect(result[0].qr_codes).toHaveLength(1);
+            expect(result[1].aliases).toHaveLength(0);
+            expect(result[1].qr_codes).toHaveLength(0);
         });
 
         it('returns empty array when no URLs exist', async () => {
@@ -505,9 +522,35 @@ describe('URL Actions', () => {
 
         it('fetchUrls works with provided supabase client', async () => {
             const mockUrls = [{ id: 1, uuid: 'abc-1', url: 'https://example.com' }];
-            const mockSupabaseFrom = vi.fn(() => ({
-                select: vi.fn(() => ({ order: vi.fn(() => ({ data: mockUrls, error: null })) }))
-            }));
+            const mockAliases: { id: number; url_object_id: number; value: string }[] = [];
+            const mockQrCodes: { id: string; url_object_id: number }[] = [];
+            
+            let callCount = 0;
+            const mockSupabaseFrom = vi.fn((table: string) => {
+                callCount++;
+                if (table === 'url_objects') {
+                    return {
+                        select: vi.fn(() => ({ 
+                            order: vi.fn(() => ({ data: mockUrls, error: null })) 
+                        }))
+                    };
+                }
+                if (table === 'aliases') {
+                    return {
+                        select: vi.fn(() => ({ 
+                            in: vi.fn(() => ({ data: mockAliases, error: null })) 
+                        }))
+                    };
+                }
+                if (table === 'qr_codes') {
+                    return {
+                        select: vi.fn(() => ({ 
+                            in: vi.fn(() => ({ data: mockQrCodes, error: null })) 
+                        }))
+                    };
+                }
+                return { select: vi.fn() };
+            });
             const mockSupabase = { from: mockSupabaseFrom };
 
             const { fetchUrls } = await import('@/app/dashboard/urls/actions');
@@ -515,13 +558,20 @@ describe('URL Actions', () => {
             const result = await fetchUrls(mockSupabase as any);
             
             expect(mockSupabaseFrom).toHaveBeenCalledWith('url_objects');
-            expect(result).toEqual(mockUrls);
+            expect(result).toEqual(mockUrls.map(url => ({ ...url, aliases: [], qr_codes: [] })));
         });
 
         it('fetchUrls throws error when query fails', async () => {
-            const mockSupabaseFrom = vi.fn(() => ({
-                select: vi.fn(() => ({ order: vi.fn(() => ({ data: null, error: new Error('Connection timeout') })) }))
-            }));
+            const mockSupabaseFrom = vi.fn((table: string) => {
+                if (table === 'url_objects') {
+                    return {
+                        select: vi.fn(() => ({ 
+                            order: vi.fn(() => ({ data: null, error: new Error('Connection timeout') })) 
+                        }))
+                    };
+                }
+                return { select: vi.fn(() => ({ in: vi.fn(() => ({ data: [], error: null })) })) };
+            });
             const mockSupabase = { from: mockSupabaseFrom };
 
             const { fetchUrls } = await import('@/app/dashboard/urls/actions');
