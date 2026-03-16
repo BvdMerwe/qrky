@@ -5,6 +5,8 @@ import React from 'react';
 
 // Track mock state
 let mockSelectResult: any = { data: null, error: null };
+let mockQrCodesResult: any = { data: [] };
+let mockAliasesResult: any = { data: [] };
 
 // Mock next/navigation
 const mockNotFound = vi.fn();
@@ -40,6 +42,20 @@ vi.mock('@/lib/supabase/server', () => ({
                     }))
                 };
             }
+            if (table === 'qr_codes') {
+                return {
+                    select: vi.fn(() => ({
+                        eq: vi.fn(() => Promise.resolve(mockQrCodesResult))
+                    }))
+                };
+            }
+            if (table === 'aliases') {
+                return {
+                    select: vi.fn(() => ({
+                        eq: vi.fn(() => Promise.resolve(mockAliasesResult))
+                    }))
+                };
+            }
             return { select: mockSelect };
         })
     }))
@@ -48,6 +64,9 @@ vi.mock('@/lib/supabase/server', () => ({
 describe('Analytics Page', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        mockSelectResult = { data: null, error: null };
+        mockQrCodesResult = { data: [] };
+        mockAliasesResult = { data: [] };
         mockNotFound.mockImplementation(() => {
             throw new Error('NOT_FOUND');
         });

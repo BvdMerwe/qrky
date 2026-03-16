@@ -10,9 +10,10 @@ export default async function UrlAnalyticsPage({
     const { uuid } = await params;
     const supabase = await createClient();
 
+    // Fetch URL data
     const { data: url, error: urlError } = await supabase
         .from("url_objects")
-        .select("*, qr_codes(id), aliases(id)")
+        .select("*")
         .eq("uuid", uuid)
         .maybeSingle();
 
@@ -25,8 +26,19 @@ export default async function UrlAnalyticsPage({
         );
     }
 
-    const qrCodeIds = url.qr_codes?.map((qr: { id: string }) => qr.id) || [];
-    const aliasIds = url.aliases?.map((alias: { id: string }) => alias.id) || [];
+    // Fetch related QR codes and aliases separately
+    const { data: qrCodes } = await supabase
+        .from("qr_codes")
+        .select("id")
+        .eq("url_object_uuid", uuid);
+    
+    const { data: aliases } = await supabase
+        .from("aliases")
+        .select("id")
+        .eq("url_object_uuid", uuid);
+
+    const qrCodeIds = qrCodes?.map((qr: { id: string }) => qr.id) || [];
+    const aliasIds = aliases?.map((alias: { id: string }) => alias.id) || [];
 
     const { data: directVisits } = await supabase
         .from("visits")
