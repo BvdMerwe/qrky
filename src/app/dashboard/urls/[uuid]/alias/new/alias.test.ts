@@ -399,5 +399,42 @@ describe('Alias Actions', () => {
             await expect(createAlias(formData)).rejects.toThrow('Alias must be between 3 and 50 characters');
             expect(mockInsert).not.toHaveBeenCalled();
         });
+
+        it('rejects case-insensitive alias collisions', async () => {
+            const mockUrlData = { id: 123, user_id: 'user-123' };
+            mockSingle.mockResolvedValue({ data: mockUrlData, error: null });
+            
+            // Simulate existing alias 'mylink' already in database
+            mockMaybeSingle.mockResolvedValue({ data: { id: 456, value: 'mylink' }, error: null });
+            
+            mockFromImplementation = () => ({
+                select: vi.fn(() => ({ 
+                    eq: vi.fn(() => ({ 
+                        single: mockSingle,
+                        maybeSingle: mockMaybeSingle
+                    })) 
+                }))
+            });
+
+            const { createClient } = await import('@/lib/supabase/server');
+            vi.mocked(createClient).mockReturnValue({
+                from: vi.fn(() => mockFromImplementation())
+            } as any);
+
+            const { createAlias } = await import('./actions');
+            
+            // Test various case combinations that should all be rejected
+            const collidingAliases = ['mylink', 'MYLINK', 'MyLink', 'mYlInK', 'MyLINK'];
+            
+            for (const alias of collidingAliases) {
+                const formData = new FormData();
+                formData.append('uuid', 'abc-123');
+                formData.append('alias', alias);
+
+                await expect(createAlias(formData)).rejects.toThrow('Alias already exists');
+            }
+            
+            expect(mockInsert).not.toHaveBeenCalled();
+        });
     });
 });
