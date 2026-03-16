@@ -25,8 +25,8 @@ let mockEq = vi.fn();
 let fromCallCount = 0;
 let mockFromImplementation: any = null;
 
-// Mock the browser supabase client
-vi.mock('@/lib/supabase/browser', () => ({
+// Mock the server supabase client
+vi.mock('@/lib/supabase/server', () => ({
     createClient: vi.fn(() => ({
         from: vi.fn((table: string) => {
             fromCallCount++;
@@ -99,7 +99,7 @@ describe('Alias Actions', () => {
                 }
             };
 
-            const { createClient } = await import('@/lib/supabase/browser');
+            const { createClient } = await import('@/lib/supabase/server');
             vi.mocked(createClient).mockReturnValue({
                 from: vi.fn((table: string) => {
                     fromCallCount++;
@@ -149,7 +149,7 @@ describe('Alias Actions', () => {
                 return { insert: mockInsert };
             };
 
-            const { createClient } = await import('@/lib/supabase/browser');
+            const { createClient } = await import('@/lib/supabase/server');
             vi.mocked(createClient).mockReturnValue({
                 from: vi.fn((table: string) => {
                     fromCallCount++;
@@ -197,7 +197,7 @@ describe('Alias Actions', () => {
                 select: vi.fn(() => ({ eq: vi.fn(() => ({ single: mockSingle })) }))
             });
 
-            const { createClient } = await import('@/lib/supabase/browser');
+            const { createClient } = await import('@/lib/supabase/server');
             vi.mocked(createClient).mockReturnValue({
                 from: vi.fn(() => mockFromImplementation())
             } as any);
@@ -235,7 +235,7 @@ describe('Alias Actions', () => {
                 return { insert: mockInsert };
             };
 
-            const { createClient } = await import('@/lib/supabase/browser');
+            const { createClient } = await import('@/lib/supabase/server');
             vi.mocked(createClient).mockReturnValue({
                 from: vi.fn(() => mockFromImplementation())
             } as any);
@@ -280,7 +280,7 @@ describe('Alias Actions', () => {
                 return { insert: mockInsert };
             };
 
-            const { createClient } = await import('@/lib/supabase/browser');
+            const { createClient } = await import('@/lib/supabase/server');
             vi.mocked(createClient).mockReturnValue({
                 from: vi.fn(() => mockFromImplementation())
             } as any);
@@ -305,7 +305,7 @@ describe('Alias Actions', () => {
                 select: vi.fn(() => ({ eq: vi.fn(() => ({ single: mockSingle })) }))
             });
 
-            const { createClient } = await import('@/lib/supabase/browser');
+            const { createClient } = await import('@/lib/supabase/server');
             vi.mocked(createClient).mockReturnValue({
                 from: vi.fn(() => mockFromImplementation())
             } as any);
@@ -334,7 +334,7 @@ describe('Alias Actions', () => {
                 select: vi.fn(() => ({ eq: vi.fn(() => ({ single: mockSingle })) }))
             });
 
-            const { createClient } = await import('@/lib/supabase/browser');
+            const { createClient } = await import('@/lib/supabase/server');
             vi.mocked(createClient).mockReturnValue({
                 from: vi.fn(() => mockFromImplementation())
             } as any);
@@ -362,7 +362,7 @@ describe('Alias Actions', () => {
                 select: vi.fn(() => ({ eq: vi.fn(() => ({ single: mockSingle })) }))
             });
 
-            const { createClient } = await import('@/lib/supabase/browser');
+            const { createClient } = await import('@/lib/supabase/server');
             vi.mocked(createClient).mockReturnValue({
                 from: vi.fn(() => mockFromImplementation())
             } as any);
@@ -385,7 +385,7 @@ describe('Alias Actions', () => {
                 select: vi.fn(() => ({ eq: vi.fn(() => ({ single: mockSingle })) }))
             });
 
-            const { createClient } = await import('@/lib/supabase/browser');
+            const { createClient } = await import('@/lib/supabase/server');
             vi.mocked(createClient).mockReturnValue({
                 from: vi.fn(() => mockFromImplementation())
             } as any);

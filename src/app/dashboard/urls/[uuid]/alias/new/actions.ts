@@ -1,4 +1,6 @@
-import { createClient } from "@/lib/supabase/browser";
+"use server";
+
+import { createClient } from "@/lib/supabase/server";
 import { stringIsValid } from "@/lib/strings";
 import { redirect, RedirectType } from "next/navigation";
 
@@ -41,7 +43,7 @@ export async function createAlias(formData: FormData): Promise<void> {
     // Validate alias format
     validateAlias(normalizedAlias);
 
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Check if URL exists
     const { data: urlObject, error: urlError } = await supabase

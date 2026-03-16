@@ -66,10 +66,5 @@ export async function middleware(request: NextRequest) {
 export const config = {
     matcher: [
         '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-        '/((?!u\/[a-z0-9\-]{6}))/',
-        '/((?!q\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}))/',
-        '/((?![a-z0-9\-]?))/',
-        '/qr\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/',
-        '/((?!400|404|500))/',
     ],
 }
