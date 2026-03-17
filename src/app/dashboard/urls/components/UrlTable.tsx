@@ -91,23 +91,22 @@ export default function UrlTableComponent({
                     </td>
 
                     <td>
-                        {url.qr_codes === null || typeof url.qr_codes === "undefined"
-                            ? <Link className="btn btn-soft btn-primary btn-xs tooltip tooltip-top" data-tip="Add a QR code" href={`/dashboard/urls/${url.uuid}/qr/new`}>
-                                <TbPlus/>
-                            </Link>
-                            : <QrCodePreviewComponent 
-                                qrCodeId={url.qr_codes.id} 
+                        {url.qr_codes && url.qr_codes.length > 0
+                            ? <QrCodePreviewComponent 
+                                qrCodeId={url.qr_codes[0].id} 
                                 urlIdentifier={url.identifier}
                             />
-                        }
+                            : <Link className="btn btn-soft btn-primary btn-xs tooltip tooltip-top" data-tip="Add a QR code" href={`/dashboard/urls/${url.uuid}/qr/new`}>
+                                <TbPlus/>
+                            </Link>}
                     </td>
 
                     <td>
-                        {url.aliases === null || typeof url.aliases === "undefined"
-                            ? <Link className="btn btn-soft btn-primary btn-xs tooltip tooltip-top" data-tip="Add an alias" href={`/dashboard/urls/${url.uuid}/alias/new`}>
+                        {url.aliases && url.aliases.length > 0
+                            ? <CopyToClipboardComponent value={`${process.env.NEXT_PUBLIC_APP_URL}/${url.aliases[0].value}`}><>/{url.aliases[0].value}</></CopyToClipboardComponent>
+                            : <Link className="btn btn-soft btn-primary btn-xs tooltip tooltip-top" data-tip="Add an alias" href={`/dashboard/urls/${url.uuid}/alias/new`}>
                                 <TbPlus/>
-                            </Link>
-                            : <CopyToClipboardComponent value={`${process.env.NEXT_PUBLIC_APP_URL}/${url.aliases.value}`}><>/{url.aliases.value}</></CopyToClipboardComponent>}
+                            </Link>}
                     </td>
 
                     <td>

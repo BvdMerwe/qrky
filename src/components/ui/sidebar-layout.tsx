@@ -5,8 +5,8 @@ import Link from "next/link";
 import {createClient} from "@/lib/supabase/browser";
 import React, {useEffect, useMemo, useState} from "react";
 import {User, AuthError} from "@supabase/auth-js";
-import {SupabaseClient} from "@supabase/supabase-js";
-import {redirect, RedirectType, usePathname} from "next/navigation";
+import {usePathname} from "next/navigation";
+import {signOut} from "@/app/actions/auth";
 import cc from "classcat";
 
 interface Props {
@@ -85,7 +85,7 @@ export default function SidebarLayout({children}: Props) {
                                 <span className="is-drawer-close:hidden">{firstName ?? "QR"} {lastName ?? "ky"}</span>
                             </button>
                             <ul tabIndex={-1} className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm mb-2">
-                                <li><a onClick={() => logOut(supabase)}>Log out</a></li>
+                                <li><button onClick={() => signOut()}>Log out</button></li>
                                 <li><Link href="/dashboard/user">User Preferences</Link></li>
                             </ul>
                         </div>
@@ -102,12 +102,6 @@ export default function SidebarLayout({children}: Props) {
             </div>
         </div>
     );
-}
-
-async function logOut(supabase: SupabaseClient): Promise<void> {
-    const { error } = await supabase.auth.signOut()
-    if (error) throw error;
-    redirect("/login", RedirectType.push);
 }
 
 function renderName(user: User | null): string {

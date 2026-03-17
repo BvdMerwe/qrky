@@ -7,6 +7,6 @@ export interface UrlObject {
     url: string;
     identifier: string;
     enabled: boolean;
-    qr_codes: QrCode | null;
-    aliases: Alias | null;
+    qr_codes: QrCode[];
+    aliases: Alias[];
 }
