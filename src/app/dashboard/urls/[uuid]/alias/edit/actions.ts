@@ -4,18 +4,23 @@ import { createClient } from "@/lib/supabase/server";
 import { stringIsValid } from "@/lib/strings";
 import { normalizeAlias, validateAlias } from "@/lib/validation";
 import { redirect, RedirectType } from "next/navigation";
+import { ActionResponseInterface } from "@/interfaces/action-response";
 
-export async function updateAlias(formData: FormData): Promise<void> {
+export async function updateAlias(_state: ActionResponseInterface, formData: FormData): Promise<ActionResponseInterface> {
     const aliasId = formData.get("aliasId");
     const alias = formData.get("alias");
 
     if (!stringIsValid(aliasId) || !stringIsValid(alias)) {
-        throw new Error("Invalid input");
+        return { message: "Invalid input", success: false };
     }
 
     const normalizedAlias = normalizeAlias(alias);
 
-    validateAlias(normalizedAlias);
+    try {
+        validateAlias(normalizedAlias);
+    } catch (e) {
+        return { message: (e as Error).message, success: false };
+    }
 
     const supabase = await createClient();
 
@@ -26,8 +31,7 @@ export async function updateAlias(formData: FormData): Promise<void> {
         .single();
 
     if (fetchError || !currentAlias) {
-        console.error(fetchError?.message);
-        throw new Error("Alias not found");
+        return { message: "Alias not found", success: false };
     }
 
     if (currentAlias.value === normalizedAlias) {
@@ -42,23 +46,21 @@ export async function updateAlias(formData: FormData): Promise<void> {
         .maybeSingle();
 
     if (aliasCheckError) {
-        console.error(aliasCheckError.message);
-        throw new Error("Failed to check alias availability");
+        return { message: "Failed to check alias availability", success: false };
     }
 
     if (existingAlias) {
-        throw new Error("Alias already exists");
+        return { message: "Alias already exists", success: false };
     }
 
-    const { error, data, count, status, statusText } = await supabase
+    const { error } = await supabase
         .from("aliases")
         .update({ value: normalizedAlias })
         .eq("id", aliasId);
 
-    console.log({ error, data, count, status, statusText });
     if (error) {
         console.error(error.message);
-        throw error;
+        return { message: error.message, success: false };
     }
 
     redirect("/dashboard/urls", RedirectType.push);

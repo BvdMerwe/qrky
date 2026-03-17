@@ -50,6 +50,8 @@ vi.mock('@/lib/strings', () => ({
     })
 }));
 
+const initialState = { message: '', success: false };
+
 describe('Alias Actions', () => {
     beforeEach(() => {
         vi.clearAllMocks();
@@ -113,7 +115,7 @@ describe('Alias Actions', () => {
             formData.append('uuid', 'abc-123');
             formData.append('alias', 'my-alias');
 
-            await expect(createAlias(formData)).rejects.toThrow('REDIRECT:/dashboard/urls');
+            await expect(createAlias(initialState, formData)).rejects.toThrow('REDIRECT:/dashboard/urls');
             
             expect(mockInsert).toHaveBeenCalledWith({
                 value: 'my-alias',
@@ -122,13 +124,9 @@ describe('Alias Actions', () => {
         });
 
         it('BUG: should fail when alias already exists globally (case insensitive)', async () => {
-            // This test reproduces the bug: aliases should be unique across all URLs
-            // but currently the code doesn't check for existing aliases
             const mockUrlData = { id: 123, user_id: 'user-123' };
             mockSingle.mockResolvedValue({ data: mockUrlData, error: null });
             
-            // Simulate that an alias with the same value already exists (case insensitive)
-            // This represents "My-Alias" already existing when user tries to create "my-alias"
             mockMaybeSingle.mockResolvedValue({ 
                 data: { id: 'existing-alias-id', value: 'MY-ALIAS' }, 
                 error: null 
@@ -161,36 +159,36 @@ describe('Alias Actions', () => {
             
             const formData = new FormData();
             formData.append('uuid', 'abc-123');
-            formData.append('alias', 'my-alias'); // lowercase version of existing MY-ALIAS
+            formData.append('alias', 'my-alias');
 
-            // This should fail because alias already exists
-            await expect(createAlias(formData)).rejects.toThrow('Alias already exists');
-            
-            // Should NOT insert a duplicate
+            const result = await createAlias(initialState, formData);
+            expect(result).toMatchObject({ message: 'Alias already exists', success: false });
             expect(mockInsert).not.toHaveBeenCalled();
         });
 
-        it('throws error for invalid uuid', async () => {
+        it('returns error for invalid uuid', async () => {
             const { createAlias } = await import('./actions');
             
             const formData = new FormData();
             formData.append('uuid', '');
             formData.append('alias', 'my-alias');
 
-            await expect(createAlias(formData)).rejects.toThrow('Invalid input');
+            const result = await createAlias(initialState, formData);
+            expect(result).toMatchObject({ message: 'Invalid input', success: false });
         });
 
-        it('throws error for invalid alias', async () => {
+        it('returns error for invalid alias', async () => {
             const { createAlias } = await import('./actions');
             
             const formData = new FormData();
             formData.append('uuid', 'abc-123');
             formData.append('alias', '');
 
-            await expect(createAlias(formData)).rejects.toThrow('Invalid input');
+            const result = await createAlias(initialState, formData);
+            expect(result).toMatchObject({ message: 'Invalid input', success: false });
         });
 
-        it('throws error when URL not found', async () => {
+        it('returns error when URL not found', async () => {
             mockSingle.mockResolvedValue({ data: null, error: new Error('URL not found') });
             
             mockFromImplementation = () => ({
@@ -208,14 +206,14 @@ describe('Alias Actions', () => {
             formData.append('uuid', 'non-existent');
             formData.append('alias', 'my-alias');
 
-            await expect(createAlias(formData)).rejects.toThrow('URL not found');
-            expect(mockConsoleError).toHaveBeenCalledWith('URL not found');
+            const result = await createAlias(initialState, formData);
+            expect(result).toMatchObject({ message: 'URL not found', success: false });
         });
 
-        it('throws error when database insert fails', async () => {
+        it('returns error when database insert fails', async () => {
             const mockUrlData = { id: 123, user_id: 'user-123' };
             mockSingle.mockResolvedValue({ data: mockUrlData, error: null });
-            mockMaybeSingle.mockResolvedValue({ data: null, error: null }); // No existing alias
+            mockMaybeSingle.mockResolvedValue({ data: null, error: null });
             
             const dbError = new Error('Unique constraint violation');
             mockInsert.mockReturnValue({ error: dbError });
@@ -246,7 +244,8 @@ describe('Alias Actions', () => {
             formData.append('uuid', 'abc-123');
             formData.append('alias', 'my-alias');
 
-            await expect(createAlias(formData)).rejects.toThrow('Unique constraint violation');
+            const result = await createAlias(initialState, formData);
+            expect(result).toMatchObject({ message: 'Unique constraint violation', success: false });
             expect(mockConsoleError).toHaveBeenCalledWith('Unique constraint violation');
         });
 
@@ -291,28 +290,15 @@ describe('Alias Actions', () => {
             formData.append('uuid', 'abc-123');
             formData.append('alias', 'My-Cool-Alias');
 
-            await expect(createAlias(formData)).rejects.toThrow('REDIRECT:/dashboard/urls');
+            await expect(createAlias(initialState, formData)).rejects.toThrow('REDIRECT:/dashboard/urls');
             
             // Alias should be normalized to lowercase
             expect(capturedInsert.value).toBe('my-cool-alias');
         });
 
         it('rejects reserved alias names', async () => {
-            const mockUrlData = { id: 123, user_id: 'user-123' };
-            mockSingle.mockResolvedValue({ data: mockUrlData, error: null });
-            
-            mockFromImplementation = () => ({
-                select: vi.fn(() => ({ eq: vi.fn(() => ({ single: mockSingle })) }))
-            });
-
-            const { createClient } = await import('@/lib/supabase/server');
-            vi.mocked(createClient).mockReturnValue({
-                from: vi.fn(() => mockFromImplementation())
-            } as any);
-
             const { createAlias } = await import('./actions');
             
-            // Only test reserved names with at least 3 characters (minimum length requirement)
             const reservedNames = ['dashboard', 'api', 'login', 'logout', 'admin', 'analytics', 'settings'];
             
             for (const reserved of reservedNames) {
@@ -320,25 +306,14 @@ describe('Alias Actions', () => {
                 formData.append('uuid', 'abc-123');
                 formData.append('alias', reserved);
 
-                await expect(createAlias(formData)).rejects.toThrow(`"${reserved}" is a reserved name and cannot be used as an alias`);
+                const result = await createAlias(initialState, formData);
+                expect(result).toMatchObject({ message: `"${reserved}" is a reserved name and cannot be used as an alias`, success: false });
             }
             
             expect(mockInsert).not.toHaveBeenCalled();
         });
 
         it('rejects aliases with invalid characters', async () => {
-            const mockUrlData = { id: 123, user_id: 'user-123' };
-            mockSingle.mockResolvedValue({ data: mockUrlData, error: null });
-            
-            mockFromImplementation = () => ({
-                select: vi.fn(() => ({ eq: vi.fn(() => ({ single: mockSingle })) }))
-            });
-
-            const { createClient } = await import('@/lib/supabase/server');
-            vi.mocked(createClient).mockReturnValue({
-                from: vi.fn(() => mockFromImplementation())
-            } as any);
-
             const { createAlias } = await import('./actions');
             
             const invalidAliases = ['my alias', 'my@alias', 'my#alias', 'my$alias', 'space here'];
@@ -348,55 +323,34 @@ describe('Alias Actions', () => {
                 formData.append('uuid', 'abc-123');
                 formData.append('alias', invalidAlias);
 
-                await expect(createAlias(formData)).rejects.toThrow('Alias can only contain letters, numbers, and hyphens');
+                const result = await createAlias(initialState, formData);
+                expect(result).toMatchObject({ message: 'Alias can only contain letters, numbers, and hyphens', success: false });
             }
             
             expect(mockInsert).not.toHaveBeenCalled();
         });
 
         it('rejects aliases that are too short', async () => {
-            const mockUrlData = { id: 123, user_id: 'user-123' };
-            mockSingle.mockResolvedValue({ data: mockUrlData, error: null });
-            
-            mockFromImplementation = () => ({
-                select: vi.fn(() => ({ eq: vi.fn(() => ({ single: mockSingle })) }))
-            });
-
-            const { createClient } = await import('@/lib/supabase/server');
-            vi.mocked(createClient).mockReturnValue({
-                from: vi.fn(() => mockFromImplementation())
-            } as any);
-
             const { createAlias } = await import('./actions');
             
             const formData = new FormData();
             formData.append('uuid', 'abc-123');
             formData.append('alias', 'ab'); // Only 2 characters
 
-            await expect(createAlias(formData)).rejects.toThrow('Alias must be between 3 and 50 characters');
+            const result = await createAlias(initialState, formData);
+            expect(result).toMatchObject({ message: 'Alias must be between 3 and 50 characters', success: false });
             expect(mockInsert).not.toHaveBeenCalled();
         });
 
         it('rejects aliases that are too long', async () => {
-            const mockUrlData = { id: 123, user_id: 'user-123' };
-            mockSingle.mockResolvedValue({ data: mockUrlData, error: null });
-            
-            mockFromImplementation = () => ({
-                select: vi.fn(() => ({ eq: vi.fn(() => ({ single: mockSingle })) }))
-            });
-
-            const { createClient } = await import('@/lib/supabase/server');
-            vi.mocked(createClient).mockReturnValue({
-                from: vi.fn(() => mockFromImplementation())
-            } as any);
-
             const { createAlias } = await import('./actions');
             
             const formData = new FormData();
             formData.append('uuid', 'abc-123');
             formData.append('alias', 'a'.repeat(51)); // 51 characters
 
-            await expect(createAlias(formData)).rejects.toThrow('Alias must be between 3 and 50 characters');
+            const result = await createAlias(initialState, formData);
+            expect(result).toMatchObject({ message: 'Alias must be between 3 and 50 characters', success: false });
             expect(mockInsert).not.toHaveBeenCalled();
         });
 
@@ -431,7 +385,8 @@ describe('Alias Actions', () => {
                 formData.append('uuid', 'abc-123');
                 formData.append('alias', alias);
 
-                await expect(createAlias(formData)).rejects.toThrow('Alias already exists');
+                const result = await createAlias(initialState, formData);
+                expect(result).toMatchObject({ message: 'Alias already exists', success: false });
             }
             
             expect(mockInsert).not.toHaveBeenCalled();

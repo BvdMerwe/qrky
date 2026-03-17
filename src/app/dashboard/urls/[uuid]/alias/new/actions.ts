@@ -4,23 +4,26 @@ import { createClient } from "@/lib/supabase/server";
 import { stringIsValid } from "@/lib/strings";
 import { validateAlias } from "@/lib/validation";
 import { redirect, RedirectType } from "next/navigation";
+import { ActionResponseInterface } from "@/interfaces/action-response";
 
-export async function createAlias(formData: FormData): Promise<void> {
+export async function createAlias(_state: ActionResponseInterface, formData: FormData): Promise<ActionResponseInterface> {
     const uuid = formData.get("uuid");
     const alias = formData.get("alias");
 
     if (!stringIsValid(uuid) || !stringIsValid(alias)) {
-        throw new Error("Invalid input");
+        return { message: "Invalid input", success: false };
     }
 
     const normalizedAlias = alias.toLowerCase().trim();
 
-    // Validate alias format
-    validateAlias(normalizedAlias);
+    try {
+        validateAlias(normalizedAlias);
+    } catch (e) {
+        return { message: (e as Error).message, success: false };
+    }
 
     const supabase = await createClient();
 
-    // Check if URL exists
     const { data: urlObject, error: urlError } = await supabase
         .from("url_objects")
         .select("id")
@@ -28,12 +31,9 @@ export async function createAlias(formData: FormData): Promise<void> {
         .single();
 
     if (urlError || !urlObject) {
-        console.error(urlError?.message);
-        throw new Error("URL not found");
+        return { message: "URL not found", success: false };
     }
 
-    // BUG FIX: Check if alias already exists globally (case insensitive)
-    // This prevents routing conflicts where multiple URLs could have the same alias
     const { data: existingAlias, error: aliasCheckError } = await supabase
         .from("aliases")
         .select("id, value")
@@ -41,15 +41,13 @@ export async function createAlias(formData: FormData): Promise<void> {
         .maybeSingle();
 
     if (aliasCheckError) {
-        console.error(aliasCheckError.message);
-        throw new Error("Failed to check alias availability");
+        return { message: "Failed to check alias availability", success: false };
     }
 
     if (existingAlias) {
-        throw new Error("Alias already exists");
+        return { message: "Alias already exists", success: false };
     }
 
-    // Insert the alias with normalized (lowercase) value
     const { error } = await supabase
         .from("aliases")
         .insert({
@@ -59,7 +57,7 @@ export async function createAlias(formData: FormData): Promise<void> {
 
     if (error) {
         console.error(error.message);
-        throw error;
+        return { message: error.message, success: false };
     }
 
     redirect("/dashboard/urls", RedirectType.push);

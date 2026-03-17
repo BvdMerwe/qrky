@@ -17,7 +17,7 @@ export const RESERVED_NAMES = [
 
 export const ALIAS_REGEX = /^[a-z0-9-]+$/;
 const ALIAS_LENGTH_MIN = 3;
-const ALIAS_LENGTH_MAX = 100;
+const ALIAS_LENGTH_MAX = 50;
 
 export function validateAlias(alias: string): void {
     const normalizedAlias = alias.toLowerCase().trim();
