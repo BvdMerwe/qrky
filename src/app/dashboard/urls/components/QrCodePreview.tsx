@@ -6,14 +6,14 @@ import Image from "next/image";
 import {TbPencil, TbQrcode, TbDownload} from "react-icons/tb";
 
 interface Props {
-    qrCodeId: string;
-    urlIdentifier: string;
+    qrCodeUuid: string;
+    urlUuid: string;
 }
 
-export default function QrCodePreviewComponent({ qrCodeId, urlIdentifier }: Props): React.ReactNode {
+export default function QrCodePreviewComponent({ qrCodeUuid, urlUuid }: Props): React.ReactNode {
     const modalRef = useRef<HTMLDialogElement>(null);
-    const qrCodeUrl = `${process.env.NEXT_PUBLIC_APP_URL}/qr/${qrCodeId}`;
-    const shortUrl = `${process.env.NEXT_PUBLIC_APP_URL}/q/${qrCodeId}`;
+    const qrCodeUrl = `/qr/${qrCodeUuid}`;
+    const shortUrl = `${process.env.NEXT_PUBLIC_APP_URL}/u/${qrCodeUuid}`;
 
     return (
         <>
@@ -25,7 +25,7 @@ export default function QrCodePreviewComponent({ qrCodeId, urlIdentifier }: Prop
                 <TbQrcode/>
             </button>
             
-            <dialog id={`qr-preview-modal-${qrCodeId}`} className="modal" ref={modalRef}>
+            <dialog id={`qr-preview-modal-${qrCodeUuid}`} className="modal" ref={modalRef}>
                 <div className="modal-box max-w-2xl">
                     <h3 className="font-bold text-lg mb-4">QR Code Preview</h3>
                     
@@ -48,14 +48,14 @@ export default function QrCodePreviewComponent({ qrCodeId, urlIdentifier }: Prop
                         <div className="flex gap-2 mt-4">
                             <a 
                                 href={qrCodeUrl} 
-                                download={`qrky-qr-${urlIdentifier}.jpg`}
+                                download={`qrky-qr-${qrCodeUuid}.jpg`}
                                 className="btn btn-primary btn-sm"
                             >
                                 <TbDownload className="mr-2"/>
                                 Download
                             </a>
                             <Link 
-                                href={`/dashboard/urls/${urlIdentifier}/qr/edit`}
+                                href={`/dashboard/urls/${urlUuid}/qr/edit`}
                                 className="btn btn-outline btn-sm"
                             >
                                 <TbPencil className="mr-2"/>

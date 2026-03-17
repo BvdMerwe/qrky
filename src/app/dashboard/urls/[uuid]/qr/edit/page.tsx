@@ -19,6 +19,10 @@ export default async function EditQrCodePage({
         .maybeSingle();
 
     if (urlError || !url) {
+        console.log({
+            urlError,
+            url,
+        });
         notFound();
     }
 

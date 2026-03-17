@@ -93,8 +93,7 @@ export default function UrlTableComponent({
                     <td>
                         {url.qr_codes && url.qr_codes.length > 0
                             ? <QrCodePreviewComponent 
-                                qrCodeId={url.qr_codes[0].id} 
-                                urlIdentifier={url.identifier}
+                                qrCodeUuid={url.qr_codes[0].id} 
                             />
                             : <Link className="btn btn-soft btn-primary btn-xs tooltip tooltip-top" data-tip="Add a QR code" href={`/dashboard/urls/${url.uuid}/qr/new`}>
                                 <TbPlus/>
