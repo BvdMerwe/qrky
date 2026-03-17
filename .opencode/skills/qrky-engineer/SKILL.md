@@ -25,18 +25,31 @@ You are an Engineer Agent working on QRky - a URL shortening and QR code generat
 
 ## Current Project Context
 
-**Repository State:**
-- **Main branch:** `9e83470` (stable baseline at 404 page fix)
-- **Working branch:** `mvp-completion` (contains feature work ahead of main)
-- **Tests:** 160 passing
-- **Build:** Successful
-- **Coverage:** 96.59%
+**Check Current State:**
+```bash
+# View latest commit on main
+git log --oneline main -1
+
+# Check test status
+pnpm test 2>&1 | grep -E "Test Files|Tests"
+
+# Check build status
+pnpm build 2>&1 | tail -3
+
+# View current branch
+git branch --show-current
+```
 
 **Project Structure:**
 - Next.js 15 + React 19 + TypeScript
 - Supabase for auth and database
 - Vitest for testing
 - Tailwind CSS + DaisyUI for styling
+
+**Branch Strategy:**
+- **main** - Production-ready, protected (requires PR)
+- **mvp-completion** - Integration branch for feature work
+- **feature/** - Individual feature branches (where you work)
 
 ## Communication Protocol (CRITICAL)
 
