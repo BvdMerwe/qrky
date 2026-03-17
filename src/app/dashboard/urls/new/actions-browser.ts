@@ -1,6 +1,7 @@
 import {createClient} from "@/lib/supabase/browser";
 import {STRING_TABLE_NAME_URL_OBJECTS} from "@/app/dashboard/urls/constants";
 import {stringIsValid} from "@/lib/strings";
+import {validateAlias, normalizeAlias} from "@/lib/validation";
 import {redirect, RedirectType} from "next/navigation";
 
 export async function createUrl(formData: FormData): Promise<void> {
@@ -28,10 +29,24 @@ export async function createUrl(formData: FormData): Promise<void> {
     }
 
     if (stringIsValid(alias)) {
+        const normalizedAlias = normalizeAlias(alias);
+
+        validateAlias(normalizedAlias);
+
+        const { data: existingAlias } = await supabase
+            .from("aliases")
+            .select("id, value")
+            .eq("value", normalizedAlias)
+            .maybeSingle();
+
+        if (existingAlias) {
+            throw new Error("Alias already exists");
+        }
+
         const { error: aliasError } = await supabase
             .from("aliases")
             .insert({
-                value: alias,
+                value: normalizedAlias,
                 url_object_id: data.id,
             });
 

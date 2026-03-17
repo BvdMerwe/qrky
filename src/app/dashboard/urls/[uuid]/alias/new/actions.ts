@@ -2,33 +2,8 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { stringIsValid } from "@/lib/strings";
+import { validateAlias } from "@/lib/validation";
 import { redirect, RedirectType } from "next/navigation";
-
-const RESERVED_NAMES = [
-    'dashboard', 'api', 'login', 'logout', 'admin', 'qr', 'q', 'u',
-    'auth', 'callback', 'new', 'edit', 'analytics', 'settings'
-];
-
-const ALIAS_REGEX = /^[a-z0-9-]+$/;
-
-function validateAlias(alias: string): void {
-    const normalizedAlias = alias.toLowerCase().trim();
-
-    // Check length (3-50 characters)
-    if (normalizedAlias.length < 3 || normalizedAlias.length > 50) {
-        throw new Error("Alias must be between 3 and 50 characters");
-    }
-
-    // Check valid characters
-    if (!ALIAS_REGEX.test(normalizedAlias)) {
-        throw new Error("Alias can only contain letters, numbers, and hyphens");
-    }
-
-    // Check reserved names
-    if (RESERVED_NAMES.includes(normalizedAlias)) {
-        throw new Error(`"${normalizedAlias}" is a reserved name and cannot be used as an alias`);
-    }
-}
 
 export async function createAlias(formData: FormData): Promise<void> {
     const uuid = formData.get("uuid");

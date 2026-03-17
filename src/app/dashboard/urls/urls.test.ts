@@ -105,6 +105,7 @@ describe('URL Actions', () => {
             const mockUrlData = { id: 123 };
             mockSingle.mockResolvedValue({ data: mockUrlData, error: null });
             const mockAliasInsert = vi.fn(() => ({ error: null }));
+            const mockAliasCheck = vi.fn(() => ({ data: null, error: null }));
             
             let fromCallCount = 0;
             const mockFrom = vi.fn(() => {
@@ -113,6 +114,11 @@ describe('URL Actions', () => {
                     return {
                         insert: mockInsert,
                         select: vi.fn(() => ({ eq: vi.fn(() => ({ single: mockSingle })) }))
+                    };
+                }
+                if (fromCallCount === 2) {
+                    return {
+                        select: vi.fn(() => ({ eq: vi.fn(() => ({ maybeSingle: mockAliasCheck })) }))
                     };
                 }
                 return { insert: mockAliasInsert };
@@ -128,6 +134,148 @@ describe('URL Actions', () => {
             const formData = new FormData();
             formData.append('url', 'https://example.com');
             formData.append('alias', 'my-alias');
+
+            await expect(createUrl(formData)).rejects.toThrow('REDIRECT:/dashboard/urls');
+            
+            expect(mockAliasInsert).toHaveBeenCalledWith({
+                value: 'my-alias',
+                url_object_id: 123
+            });
+        });
+
+        it('throws error for invalid alias with special characters', async () => {
+            const mockUrlData = { id: 123 };
+            mockSingle.mockResolvedValue({ data: mockUrlData, error: null });
+            mockInsert.mockReturnValue({ select: vi.fn(() => ({ single: mockSingle })) });
+
+            const { createClient } = await import('@/lib/supabase/browser');
+            vi.mocked(createClient).mockReturnValue({
+                from: vi.fn(() => ({
+                    insert: mockInsert,
+                    select: mockSelect
+                }))
+            } as any);
+
+            const { createUrl } = await import('./new/actions-browser');
+            
+            const formData = new FormData();
+            formData.append('url', 'https://example.com');
+            formData.append('alias', 'invalid@alias');
+
+            await expect(createUrl(formData)).rejects.toThrow('Alias can only contain letters, numbers, and hyphens');
+        });
+
+        it('throws error for reserved alias name', async () => {
+            const mockUrlData = { id: 123 };
+            mockSingle.mockResolvedValue({ data: mockUrlData, error: null });
+            mockInsert.mockReturnValue({ select: vi.fn(() => ({ single: mockSingle })) });
+
+            const { createClient } = await import('@/lib/supabase/browser');
+            vi.mocked(createClient).mockReturnValue({
+                from: vi.fn(() => ({
+                    insert: mockInsert,
+                    select: mockSelect
+                }))
+            } as any);
+
+            const { createUrl } = await import('./new/actions-browser');
+            
+            const formData = new FormData();
+            formData.append('url', 'https://example.com');
+            formData.append('alias', 'dashboard');
+
+            await expect(createUrl(formData)).rejects.toThrow('reserved name');
+        });
+
+        it('throws error for alias that is too short', async () => {
+            const mockUrlData = { id: 123 };
+            mockSingle.mockResolvedValue({ data: mockUrlData, error: null });
+            mockInsert.mockReturnValue({ select: vi.fn(() => ({ single: mockSingle })) });
+
+            const { createClient } = await import('@/lib/supabase/browser');
+            vi.mocked(createClient).mockReturnValue({
+                from: vi.fn(() => ({
+                    insert: mockInsert,
+                    select: mockSelect
+                }))
+            } as any);
+
+            const { createUrl } = await import('./new/actions-browser');
+            
+            const formData = new FormData();
+            formData.append('url', 'https://example.com');
+            formData.append('alias', 'ab');
+
+            await expect(createUrl(formData)).rejects.toThrow('Alias must be between 3 and 50 characters');
+        });
+
+        it('throws error for alias that already exists', async () => {
+            const mockUrlData = { id: 123 };
+            mockSingle.mockResolvedValue({ data: mockUrlData, error: null });
+            const mockExistingAlias = { id: 1, value: 'my-alias' };
+            const mockAliasCheck = vi.fn(() => ({ data: mockExistingAlias, error: null }));
+            
+            let fromCallCount = 0;
+            const mockFrom = vi.fn(() => {
+                fromCallCount++;
+                if (fromCallCount === 1) {
+                    return {
+                        insert: mockInsert,
+                        select: vi.fn(() => ({ eq: vi.fn(() => ({ single: mockSingle })) }))
+                    };
+                }
+                return {
+                    select: vi.fn(() => ({ eq: vi.fn(() => ({ maybeSingle: mockAliasCheck })) }))
+                };
+            });
+
+            const { createClient } = await import('@/lib/supabase/browser');
+            vi.mocked(createClient).mockReturnValue({
+                from: mockFrom
+            } as any);
+
+            const { createUrl } = await import('./new/actions-browser');
+            
+            const formData = new FormData();
+            formData.append('url', 'https://example.com');
+            formData.append('alias', 'my-alias');
+
+            await expect(createUrl(formData)).rejects.toThrow('Alias already exists');
+        });
+
+        it('normalizes alias to lowercase', async () => {
+            const mockUrlData = { id: 123 };
+            mockSingle.mockResolvedValue({ data: mockUrlData, error: null });
+            const mockAliasInsert = vi.fn(() => ({ error: null }));
+            const mockAliasCheck = vi.fn(() => ({ data: null, error: null }));
+            
+            let fromCallCount = 0;
+            const mockFrom = vi.fn(() => {
+                fromCallCount++;
+                if (fromCallCount === 1) {
+                    return {
+                        insert: mockInsert,
+                        select: vi.fn(() => ({ eq: vi.fn(() => ({ single: mockSingle })) }))
+                    };
+                }
+                if (fromCallCount === 2) {
+                    return {
+                        select: vi.fn(() => ({ eq: vi.fn(() => ({ maybeSingle: mockAliasCheck })) }))
+                    };
+                }
+                return { insert: mockAliasInsert };
+            });
+
+            const { createClient } = await import('@/lib/supabase/browser');
+            vi.mocked(createClient).mockReturnValue({
+                from: mockFrom
+            } as any);
+
+            const { createUrl } = await import('./new/actions-browser');
+            
+            const formData = new FormData();
+            formData.append('url', 'https://example.com');
+            formData.append('alias', 'My-Alias');
 
             await expect(createUrl(formData)).rejects.toThrow('REDIRECT:/dashboard/urls');
             
@@ -179,7 +327,8 @@ describe('URL Actions', () => {
         it('throws error when alias insert fails', async () => {
             const mockUrlData = { id: 123 };
             mockSingle.mockResolvedValue({ data: mockUrlData, error: null });
-            const aliasError = new Error('Alias already exists');
+            const aliasError = new Error('Alias insert failed');
+            const mockAliasCheck = vi.fn(() => ({ data: null, error: null }));
             
             let fromCallCount = 0;
             const mockFrom = vi.fn(() => {
@@ -188,6 +337,11 @@ describe('URL Actions', () => {
                     return {
                         insert: mockInsert,
                         select: vi.fn(() => ({ eq: vi.fn(() => ({ single: mockSingle })) }))
+                    };
+                }
+                if (fromCallCount === 2) {
+                    return {
+                        select: vi.fn(() => ({ eq: vi.fn(() => ({ maybeSingle: mockAliasCheck })) }))
                     };
                 }
                 return { insert: vi.fn(() => ({ error: aliasError })) };
@@ -204,8 +358,8 @@ describe('URL Actions', () => {
             formData.append('url', 'https://example.com');
             formData.append('alias', 'my-alias');
 
-            await expect(createUrl(formData)).rejects.toThrow('Alias already exists');
-            expect(mockConsoleError).toHaveBeenCalledWith('Alias already exists');
+            await expect(createUrl(formData)).rejects.toThrow('Alias insert failed');
+            expect(mockConsoleError).toHaveBeenCalledWith('Alias insert failed');
         });
     });
 
