@@ -103,7 +103,12 @@ export default function UrlTableComponent({
 
                     <td>
                         {url.aliases && url.aliases.length > 0
-                            ? <CopyToClipboardComponent value={`${process.env.NEXT_PUBLIC_APP_URL}/${url.aliases[0].value}`}><>/{url.aliases[0].value}</></CopyToClipboardComponent>
+                            ? <div className="flex items-center gap-2">
+                                <CopyToClipboardComponent value={`${process.env.NEXT_PUBLIC_APP_URL}/${url.aliases[0].value}`}><>/{url.aliases[0].value}</></CopyToClipboardComponent>
+                                <Link className="btn btn-xs btn-ghost btn-square tooltip tooltip-top" data-tip="Edit alias" href={`/dashboard/urls/${url.uuid}/alias/edit?aliasId=${url.aliases[0].id}`}>
+                                    <TbPencil className="w-3 h-3" />
+                                </Link>
+                              </div>
                             : <Link className="btn btn-soft btn-primary btn-xs tooltip tooltip-top" data-tip="Add an alias" href={`/dashboard/urls/${url.uuid}/alias/new`}>
                                 <TbPlus/>
                             </Link>}
