@@ -14,23 +14,20 @@ export default async function EditQrCodePage({
     
     // Fetch URL first
     const { data: url, error: urlError } = await supabase.from("url_objects")
-        .select("uuid, url, identifier")
+        .select("id, url")
         .eq("uuid", uuid)
         .maybeSingle();
 
     if (urlError || !url) {
-        console.log({
-            urlError,
-            url,
-        });
         notFound();
     }
-
+    
     // Fetch QR code separately
     const { data: qrCodes, error: qrError } = await supabase.from("qr_codes")
-        .select("id, settings")
-        .eq("url_object_uuid", uuid);
-
+    .select("id, settings")
+    .eq("url_object_id", url.id);
+    
+    console.log(qrError)
     // If URL exists but has no QR code, show helpful message instead of 404
     if (!qrCodes || qrCodes.length === 0) {
         return (

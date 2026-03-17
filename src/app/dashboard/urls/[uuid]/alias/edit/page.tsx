@@ -7,42 +7,37 @@ interface EditAliasPageProps {
     searchParams: Promise<{ aliasId?: string }>;
 }
 
-export default async function EditAliasPage({ params, searchParams }: EditAliasPageProps) {
+export default async function EditAliasPage({ params }: EditAliasPageProps) {
     const { uuid } = await params;
-    const { aliasId } = await searchParams;
-
-    if (!aliasId) {
-        notFound();
-    }
 
     const supabase = await createClient();
 
+    // Fetch URL first
+    const { data: url, error: urlError } = await supabase.from("url_objects")
+        .select("id, url")
+        .eq("uuid", uuid)
+        .maybeSingle();
+
+    if (urlError || !url) {
+        notFound();
+    }
+    
+    // Fetch Alias separately
     const { data: aliasData, error: aliasError } = await supabase
         .from("aliases")
         .select("id, value, url_object_id")
-        .eq("id", parseInt(aliasId))
-        .single();
+        .eq("url_object_id", url.id)
+        .single()
 
     if (aliasError || !aliasData) {
         notFound();
     }
 
-    const { data: urlData, error: urlError } = await supabase
-        .from("url_objects")
-        .select("id, uuid, url")
-        .eq("uuid", uuid)
-        .eq("id", aliasData.url_object_id)
-        .single();
-
-    if (urlError || !urlData) {
-        notFound();
-    }
-
     return (
         <EditAliasForm
-            aliasId={aliasId}
+            aliasId={aliasData.id}
             currentAlias={aliasData.value}
-            url={urlData.url}
+            url={url.url}
         />
     );
 }

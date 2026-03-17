@@ -105,7 +105,7 @@ export default function UrlTableComponent({
                         {url.aliases && url.aliases.length > 0
                             ? <div className="flex items-center gap-2">
                                 <CopyToClipboardComponent value={`${process.env.NEXT_PUBLIC_APP_URL}/${url.aliases[0].value}`}><>/{url.aliases[0].value}</></CopyToClipboardComponent>
-                                <Link className="btn btn-xs btn-ghost btn-square tooltip tooltip-top" data-tip="Edit alias" href={`/dashboard/urls/${url.uuid}/alias/edit?aliasId=${url.aliases[0].id}`}>
+                                <Link className="btn btn-xs btn-ghost btn-square tooltip tooltip-top" data-tip="Edit alias" href={`/dashboard/urls/${url.uuid}/alias/edit`}>
                                     <TbPencil className="w-3 h-3" />
                                 </Link>
                               </div>
