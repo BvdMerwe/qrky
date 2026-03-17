@@ -4,7 +4,6 @@ import { EditAliasForm } from "./components/form/alias-form";
 
 interface EditAliasPageProps {
     params: Promise<{ uuid: string }>;
-    searchParams: Promise<{ aliasId?: string }>;
 }
 
 export default async function EditAliasPage({ params }: EditAliasPageProps) {
@@ -12,7 +11,7 @@ export default async function EditAliasPage({ params }: EditAliasPageProps) {
 
     const supabase = await createClient();
 
-    // Fetch URL first
+    // Fetch URL by UUID
     const { data: url, error: urlError } = await supabase.from("url_objects")
         .select("id, url")
         .eq("uuid", uuid)
@@ -22,12 +21,12 @@ export default async function EditAliasPage({ params }: EditAliasPageProps) {
         notFound();
     }
     
-    // Fetch Alias separately
+    // Fetch the ONE alias for this URL (by url_object_id)
     const { data: aliasData, error: aliasError } = await supabase
         .from("aliases")
-        .select("id, value, url_object_id")
+        .select("id, value")
         .eq("url_object_id", url.id)
-        .single()
+        .maybeSingle();
 
     if (aliasError || !aliasData) {
         notFound();
