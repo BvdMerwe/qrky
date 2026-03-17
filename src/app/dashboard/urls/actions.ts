@@ -3,10 +3,17 @@ import {UrlObject} from "@/types/db/url-object";
 import {STRING_TABLE_NAME_URL_OBJECTS} from "@/app/dashboard/urls/constants";
 
 export async function fetchUrls(supabase: SupabaseClient): Promise<UrlObject[]> {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+        return [];
+    }
+
     // Fetch URLs first
     const { data: urls, error: urlsError } = await supabase
         .from(STRING_TABLE_NAME_URL_OBJECTS)
         .select("*")
+        .eq("user_id", user.id)
         .order("id", {ascending: false});
 
     if (urlsError) {

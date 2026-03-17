@@ -594,6 +594,8 @@ describe('URL Actions', () => {
     });
 
     describe('fetchUrls and fetchUrlsBrowser', () => {
+        const mockUser = { id: 'user-123' };
+        
         it('returns URLs with aliases and qr_codes on success', async () => {
             const mockUrls = [
                 { id: 1, uuid: 'abc-1', url: 'https://example1.com' },
@@ -610,7 +612,7 @@ describe('URL Actions', () => {
                 if (table === 'url_objects') {
                     return {
                         select: vi.fn(() => ({ 
-                            order: vi.fn(() => ({ data: mockUrls, error: null })) 
+                            eq: vi.fn(() => ({ order: vi.fn(() => ({ data: mockUrls, error: null })) }))
                         }))
                     };
                 }
@@ -630,7 +632,10 @@ describe('URL Actions', () => {
                 }
                 return { select: vi.fn() };
             });
-            const mockSupabase = { from: mockSupabaseFrom };
+            const mockSupabase = { 
+                from: mockSupabaseFrom,
+                auth: { getUser: vi.fn(() => ({ data: { user: mockUser }, error: null })) }
+            };
 
             const { fetchUrls } = await import('@/app/dashboard/urls/actions');
             
@@ -650,7 +655,12 @@ describe('URL Actions', () => {
 
             const { createClient } = await import('@/lib/supabase/browser');
             vi.mocked(createClient).mockReturnValue({
-                from: vi.fn(() => ({ select: mockSelect }))
+                from: vi.fn(() => ({ 
+                    select: vi.fn(() => ({ 
+                        eq: vi.fn(() => ({ order: mockOrder }))
+                    }))
+                })),
+                auth: { getUser: vi.fn(() => ({ data: { user: mockUser }, error: null })) }
             } as any);
 
             const { fetchUrlsBrowser } = await import('./actions-browser');
@@ -666,7 +676,12 @@ describe('URL Actions', () => {
 
             const { createClient } = await import('@/lib/supabase/browser');
             vi.mocked(createClient).mockReturnValue({
-                from: vi.fn(() => ({ select: mockSelect }))
+                from: vi.fn(() => ({ 
+                    select: vi.fn(() => ({ 
+                        eq: vi.fn(() => ({ order: mockOrder }))
+                    }))
+                })),
+                auth: { getUser: vi.fn(() => ({ data: { user: mockUser }, error: null })) }
             } as any);
 
             const { fetchUrlsBrowser } = await import('./actions-browser');
@@ -678,6 +693,7 @@ describe('URL Actions', () => {
             const mockUrls = [{ id: 1, uuid: 'abc-1', url: 'https://example.com' }];
             const mockAliases: { id: number; url_object_id: number; value: string }[] = [];
             const mockQrCodes: { id: string; url_object_id: number }[] = [];
+            const mockUser = { id: 'user-123' };
             
             let callCount = 0;
             const mockSupabaseFrom = vi.fn((table: string) => {
@@ -685,7 +701,7 @@ describe('URL Actions', () => {
                 if (table === 'url_objects') {
                     return {
                         select: vi.fn(() => ({ 
-                            order: vi.fn(() => ({ data: mockUrls, error: null })) 
+                            eq: vi.fn(() => ({ order: vi.fn(() => ({ data: mockUrls, error: null })) }))
                         }))
                     };
                 }
@@ -705,7 +721,10 @@ describe('URL Actions', () => {
                 }
                 return { select: vi.fn() };
             });
-            const mockSupabase = { from: mockSupabaseFrom };
+            const mockSupabase = { 
+                from: mockSupabaseFrom,
+                auth: { getUser: vi.fn(() => ({ data: { user: mockUser }, error: null })) }
+            };
 
             const { fetchUrls } = await import('@/app/dashboard/urls/actions');
             
@@ -716,17 +735,21 @@ describe('URL Actions', () => {
         });
 
         it('fetchUrls throws error when query fails', async () => {
+            const mockUser = { id: 'user-123' };
             const mockSupabaseFrom = vi.fn((table: string) => {
                 if (table === 'url_objects') {
                     return {
                         select: vi.fn(() => ({ 
-                            order: vi.fn(() => ({ data: null, error: new Error('Connection timeout') })) 
+                            eq: vi.fn(() => ({ order: vi.fn(() => ({ data: null, error: new Error('Connection timeout') })) }))
                         }))
                     };
                 }
                 return { select: vi.fn(() => ({ in: vi.fn(() => ({ data: [], error: null })) })) };
             });
-            const mockSupabase = { from: mockSupabaseFrom };
+            const mockSupabase = { 
+                from: mockSupabaseFrom,
+                auth: { getUser: vi.fn(() => ({ data: { user: mockUser }, error: null })) }
+            };
 
             const { fetchUrls } = await import('@/app/dashboard/urls/actions');
             
