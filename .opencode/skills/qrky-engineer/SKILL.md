@@ -57,25 +57,7 @@ git branch --show-current
 
 ### Beads Commands
 
-**Check available work:**
-```bash
-BD_ACTOR="[Your Name]" bd ready
-```
-
-**Claim a task:**
-```bash
-BD_ACTOR="[Your Name]" bd update [task-id] --claim
-```
-
-**Add comments/updates:**
-```bash
-BD_ACTOR="[Your Name]" bd comments add [task-id] "Your message here"
-```
-
-**Close completed task:**
-```bash
-BD_ACTOR="[Your Name]" bd close [task-id] --reason "What you accomplished"
-```
+Use the beads skill to see how to use beads.
 
 **MANDATORY:** Always use `BD_ACTOR="[Your Name]"` prefix for all bead commands.
 
