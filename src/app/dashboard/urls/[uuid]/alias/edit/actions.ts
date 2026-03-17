@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { stringIsValid } from "@/lib/strings";
-import { validateAlias, normalizeAlias } from "@/lib/validation";
+import { normalizeAlias, validateAlias } from "@/lib/validation";
 import { redirect, RedirectType } from "next/navigation";
 
 export async function updateAlias(formData: FormData): Promise<void> {
@@ -22,7 +22,7 @@ export async function updateAlias(formData: FormData): Promise<void> {
     const { data: currentAlias, error: fetchError } = await supabase
         .from("aliases")
         .select("id, value, url_object_id")
-        .eq("id", parseInt(aliasId as string))
+        .eq("id", aliasId)
         .single();
 
     if (fetchError || !currentAlias) {
@@ -38,7 +38,7 @@ export async function updateAlias(formData: FormData): Promise<void> {
         .from("aliases")
         .select("id, value")
         .eq("value", normalizedAlias)
-        .neq("id", parseInt(aliasId as string))
+        .neq("id", aliasId)
         .maybeSingle();
 
     if (aliasCheckError) {
@@ -50,11 +50,12 @@ export async function updateAlias(formData: FormData): Promise<void> {
         throw new Error("Alias already exists");
     }
 
-    const { error } = await supabase
+    const { error, data, count, status, statusText } = await supabase
         .from("aliases")
         .update({ value: normalizedAlias })
-        .eq("id", parseInt(aliasId as string));
+        .eq("id", aliasId);
 
+    console.log({ error, data, count, status, statusText });
     if (error) {
         console.error(error.message);
         throw error;
