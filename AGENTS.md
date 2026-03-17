@@ -40,11 +40,11 @@ Use **beads** exclusively via the `beads` skill. When defining tasks, use the `d
 ## Session Completion (MANDATORY)
 1. Run `pnpm lint && pnpm test && pnpm build`
 2. Create issues for any follow-up work
-3. Close/complete bd issues
-4. Push:
+3. Close/complete bd issues and add a comment.
+4. Commit the changes according to the commit conventions.
+5. Push:
    ```bash
    git pull --rebase
-   bd dolt push
    git push
    ```
    Must see "up to date with origin" in git status before ending.
@@ -54,3 +54,4 @@ Use **beads** exclusively via the `beads` skill. When defining tasks, use the `d
 - Always include issue reference (e.g., "fix(login): remove password validation (#qrky-nw8)")
 - Types: `fix`, `feat`, `docs`, `style`, `refactor`, `test`, `chore`
 - Keep subject line under 72 characters
+- NEVER commit to main. Always work on the current branch. If the current branch is main, branch off.

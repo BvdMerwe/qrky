@@ -47,6 +47,7 @@ bd --version  # Requires v0.60.0+
 Essential commands: `bd ready`, `bd create`, `bd show`, `bd update`, `bd close`, `bd dolt push`
 
 ## Session Protocol
+Always prefix with BD_ACTOR=<insert agent name> to ensure that your name is accurate on the tickets.
 
 1. `bd ready` — Find unblocked work
 2. `bd show <id>` — Get full context
