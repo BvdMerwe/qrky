@@ -50,7 +50,7 @@ From GUARDRAILS.md:
 - **Tests:** Vitest (174 tests currently passing)
 - **Quality Gates:** `pnpm lint && pnpm test && pnpm build`
 - **Task Tracking:** beads (always use `BD_ACTOR="[Your Name]"`)
-- **Integration Branch:** `mvp-completion` (not main)
+- **Integration Branch:** Always commit to a feature branch - normally the branch you are on (not main).
 - **Key Gotcha:** Supabase server vs browser clients
 
 ## Getting Started

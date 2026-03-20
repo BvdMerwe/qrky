@@ -26,6 +26,11 @@
       "sourceType": "github",
       "computedHash": "e21044ae7496fc285f1df9ff3fb518a3a20bea6f5216c1f59f4987e12c769a0a"
     },
+    "engineer": {
+      "source": "BvdMerwe/tech-team",
+      "sourceType": "github",
+      "computedHash": "982008b1e64dfc7ed455eb4f9a88f7ff8c8f921d63dbf5622dc11b21016b618e"
+    },
     "executing-plans": {
       "source": "obra/superpowers",
       "sourceType": "github",
@@ -45,6 +50,11 @@
       "source": "obra/superpowers",
       "sourceType": "github",
       "computedHash": "9edba9a38684c060fdc38290f640e1dc0c37de286723ac9be73bacacf7cd6f3d"
+    },
+    "product-owner": {
+      "source": "BvdMerwe/tech-team",
+      "sourceType": "github",
+      "computedHash": "f7adcdc31360427dce870abe41cd0a85b2e4277e950012d608dc103c00b1b9dc"
     },
     "receiving-code-review": {
       "source": "obra/superpowers",

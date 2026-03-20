@@ -88,11 +88,11 @@ export default function MyComponent(): React.ReactNode {
 2. **QR generation**: Uses custom TypeScript port in `src/lib/qrcode/` - SVG rendering only, no canvas/PNG
 3. **Server/Client boundary**: Never pass JSX from Server → Client Components. Extract to Client Components with "use client"
 4. **Validation**: Always validate user input before database operations
-5. **Branch strategy**: Never push to main. Always use `mvp-completion` as integration branch
+5. **Branch strategy**: Never push to main. Always use a feature branch (usually the branch you are already in) as integration branch
 
 ## Branch Strategy
 - **main** - Production-ready, protected (requires PR)
-- **mvp-completion** - Integration branch for feature work (start here)
+- **dev** - Integration branch for feature work (start here)
 - **feature/** - Individual feature branches (where you work)
 
 ## Communication
