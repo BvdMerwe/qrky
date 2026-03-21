@@ -29,7 +29,7 @@
     "engineer": {
       "source": "BvdMerwe/tech-team",
       "sourceType": "github",
-      "computedHash": "982008b1e64dfc7ed455eb4f9a88f7ff8c8f921d63dbf5622dc11b21016b618e"
+      "computedHash": "20d57ef81ef1d327e9a2e31f2ef419aa660fc7749dce90d6139f6cf8fedd1981"
     },
     "executing-plans": {
       "source": "obra/superpowers",
@@ -54,7 +54,7 @@
     "product-owner": {
       "source": "BvdMerwe/tech-team",
       "sourceType": "github",
-      "computedHash": "f7adcdc31360427dce870abe41cd0a85b2e4277e950012d608dc103c00b1b9dc"
+      "computedHash": "00847067c43399f77ec41888dcf31084cc92ce6180d7d5cf256c878d10a9b811"
     },
     "receiving-code-review": {
       "source": "obra/superpowers",
