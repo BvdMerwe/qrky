@@ -16,6 +16,14 @@ const DEFAULT_BG_COLOR = '#ffffff';
 const DEFAULT_CORNER_RADIUS = 0.45;
 const DEFAULT_LOGO_SCALE = 0.2;
 
+interface QrCodeSettings {
+    fgColor: string | null;
+    bgColor: string | null;
+    cornerRadius: number | null;
+    logoUrl: string | null;
+    logoScale: number | null;
+}
+
 if (typeof globalThis.DOMParser === 'undefined') {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Need to use any for polyfill.
     (globalThis as any).DOMParser = DOMParser;
@@ -30,31 +38,49 @@ export async function GET(request: NextRequest, {
     const { searchParams } = new URL(request.url);
     
     const previewMode = searchParams.get('preview') === 'true';
+    const supabase = await createClient();
     
-    if (!previewMode) {
-        const supabase = await createClient();
-        const {count: qrCodeCount, error} = await supabase
-            .from("qr_codes")
-            .select(`
-                id,
-                url_objects(enabled)
-            `, { count: 'exact', head: true })
-            .eq('url_objects.enabled', true)
-            .eq('id', uuid);
+    const { data: qrCodeData, error: qrCodeError } = await supabase
+        .from("qr_codes")
+        .select(`
+            id,
+            settings,
+            url_objects(enabled)
+        `)
+        .eq('id', uuid)
+        .single();
 
-        if (error) {
-            console.error(error, qrCodeCount);
-            return redirect('/500', RedirectType.push);
-        } else if (qrCodeCount === 0) {
-            notFound();
-        }
+    if (qrCodeError || !qrCodeData) {
+        console.error(qrCodeError);
+        return redirect('/500', RedirectType.push);
     }
 
-    const fgColor = searchParams.get('fg') ? `#${searchParams.get('fg')}` : DEFAULT_FG_COLOR;
-    const bgColor = searchParams.get('bg') ? `#${searchParams.get('bg')}` : DEFAULT_BG_COLOR;
-    const cornerRadius = parseFloat(searchParams.get('cr') || '') || DEFAULT_CORNER_RADIUS;
-    const logoScale = parseFloat(searchParams.get('ls') || '') || DEFAULT_LOGO_SCALE;
-    const logoUrl = searchParams.get('logo');
+    const urlObjects = qrCodeData.url_objects as { enabled: boolean }[] | null;
+    if (!previewMode && (!urlObjects || urlObjects.length === 0 || !urlObjects[0]?.enabled)) {
+        notFound();
+    }
+
+    const savedSettings = qrCodeData.settings as QrCodeSettings | null;
+    
+    let fgColor: string;
+    let bgColor: string;
+    let cornerRadius: number;
+    let logoScale: number;
+    let logoUrl: string | undefined;
+    
+    if (previewMode) {
+        fgColor = searchParams.get('fg') ? `#${searchParams.get('fg')}` : (savedSettings?.fgColor || DEFAULT_FG_COLOR);
+        bgColor = searchParams.get('bg') ? `#${searchParams.get('bg')}` : (savedSettings?.bgColor || DEFAULT_BG_COLOR);
+        cornerRadius = parseFloat(searchParams.get('cr') || '') || (savedSettings?.cornerRadius ?? DEFAULT_CORNER_RADIUS);
+        logoScale = parseFloat(searchParams.get('ls') || '') || (savedSettings?.logoScale ?? DEFAULT_LOGO_SCALE);
+        logoUrl = searchParams.get('logo') || (savedSettings?.logoUrl || undefined);
+    } else {
+        fgColor = savedSettings?.fgColor || DEFAULT_FG_COLOR;
+        bgColor = savedSettings?.bgColor || DEFAULT_BG_COLOR;
+        cornerRadius = savedSettings?.cornerRadius ?? DEFAULT_CORNER_RADIUS;
+        logoScale = savedSettings?.logoScale ?? DEFAULT_LOGO_SCALE;
+        logoUrl = savedSettings?.logoUrl || undefined;
+    }
 
     const url = buildQrCodeUrl(uuid);
 
@@ -63,7 +89,7 @@ export async function GET(request: NextRequest, {
         bgColor,
         cornerRadius,
         logoScale,
-        logoUrl: logoUrl || undefined,
+        logoUrl,
     }) as BodyInit, {
         headers: {
             'Content-Type': 'image/jpeg',

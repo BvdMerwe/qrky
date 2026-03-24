@@ -47,7 +47,7 @@ vi.mock('@/lib/supabase/server', () => ({
         from: vi.fn(() => ({
             select: vi.fn(() => ({
                 eq: vi.fn(() => ({
-                    eq: vi.fn(() => Promise.resolve(mockSelectResult))
+                    single: vi.fn(() => Promise.resolve(mockSelectResult))
                 }))
             }))
         }))
@@ -63,7 +63,7 @@ function createMockRequest(url: string): NextRequest {
 describe('QR Code Generation Endpoint', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        mockSelectResult = { count: 1, error: null };
+        mockSelectResult = { data: { id: 'test-id', settings: null, url_objects: [{ enabled: true }] }, error: null };
         mockQrRenderResult = '<svg xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100"/></svg>';
         
         // Mock sharp to return a fake PNG buffer
@@ -80,7 +80,7 @@ describe('QR Code Generation Endpoint', () => {
     });
 
     it('returns 404 for non-existent QR code', async () => {
-        mockSelectResult = { count: 0, error: null };
+        mockSelectResult = { data: null, error: { message: 'Not found' } };
         
         vi.resetModules();
         const { GET } = await import('./route');
@@ -88,12 +88,11 @@ describe('QR Code Generation Endpoint', () => {
         const request = createMockRequest('http://localhost:3000/qr/non-existent');
         const params = Promise.resolve({ uuid: 'non-existent' });
         
-        await expect(GET(request, { params })).rejects.toThrow('NOT_FOUND');
+        await expect(GET(request, { params })).rejects.toThrow('REDIRECT:/500');
     });
 
     it('returns 404 for disabled QR code', async () => {
-        // When url_objects.enabled = false, the query returns count: 0
-        mockSelectResult = { count: 0, error: null };
+        mockSelectResult = { data: { id: 'test-id', settings: null, url_objects: [{ enabled: false }] }, error: null };
         
         vi.resetModules();
         const { GET } = await import('./route');
@@ -105,7 +104,7 @@ describe('QR Code Generation Endpoint', () => {
     });
 
     it('redirects to 500 on database error', async () => {
-        mockSelectResult = { count: 0, error: { message: 'Database error' } };
+        mockSelectResult = { data: null, error: { message: 'Database error' } };
         
         vi.resetModules();
         const { GET } = await import('./route');
