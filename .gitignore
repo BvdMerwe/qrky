@@ -49,3 +49,4 @@ next-env.d.ts
 .dolt/
 *.db
 .worktrees/
+.tech-team/
