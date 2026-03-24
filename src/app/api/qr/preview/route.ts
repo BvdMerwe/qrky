@@ -27,8 +27,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     
     const data = searchParams.get('data');
-    const fgColor = searchParams.get('fgColor') || DEFAULT_FG_COLOR;
-    const bgColor = searchParams.get('bgColor') || DEFAULT_BG_COLOR;
+    const fgColor = searchParams.get('fg') || DEFAULT_FG_COLOR;
+    const bgColor = searchParams.get('bg') || DEFAULT_BG_COLOR;
     const cornerRadius = parseFloat(searchParams.get('cornerRadius') || '') || DEFAULT_CORNER_RADIUS;
     const logoScale = parseFloat(searchParams.get('logoScale') || '') || DEFAULT_LOGO_SCALE;
     const logoUrl = searchParams.get('logoUrl');

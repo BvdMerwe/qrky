@@ -5,7 +5,16 @@
  * Create SVG QR Codes with embedded logos and customizable module shapes
  */
 
-import { QRMarkupSVG, QRMatrix } from '@chillerlan/qrcode/dist/js-qrcode-node-src.cjs';
+import {
+    M_ALIGNMENT, M_ALIGNMENT_DARK, M_DARKMODULE, M_DARKMODULE_LIGHT,
+    M_DATA,
+    M_DATA_DARK,
+    M_FINDER, M_FINDER_DARK, M_FINDER_DOT, M_FINDER_DOT_LIGHT, M_FORMAT, M_FORMAT_DARK, M_LOGO, M_LOGO_DARK,
+    M_NULL, M_QUIETZONE,
+    M_QUIETZONE_DARK, M_SEPARATOR, M_SEPARATOR_DARK, M_TIMING, M_TIMING_DARK, M_VERSION, M_VERSION_DARK,
+    QRMarkupSVG,
+    QRMatrix
+} from '@chillerlan/qrcode/dist/js-qrcode-node-src.cjs';
 import { ModuleTypeEnum } from './module-type.enum';
 import { QRkyOptions } from './QRkyOptions';
 import { readFileSync } from 'fs';
@@ -25,10 +34,49 @@ export class QRkySVG extends QRMarkupSVG {
         const viewBoxSize = this.options.svgViewBoxSize ?? 300;
 
         if (this.options.drawLightModules) {
-            header += `<rect x="0" y="0" width="${viewBoxSize}" height="${viewBoxSize}" fill="#ffffff"></rect>`
+            header += `<rect x="0" y="0" width="${viewBoxSize}" height="${viewBoxSize}" fill="${this.options.bgColor}"></rect>`
         }
 
         return header.replace('>', ` width="${viewBoxSize}" height="${viewBoxSize}">`);
+    }
+
+    /**
+     * Get the fill value for a given module type.
+     * @param M_TYPE
+     * @protected
+     */
+    protected getModuleValue(M_TYPE: string): string {
+        switch (parseInt(M_TYPE)) {
+            case M_NULL:
+            case M_DATA:
+            case M_FINDER:
+            case M_FINDER_DOT_LIGHT:
+            case M_SEPARATOR:
+            case M_ALIGNMENT:
+            case M_TIMING:
+            case M_FORMAT:
+            case M_VERSION:
+            case M_QUIETZONE:
+            case M_LOGO:
+                return this.options.bgColor ?? super.getModuleValue(M_TYPE);
+
+            case M_DATA_DARK:
+            case M_FINDER_DARK:
+            case M_FINDER_DOT:
+            case M_SEPARATOR_DARK:
+            case M_ALIGNMENT_DARK:
+            case M_TIMING_DARK:
+            case M_FORMAT_DARK:
+            case M_VERSION_DARK:
+            case M_DARKMODULE:
+            case M_DARKMODULE_LIGHT:
+            case M_QUIETZONE_DARK:
+            case M_LOGO_DARK:
+                return this.options.color ?? super.getModuleValue(M_TYPE)
+
+            default:
+                return super.getModuleValue(M_TYPE);
+        }
     }
 
     /**

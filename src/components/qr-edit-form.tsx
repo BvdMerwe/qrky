@@ -4,6 +4,7 @@ import React, { useState, useEffect, useTransition } from "react";
 import Image from "next/image";
 import { updateQrCode } from "@/app/dashboard/urls/[uuid]/qr/edit/actions";
 import { QrCodeSettings } from "@/types/db/qr-code";
+import {buildQrCodeUrl} from "@/lib/qrcode/buildQrCodeUrl";
 
 interface QrEditFormProps {
     qrCodeId: string;
@@ -34,13 +35,14 @@ export default function QrEditForm({ qrCodeId, initialSettings }: QrEditFormProp
             bg: bgColor.replace("#", ""),
             cr: cornerRadius.toString(),
             ls: logoScale.toString(),
+            data: buildQrCodeUrl(qrCodeId),
         });
         if (initialSettings?.logoUrl) {
             params.set("logo", initialSettings.logoUrl);
         }
         
         const timer = setTimeout(() => {
-            setPreviewUrl(`/qr/${qrCodeId}?${params.toString()}`);
+            setPreviewUrl(`/api/qr/preview?${params.toString()}`);
         }, 300);
         
         return () => clearTimeout(timer);

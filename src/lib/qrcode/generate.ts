@@ -1,5 +1,5 @@
-import { ECC_L, QRCode } from '@chillerlan/qrcode/dist/js-qrcode-node-src.cjs';
-import { QRkyOptions, QRkySVG } from '@/lib/qrcode';
+import {ECC_H, QRCode} from '@chillerlan/qrcode/dist/js-qrcode-node-src.cjs';
+import {QRkyOptions, QRkySVG} from '@/lib/qrcode';
 
 export interface GenerateQrCodeOptions {
     data: string;
@@ -34,7 +34,7 @@ export function generateQrCode(options: GenerateQrCodeOptions): GenerateQrCodeRe
         logoBuffer = null,
         logoScale = DEFAULT_LOGO_SCALE,
         size = DEFAULT_SIZE,
-        eccLevel = ECC_L,
+        eccLevel = ECC_H,
     } = options;
 
     const clampedLogoScale = Math.max(MIN_LOGO_SCALE, Math.min(MAX_LOGO_SCALE, logoScale));

@@ -17,6 +17,8 @@ export interface QRkyOptionsInterface extends QROptionsInterface {
     svgLogoScaleMaximum?: number;
     svgLogoCssClass?: string;
     clearLogoSpace?: boolean;
+    bgColor?: string;
+    color?: string;
 }
 
 export class QRkyOptions extends QROptions implements QRkyOptionsInterface {
@@ -43,6 +45,12 @@ export class QRkyOptions extends QROptions implements QRkyOptionsInterface {
 
     /** Whether to clear the logo space in the QR code */
     clearLogoSpace: boolean = true;
+
+    /** The color of the empty module */
+    bgColor?: string = '#ffffff';
+
+    /** The color of the filled module */
+    color?: string = '#000000';
 
     constructor(options?: QRkyOptionsInterface) {
         super(options);
@@ -150,5 +158,47 @@ export class QRkyOptions extends QROptions implements QRkyOptionsInterface {
      */
     protected set_svgLogoCssClass(svgLogoCssClass: string): void {
         this.svgLogoCssClass = svgLogoCssClass;
+    }
+
+    /**
+     * Set empty module fill
+     */
+    protected set_bgColor(bgColor: string): void {
+        if (this.validateColor(bgColor)) {
+            this.bgColor = bgColor;
+        } else if (this.validateColorWithoutHash(bgColor)) {
+            this.bgColor = `#${bgColor}`;
+        }
+    }
+
+    /**
+     * Set filled module fill
+     */
+    protected set_color(color: string): void {
+        if (this.validateColor(color)) {
+            this.color = color;
+        } else if (this.validateColorWithoutHash(color)) {
+            this.color = `#${color}`;
+        }
+    }
+
+    private validateColor(color: string): boolean {
+        if (color.match(/^#[0-9a-fA-F]{6}$/i)) { // #ABC123 || #abc123
+            return true;
+        } else if (color.match(/^#[0-9a-fA-F]{3}$/i)) { // #ABC || #abc
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private validateColorWithoutHash(color: string): boolean {
+        if (color.match(/^[0-9a-fA-F]{6}$/i)) { // ABC123 || abc123
+            return true;
+        } else if (color.match(/^[0-9a-fA-F]{3}$/i)) { // ABC || abc
+            return true;
+        } else {
+            return false;
+        }
     }
 }

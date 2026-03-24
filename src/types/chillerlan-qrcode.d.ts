@@ -230,6 +230,7 @@ declare module '@chillerlan/qrcode/dist/js-qrcode-node-src.cjs' {
         protected options: QROptionsInterface;
         protected matrix: QRMatrix;
         mimeType: string;
+        protected getModuleValue(M_TYPE: string): string;
     }
 
     export class QRCanvas extends QROutputAbstract {
