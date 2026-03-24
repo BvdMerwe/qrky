@@ -1,7 +1,33 @@
 import { describe, it, expect } from 'vitest';
 import { QRkyOptions } from '@/lib/qrcode/QRkyOptions';
+import { validateLogoScale, clampLogoScale, generateQrCode } from '@/lib/qrcode/generate';
+import { ECC_H } from '@chillerlan/qrcode/dist/js-qrcode-node-src.cjs';
 
 describe('QRkyOptions', () => {
+    describe('svgLogoBuffer', () => {
+        it('should default to null', () => {
+            const options = new QRkyOptions();
+            expect(options.svgLogoBuffer).toBeNull();
+        });
+
+        it('should accept null explicitly', () => {
+            const options = new QRkyOptions({ svgLogoBuffer: null });
+            expect(options.svgLogoBuffer).toBeNull();
+        });
+
+        it('should accept Buffer', () => {
+            const buffer = Buffer.from('<svg></svg>', 'utf-8');
+            const options = new QRkyOptions({ svgLogoBuffer: buffer });
+            expect(options.svgLogoBuffer).toEqual(buffer);
+        });
+
+        it('should reject non-Buffer', () => {
+            expect(() => {
+                new QRkyOptions({ svgLogoBuffer: 'not a buffer' as unknown as Buffer });
+            }).toThrow('invalid svg logo buffer');
+        });
+    });
+
     describe('svgLogoScale', () => {
         it('should clamp scale to valid range (0-1)', () => {
             const options = new QRkyOptions({ svgLogoScale: 0.5 });
@@ -99,5 +125,73 @@ describe('QRkyOptions', () => {
             const options = new QRkyOptions();
             expect(options.svgLogo).toBeNull();
         });
+    });
+});
+
+describe('generateQrCode', () => {
+    it('should generate QR code with default options', () => {
+        const result = generateQrCode({ data: 'https://example.com' });
+        expect(result.svg).toContain('<svg');
+        expect(result.svg).toContain('</svg>');
+        expect(result.buffer).toBeInstanceOf(Buffer);
+    });
+
+    it('should generate QR code with custom colors', () => {
+        const result = generateQrCode({
+            data: 'https://example.com',
+            fgColor: '#ff0000',
+            bgColor: '#00ff00',
+        });
+        expect(result.svg).toContain('<svg');
+    });
+
+    it('should generate QR code with custom corner radius', () => {
+        const result = generateQrCode({
+            data: 'https://example.com',
+            cornerRadius: 0.2,
+        });
+        expect(result.svg).toContain('<svg');
+    });
+
+    it('should clamp logo scale to 0.1-0.3 range', () => {
+        const result = generateQrCode({
+            data: 'https://example.com',
+            logoScale: 0.5,
+        });
+        expect(result.svg).toContain('<svg');
+    });
+
+    it('should accept logo buffer with ECC_H', () => {
+        const logoBuffer = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100"/></svg>', 'utf-8');
+        const result = generateQrCode({
+            data: 'https://example.com',
+            logoBuffer,
+            logoScale: 0.2,
+            eccLevel: ECC_H,
+        });
+        expect(result.svg).toContain('<svg');
+    });
+});
+
+describe('validateLogoScale', () => {
+    it('should return true for scale within 0.1-0.3', () => {
+        expect(validateLogoScale(0.1)).toBe(true);
+        expect(validateLogoScale(0.2)).toBe(true);
+        expect(validateLogoScale(0.3)).toBe(true);
+    });
+
+    it('should return false for scale outside 0.1-0.3', () => {
+        expect(validateLogoScale(0.05)).toBe(false);
+        expect(validateLogoScale(0.35)).toBe(false);
+        expect(validateLogoScale(0)).toBe(false);
+        expect(validateLogoScale(1)).toBe(false);
+    });
+});
+
+describe('clampLogoScale', () => {
+    it('should clamp scale to valid range', () => {
+        expect(clampLogoScale(0.05)).toBe(0.1);
+        expect(clampLogoScale(0.35)).toBe(0.3);
+        expect(clampLogoScale(0.2)).toBe(0.2);
     });
 });

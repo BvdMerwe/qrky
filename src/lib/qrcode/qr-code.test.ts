@@ -210,17 +210,36 @@ describe('QR Code Actions', () => {
 
     describe('updateQrCode', () => {
         it('updates QR code and redirects on success', async () => {
-            const mockQrCode = { id: 456 };
-            const mockFrom = vi.fn(() => ({
-                select: vi.fn(() => ({
-                    eq: vi.fn(() => ({
-                        single: vi.fn(() => Promise.resolve({ data: mockQrCode, error: null }))
-                    }))
-                }))
-            }));
+            const mockQrCode = { id: 'qr-uuid', url_object_id: 'url-obj-id' };
+            const mockUrlObject = { id: 'url-obj-id', user_id: 'user-123' };
+            
+            let callCount = 0;
+            const mockFrom = vi.fn(() => {
+                callCount++;
+                if (callCount === 1) {
+                    return {
+                        select: vi.fn(() => ({
+                            eq: vi.fn(() => ({
+                                single: vi.fn(() => Promise.resolve({ data: mockQrCode, error: null }))
+                            }))
+                        }))
+                    };
+                }
+                return {
+                    select: vi.fn(() => ({
+                        eq: vi.fn(() => ({
+                            single: vi.fn(() => Promise.resolve({ data: mockUrlObject, error: null }))
+                        }))
+                    })),
+                    update: vi.fn(() => ({ eq: vi.fn(() => Promise.resolve({ error: null })) }))
+                };
+            });
 
             const { createClient } = await import('@/lib/supabase/server');
             vi.mocked(createClient).mockResolvedValue({
+                auth: {
+                    getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-123' } }, error: null })
+                },
                 from: mockFrom
             } as any);
 
@@ -229,6 +248,9 @@ describe('QR Code Actions', () => {
             const formData = new FormData();
             formData.append('qr_code_id', 'qr-123');
             formData.append('url_uuid', 'url-uuid-456');
+            formData.append('fg_color', '#000000');
+            formData.append('bg_color', '#ffffff');
+            formData.append('corner_radius', '0.45');
 
             await expect(updateQrCode(formData)).rejects.toThrow('REDIRECT:/dashboard/urls');
             expect(mockRevalidatePath).toHaveBeenCalledWith('/dashboard/urls');
@@ -265,6 +287,9 @@ describe('QR Code Actions', () => {
 
             const { createClient } = await import('@/lib/supabase/server');
             vi.mocked(createClient).mockResolvedValue({
+                auth: {
+                    getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-123' } }, error: null })
+                },
                 from: mockFrom
             } as any);
 
@@ -273,6 +298,9 @@ describe('QR Code Actions', () => {
             const formData = new FormData();
             formData.append('qr_code_id', 'non-existent-qr');
             formData.append('url_uuid', 'url-uuid-456');
+            formData.append('fg_color', '#000000');
+            formData.append('bg_color', '#ffffff');
+            formData.append('corner_radius', '0.45');
 
             await expect(updateQrCode(formData)).rejects.toThrow('QR code not found');
             expect(mockConsoleError).toHaveBeenCalled();
@@ -289,6 +317,9 @@ describe('QR Code Actions', () => {
 
             const { createClient } = await import('@/lib/supabase/server');
             vi.mocked(createClient).mockResolvedValue({
+                auth: {
+                    getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-123' } }, error: null })
+                },
                 from: mockFrom
             } as any);
 
@@ -297,6 +328,9 @@ describe('QR Code Actions', () => {
             const formData = new FormData();
             formData.append('qr_code_id', 'test-qr-123');
             formData.append('url_uuid', 'url-uuid-456');
+            formData.append('fg_color', '#000000');
+            formData.append('bg_color', '#ffffff');
+            formData.append('corner_radius', '0.45');
 
             await expect(updateQrCode(formData)).rejects.toThrow('QR code not found');
         });

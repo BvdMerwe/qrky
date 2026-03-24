@@ -196,13 +196,21 @@ export class QRkySVG extends QRMarkupSVG {
      * @returns SVG group element with embedded logo
      */
     protected getLogo(): string {
-        if (!this.options.svgLogo) {
+        const hasFileLogo = this.options.svgLogo !== null && this.options.svgLogo !== undefined;
+        const hasBufferLogo = this.options.svgLogoBuffer !== null && this.options.svgLogoBuffer !== undefined;
+
+        if (!hasFileLogo && !hasBufferLogo) {
             return '';
         }
 
         try {
-            // Read the SVG logo file
-            const svgLogoContents = readFileSync(this.options.svgLogo, 'utf-8');
+            let svgLogoContents: string;
+
+            if (hasBufferLogo) {
+                svgLogoContents = this.options.svgLogoBuffer!.toString('utf-8');
+            } else {
+                svgLogoContents = readFileSync(this.options.svgLogo!, 'utf-8');
+            }
 
             const parser = new DOMParser();
             const svgDom = parser.parseFromString(svgLogoContents, "image/svg+xml");
@@ -210,12 +218,10 @@ export class QRkySVG extends QRMarkupSVG {
             svgElement.setAttribute("width", this.options.svgViewBoxSize.toString());
             svgElement.setAttribute("height", this.options.svgViewBoxSize.toString());
 
-            // Extract width and height from SVG attributes
             const width = this.options.svgViewBoxSize;
             const height = this.options.svgViewBoxSize;
             const sizeMax = Math.max(width, height);
 
-            // Normalize to QR code size and scale
             const sizeRelative = this.moduleCount / sizeMax;
             const sizeScaled = sizeRelative * (this.options.svgLogoScale ?? 0.2);
             const eol = this.options.eol ?? '\n';

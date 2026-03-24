@@ -1,0 +1,78 @@
+import { ECC_L, QRCode } from '@chillerlan/qrcode/dist/js-qrcode-node-src.cjs';
+import { QRkyOptions, QRkySVG } from '@/lib/qrcode';
+
+export interface GenerateQrCodeOptions {
+    data: string;
+    fgColor?: string;
+    bgColor?: string;
+    cornerRadius?: number;
+    logoBuffer?: Buffer | null;
+    logoScale?: number;
+    size?: number;
+    eccLevel?: number;
+}
+
+export interface GenerateQrCodeResult {
+    svg: string;
+    buffer: Buffer;
+}
+
+const DEFAULT_FG_COLOR = '#000000';
+const DEFAULT_BG_COLOR = '#ffffff';
+const DEFAULT_CORNER_RADIUS = 0.45;
+const DEFAULT_LOGO_SCALE = 0.2;
+const MIN_LOGO_SCALE = 0.1;
+const MAX_LOGO_SCALE = 0.3;
+const DEFAULT_SIZE = 1080;
+
+export function generateQrCode(options: GenerateQrCodeOptions): GenerateQrCodeResult {
+    const {
+        data,
+        fgColor = DEFAULT_FG_COLOR,
+        bgColor = DEFAULT_BG_COLOR,
+        cornerRadius = DEFAULT_CORNER_RADIUS,
+        logoBuffer = null,
+        logoScale = DEFAULT_LOGO_SCALE,
+        size = DEFAULT_SIZE,
+        eccLevel = ECC_L,
+    } = options;
+
+    const clampedLogoScale = Math.max(MIN_LOGO_SCALE, Math.min(MAX_LOGO_SCALE, logoScale));
+
+    const qrOptions = new QRkyOptions({
+        addQuietzone: true,
+        quietzoneSize: 2,
+        bgColor: bgColor,
+        color: fgColor,
+        versionMin: 5,
+        eccLevel: eccLevel,
+        outputInterface: QRkySVG,
+        drawLightModules: true,
+        circleRadius: cornerRadius,
+        svgLogoBuffer: logoBuffer,
+        clearLogoSpace: logoBuffer !== null,
+        svgLogoScale: clampedLogoScale,
+        svgLogoScaleMinimum: MIN_LOGO_SCALE,
+        svgLogoScaleMaximum: MAX_LOGO_SCALE,
+        svgLogoCssClass: 'qr-logo',
+        svgViewBoxSize: size,
+        outputBase64: false,
+        returnAsDomElement: false,
+    });
+
+    const qrcode: string = new QRCode(qrOptions).render(data);
+    const svgBuffer = Buffer.from(qrcode, 'utf-8');
+
+    return {
+        svg: qrcode,
+        buffer: svgBuffer,
+    };
+}
+
+export function validateLogoScale(scale: number): boolean {
+    return scale >= MIN_LOGO_SCALE && scale <= MAX_LOGO_SCALE;
+}
+
+export function clampLogoScale(scale: number): number {
+    return Math.max(MIN_LOGO_SCALE, Math.min(MAX_LOGO_SCALE, scale));
+}

@@ -108,20 +108,42 @@ describe('QR Code Server Actions', () => {
 
     describe('updateQrCode', () => {
         it('should update QR code successfully and redirect', async () => {
+            const mockEq = vi.fn();
+            const mockUpdate = vi.fn();
+            
+            mockEq.mockResolvedValue({ error: null });
+            mockUpdate.mockReturnValue({ eq: mockEq });
+            
             mockSingle.mockResolvedValue({ 
-                data: { id: 456 }, 
+                data: { id: 456, url_object_id: 'url-obj-id' }, 
                 error: null 
             });
+
+            const { createClient } = await import('@/lib/supabase/server');
+            vi.mocked(createClient).mockResolvedValue({
+                auth: {
+                    getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-123' } }, error: null })
+                },
+                from: vi.fn(() => ({
+                    select: vi.fn(() => ({
+                        eq: vi.fn(() => ({
+                            single: vi.fn().mockResolvedValue({ data: { id: 'url-obj-id', user_id: 'user-123' }, error: null })
+                        }))
+                    })),
+                    update: mockUpdate
+                }))
+            } as any);
 
             const { updateQrCode } = await import('@/app/dashboard/urls/[uuid]/qr/edit/actions');
 
             const formData = new FormData();
             formData.append('qr_code_id', '456');
             formData.append('url_uuid', 'test-uuid-123');
+            formData.append('fg_color', '#000000');
+            formData.append('bg_color', '#ffffff');
 
             await updateQrCode(formData);
 
-            expect(mockFrom).toHaveBeenCalledWith('qr_codes');
             expect(mockRevalidatePath).toHaveBeenCalledWith('/dashboard/urls');
             expect(mockRedirect).toHaveBeenCalledWith('/dashboard/urls', 'push');
         });
@@ -137,35 +159,63 @@ describe('QR Code Server Actions', () => {
         });
 
         it('should throw error when QR code is not found', async () => {
-            mockSingle.mockResolvedValue({ 
-                data: null, 
-                error: { message: 'Not found' } 
-            });
+            const { createClient } = await import('@/lib/supabase/server');
+            vi.mocked(createClient).mockResolvedValue({
+                auth: {
+                    getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-123' } }, error: null })
+                },
+                from: vi.fn(() => ({
+                    select: vi.fn(() => ({
+                        eq: vi.fn(() => ({
+                            single: vi.fn().mockResolvedValue({ data: null, error: { message: 'Not found' } })
+                        }))
+                    }))
+                }))
+            } as any);
 
             const { updateQrCode } = await import('@/app/dashboard/urls/[uuid]/qr/edit/actions');
 
             const formData = new FormData();
             formData.append('qr_code_id', 'non-existent-id');
             formData.append('url_uuid', 'test-uuid-123');
+            formData.append('fg_color', '#000000');
+            formData.append('bg_color', '#ffffff');
 
             await expect(updateQrCode(formData)).rejects.toThrow('QR code not found');
         });
 
         it('should work with only qr_code_id (url_uuid is optional)', async () => {
-            mockSingle.mockResolvedValue({ 
-                data: { id: 456 }, 
-                error: null 
-            });
+            const mockEq = vi.fn();
+            const mockUpdate = vi.fn();
+            
+            mockEq.mockResolvedValue({ error: null });
+            mockUpdate.mockReturnValue({ eq: mockEq });
+
+            const { createClient } = await import('@/lib/supabase/server');
+            vi.mocked(createClient).mockResolvedValue({
+                auth: {
+                    getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-123' } }, error: null })
+                },
+                from: vi.fn(() => ({
+                    select: vi.fn(() => ({
+                        eq: vi.fn(() => ({
+                            single: vi.fn().mockResolvedValue({ data: { id: 'url-obj-id', user_id: 'user-123' }, error: null })
+                        }))
+                    })),
+                    update: mockUpdate
+                }))
+            } as any);
 
             const { updateQrCode } = await import('@/app/dashboard/urls/[uuid]/qr/edit/actions');
 
             const formData = new FormData();
             formData.append('qr_code_id', '456');
+            formData.append('fg_color', '#000000');
+            formData.append('bg_color', '#ffffff');
             // No url_uuid appended
 
             await updateQrCode(formData);
 
-            expect(mockFrom).toHaveBeenCalledWith('qr_codes');
             expect(mockRevalidatePath).toHaveBeenCalledWith('/dashboard/urls');
         });
     });

@@ -10,6 +10,7 @@ import {accessSync, constants, existsSync} from 'fs';
 
 export interface QRkyOptionsInterface extends QROptionsInterface {
     svgLogo?: string | null;
+    svgLogoBuffer?: Buffer | null;
     svgViewBoxSize?: number;
     svgLogoScale?: number;
     svgLogoScaleMinimum?: number;
@@ -21,6 +22,9 @@ export interface QRkyOptionsInterface extends QROptionsInterface {
 export class QRkyOptions extends QROptions implements QRkyOptionsInterface {
     /** Path to SVG logo file */
     svgLogo: string | null = null;
+
+    /** SVG logo as Buffer (for loading from URL/Storage) */
+    svgLogoBuffer: Buffer | null = null;
 
     /** The scale of the SVG viewBox */
     svgViewBoxSize: number = 300;
@@ -85,6 +89,22 @@ export class QRkyOptions extends QROptions implements QRkyOptionsInterface {
 
         // @todo: validate SVG content
         this.svgLogo = svgLogo;
+    }
+
+    /**
+     * Set SVG logo from Buffer
+     */
+    protected set_svgLogoBuffer(svgLogoBuffer: Buffer | null | undefined): void {
+        if (!svgLogoBuffer) {
+            this.svgLogoBuffer = null;
+            return;
+        }
+
+        if (!Buffer.isBuffer(svgLogoBuffer)) {
+            throw new QRCodeException('invalid svg logo buffer: must be a Buffer');
+        }
+
+        this.svgLogoBuffer = svgLogoBuffer;
     }
 
     /**
