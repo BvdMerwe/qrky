@@ -48,7 +48,7 @@ describe('QR Preview Endpoint', () => {
     it('applies custom fgColor and bgColor', async () => {
         const { generateQrCode } = await import('@/lib/qrcode/generate');
         const { GET } = await import('./route');
-        const request = createMockRequest('http://localhost:3000/api/qr/preview?data=https://example.com&fgColor=ff0000&bgColor=00ff00');
+        const request = createMockRequest('http://localhost:3000/api/qr/preview?data=https://example.com&fg=ff0000&bg=00ff00');
         
         const response = await GET(request);
         
@@ -100,7 +100,7 @@ describe('QR Preview Endpoint', () => {
         expect(response.status).toBe(200);
         expect(generateQrCode).toHaveBeenCalledWith(
             expect.objectContaining({
-                logoBuffer: null,
+                logoUrl: null,
             })
         );
     });
@@ -115,7 +115,7 @@ describe('QR Preview Endpoint', () => {
         expect(response.status).toBe(200);
         expect(generateQrCode).toHaveBeenCalledWith(
             expect.objectContaining({
-                logoBuffer: null,
+                logoUrl: null,
             })
         );
     });

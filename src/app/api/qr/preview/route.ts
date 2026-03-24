@@ -46,30 +46,22 @@ export async function GET(request: NextRequest) {
             { status: 400 }
         );
     }
-    
-    let logoBuffer: Buffer | null = null;
-    
+
+    let processedLogoUrl: string | null = null;
+
     if (logoUrl && logoUrl.toLowerCase() !== 'default' && logoUrl !== '') {
-        try {
-            const response = await fetch(logoUrl);
-            if (response.ok) {
-                const arrayBuffer = await response.arrayBuffer();
-                logoBuffer = Buffer.from(arrayBuffer);
-            }
-        } catch {
-            console.warn('Failed to fetch logo for preview, proceeding without logo');
-        }
+        processedLogoUrl = logoUrl;
     }
-    
-    const result = generateQrCode({
+
+    const result = await generateQrCode({
         data,
         fgColor,
         bgColor,
         cornerRadius,
-        logoBuffer,
+        logoUrl: processedLogoUrl,
         logoScale,
     });
-    
+
     return new NextResponse(result.svg, {
         headers: {
             'Content-Type': 'image/svg+xml',

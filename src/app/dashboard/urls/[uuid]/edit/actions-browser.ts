@@ -11,8 +11,6 @@ export async function updateUrl(formData: FormData): Promise<void> {
         throw new Error("Invalid URL");
     }
 
-    console.log(url, uuid);
-
     const supabase = createClient();
     const { error } = await supabase.from(STRING_TABLE_NAME_URL_OBJECTS)
         .update({

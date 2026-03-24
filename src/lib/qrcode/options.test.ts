@@ -129,15 +129,15 @@ describe('QRkyOptions', () => {
 });
 
 describe('generateQrCode', () => {
-    it('should generate QR code with default options', () => {
-        const result = generateQrCode({ data: 'https://example.com' });
+    it('should generate QR code with default options', async () => {
+        const result = await generateQrCode({ data: 'https://example.com' });
         expect(result.svg).toContain('<svg');
         expect(result.svg).toContain('</svg>');
         expect(result.buffer).toBeInstanceOf(Buffer);
     });
 
-    it('should generate QR code with custom colors', () => {
-        const result = generateQrCode({
+    it('should generate QR code with custom colors', async () => {
+        const result = await generateQrCode({
             data: 'https://example.com',
             fgColor: '#ff0000',
             bgColor: '#00ff00',
@@ -145,27 +145,26 @@ describe('generateQrCode', () => {
         expect(result.svg).toContain('<svg');
     });
 
-    it('should generate QR code with custom corner radius', () => {
-        const result = generateQrCode({
+    it('should generate QR code with custom corner radius', async () => {
+        const result = await generateQrCode({
             data: 'https://example.com',
             cornerRadius: 0.2,
         });
         expect(result.svg).toContain('<svg');
     });
 
-    it('should clamp logo scale to 0.1-0.3 range', () => {
-        const result = generateQrCode({
+    it('should clamp logo scale to 0.1-0.3 range', async () => {
+        const result = await generateQrCode({
             data: 'https://example.com',
             logoScale: 0.5,
         });
         expect(result.svg).toContain('<svg');
     });
 
-    it('should accept logo buffer with ECC_H', () => {
-        const logoBuffer = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100"/></svg>', 'utf-8');
-        const result = generateQrCode({
+    it('should accept logo URL with ECC_H', async () => {
+        const result = await generateQrCode({
             data: 'https://example.com',
-            logoBuffer,
+            logoUrl: 'https://example.com/logo.svg',
             logoScale: 0.2,
             eccLevel: ECC_H,
         });

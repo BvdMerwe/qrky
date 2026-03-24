@@ -19,6 +19,7 @@ import { ModuleTypeEnum } from './module-type.enum';
 import { QRkyOptions } from './QRkyOptions';
 import { readFileSync } from 'fs';
 import {DOMParser, XMLSerializer} from "@xmldom/xmldom";
+import {detectBufferMime, detectFilenameMime} from "mime-detect";
 
 export class QRkySVG extends QRMarkupSVG {
     protected declare options: QRkyOptions;
@@ -90,9 +91,7 @@ export class QRkySVG extends QRMarkupSVG {
 
         let svg = super.paths();
 
-        if (this.options.svgLogo !== null && this.options.svgLogo !== undefined) {
-            svg += this.getLogo();
-        }
+        svg += this.getLogo();
 
         return svg;
     }
@@ -247,22 +246,28 @@ export class QRkySVG extends QRMarkupSVG {
         const hasFileLogo = this.options.svgLogo !== null && this.options.svgLogo !== undefined;
         const hasBufferLogo = this.options.svgLogoBuffer !== null && this.options.svgLogoBuffer !== undefined;
 
+        console.log('beep')
         if (!hasFileLogo && !hasBufferLogo) {
             return '';
         }
 
         try {
             let svgLogoContents: string;
+            let svgElement: HTMLElement;
+            const parser = new DOMParser();
 
             if (hasBufferLogo) {
-                svgLogoContents = this.options.svgLogoBuffer!.toString('utf-8');
+                const imageContentsBase64 = this.options.svgLogoBuffer!.toString('base64');
+                console.log(`<svg> <image href="data:image/png;base64,${imageContentsBase64}" /> </svg>`);
+                const svgDom =parser.parseFromString(`<svg> <image href="data:image/png;base64,${imageContentsBase64}" /> </svg>`);
+                svgElement = svgDom.documentElement;
+                console.log('svgElement', svgElement);
             } else {
                 svgLogoContents = readFileSync(this.options.svgLogo!, 'utf-8');
+                const svgDom = parser.parseFromString(svgLogoContents, "image/svg+xml");
+                svgElement = svgDom.documentElement;
             }
 
-            const parser = new DOMParser();
-            const svgDom = parser.parseFromString(svgLogoContents, "image/svg+xml");
-            const svgElement = svgDom.documentElement;
             svgElement.setAttribute("width", this.options.svgViewBoxSize.toString());
             svgElement.setAttribute("height", this.options.svgViewBoxSize.toString());
 

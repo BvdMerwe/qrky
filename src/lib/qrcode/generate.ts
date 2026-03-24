@@ -1,12 +1,16 @@
 import {ECC_H, QRCode} from '@chillerlan/qrcode/dist/js-qrcode-node-src.cjs';
 import {QRkyOptions, QRkySVG} from '@/lib/qrcode';
+import path from 'node:path';
+import fs from 'node:fs';
+
+const DEFAULT_LOGO_PATH = path.join(process.cwd(), 'public', 'qrky-logo.svg');
 
 export interface GenerateQrCodeOptions {
     data: string;
     fgColor?: string;
     bgColor?: string;
     cornerRadius?: number;
-    logoBuffer?: Buffer | null;
+    logoUrl?: string | null;
     logoScale?: number;
     size?: number;
     eccLevel?: number;
@@ -25,17 +29,35 @@ const MIN_LOGO_SCALE = 0.1;
 const MAX_LOGO_SCALE = 0.3;
 const DEFAULT_SIZE = 1080;
 
-export function generateQrCode(options: GenerateQrCodeOptions): GenerateQrCodeResult {
+export async function generateQrCode(options: GenerateQrCodeOptions): Promise<GenerateQrCodeResult> {
     const {
         data,
         fgColor = DEFAULT_FG_COLOR,
         bgColor = DEFAULT_BG_COLOR,
         cornerRadius = DEFAULT_CORNER_RADIUS,
-        logoBuffer = null,
+        logoUrl = null,
         logoScale = DEFAULT_LOGO_SCALE,
         size = DEFAULT_SIZE,
         eccLevel = ECC_H,
     } = options;
+
+    let logoBuffer: Buffer | null = null;
+
+    if (logoUrl) {
+        try {
+            const response = await fetch(logoUrl, { signal: AbortSignal.timeout(5000) });
+            if (response.ok) {
+                const arrayBuffer = await response.arrayBuffer();
+                logoBuffer = Buffer.from(arrayBuffer);
+            }
+        } catch {
+            // Fall back to default logo
+        }
+    }
+
+    if (!logoBuffer && fs.existsSync(DEFAULT_LOGO_PATH)) {
+        logoBuffer = fs.readFileSync(DEFAULT_LOGO_PATH);
+    }
 
     const clampedLogoScale = Math.max(MIN_LOGO_SCALE, Math.min(MAX_LOGO_SCALE, logoScale));
 

@@ -40,27 +40,25 @@ export async function GET(request: NextRequest, {
     const previewMode = searchParams.get("preview") === "true";
     const supabase = await createClient();
 
-    const { data: qrCodeData, error: qrCodeError } = await supabase
+    const query = supabase
         .from("qr_codes")
         .select(`
             id,
             settings,
-            url_objects(enabled)
+            url_objects!inner(enabled)
         `)
         .eq("id", uuid)
-        .single()
-        .overrideTypes<{
-            id: string;
-            settings: QrCodeSettings;
-            url_objects: { enabled: true };
-        }>();
+        .single();
+
+    const { data: qrCodeData, error: qrCodeError } = await query;
 
     if (qrCodeError || !qrCodeData) {
         console.error(qrCodeError);
         return redirect("/500", RedirectType.push);
     }
 
-    const urlObjects = qrCodeData.url_objects;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase type inference doesn't handle embedded relations well
+    const urlObjects = (qrCodeData as any).url_objects as { enabled: boolean } | null;
     if (
         !previewMode &&
         (!urlObjects || !urlObjects.enabled)
@@ -69,8 +67,6 @@ export async function GET(request: NextRequest, {
     }
 
     const savedSettings = qrCodeData.settings as QrCodeSettings | null;
-
-    console.log(JSON.stringify(savedSettings));
 
     let fgColor: string;
     let bgColor: string;
@@ -128,30 +124,12 @@ async function generateQrCodeResponse(data: string, options?: {
     logoUrl?: string;
 }): Promise<Uint8Array> {
     try {
-        let logoBuffer: Buffer | null = null;
-
-        if (options?.logoUrl) {
-            try {
-                const response = await fetch(options.logoUrl);
-                if (response.ok) {
-                    const arrayBuffer = await response.arrayBuffer();
-                    logoBuffer = Buffer.from(arrayBuffer);
-                }
-            } catch {
-                console.warn("Failed to fetch logo, proceeding without logo");
-            }
-        } else if (fs.existsSync(LOGO_PATH)) {
-            logoBuffer = fs.readFileSync(LOGO_PATH);
-        }
-
-        console.log(options);
-
-        const qr = generateQrCode({
+        const qr = await generateQrCode({
             data,
             fgColor: options?.fgColor,
             bgColor: options?.bgColor,
             cornerRadius: options?.cornerRadius,
-            logoBuffer,
+            logoUrl: options?.logoUrl || null,
             logoScale: options?.logoScale,
         });
 
