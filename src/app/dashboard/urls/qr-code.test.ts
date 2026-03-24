@@ -132,6 +132,8 @@ describe('QR Code Server Actions', () => {
                     })),
                     update: mockUpdate
                 }))
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } as any);
 
             const { updateQrCode } = await import('@/app/dashboard/urls/[uuid]/qr/edit/actions');
@@ -171,6 +173,7 @@ describe('QR Code Server Actions', () => {
                         }))
                     }))
                 }))
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } as any);
 
             const { updateQrCode } = await import('@/app/dashboard/urls/[uuid]/qr/edit/actions');
@@ -204,6 +207,7 @@ describe('QR Code Server Actions', () => {
                     })),
                     update: mockUpdate
                 }))
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } as any);
 
             const { updateQrCode } = await import('@/app/dashboard/urls/[uuid]/qr/edit/actions');
