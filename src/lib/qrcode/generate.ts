@@ -27,7 +27,7 @@ const DEFAULT_BG_COLOR = '#ffffff';
 const DEFAULT_CORNER_RADIUS = 0.45;
 const DEFAULT_LOGO_SCALE = 0.2;
 const MIN_LOGO_SCALE = 0.1;
-const MAX_LOGO_SCALE = 0.5;
+const MAX_LOGO_SCALE = 0.4;
 const DEFAULT_SIZE = 1080;
 
 export async function generateQrCode(options: GenerateQrCodeOptions): Promise<GenerateQrCodeResult> {
