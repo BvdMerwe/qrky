@@ -1,6 +1,6 @@
 "use client"
 
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {TbPencil, TbQrcode, TbDownload} from "react-icons/tb";
@@ -12,13 +12,15 @@ interface Props {
     cacheKey: string
 }
 
-export default function QrCodePreviewComponent({ qrCodeUuid, urlUuid, cacheKey }: Props): React.ReactNode {
+export default function QrCodePreview({ qrCodeUuid, urlUuid, cacheKey }: Props): React.ReactNode {
     const modalRef = useRef<HTMLDialogElement>(null);
     const qrCodeUrl = `/qr/${qrCodeUuid}`;
-    const shortUrl = `${process.env.NEXT_PUBLIC_APP_URL}/u/${qrCodeUuid}`;
+    const shortUrl = `${process.env.NEXT_PUBLIC_APP_URL}/q/${qrCodeUuid}`;
     const [cacheKeyEncoded, setCacheKeyEncoded] = useState<string>();
 
-    hashString(cacheKey).then(setCacheKeyEncoded);
+    useEffect(() => {
+        hashString(cacheKey).then(setCacheKeyEncoded);
+    }, [cacheKey])
 
     return (
         <>
@@ -46,7 +48,7 @@ export default function QrCodePreviewComponent({ qrCodeUuid, urlUuid, cacheKey }
                         </div>
                         
                         <div className="text-center">
-                            <p className="text-sm opacity-70">Short URL:</p>
+                            <p className="text-sm opacity-70">QR Code URL:</p>
                             <code className="text-xs bg-base-200 px-2 py-1 rounded">{shortUrl}</code>
                         </div>
                         

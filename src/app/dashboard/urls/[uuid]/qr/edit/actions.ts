@@ -1,7 +1,6 @@
 "use server";
 
 import {createClient} from "@/lib/supabase/server";
-import {redirect, RedirectType} from "next/navigation";
 import {revalidatePath} from "next/cache";
 import {QrCodeSettings} from "@/types/db/qr-code";
 
@@ -144,5 +143,4 @@ export async function updateQrCode(formData: FormData): Promise<void> {
     }
 
     revalidatePath("/dashboard/urls");
-    redirect("/dashboard/urls", RedirectType.push);
 }

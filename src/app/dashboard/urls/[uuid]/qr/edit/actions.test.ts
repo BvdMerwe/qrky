@@ -8,15 +8,41 @@ vi.mock("@/lib/supabase/server", () => ({
 }));
 
 vi.mock("next/navigation", () => ({
-    redirect: vi.fn((url: string) => {
-        throw new Error(`REDIRECT:${url}`);
-    }),
+    redirect: vi.fn(),
     RedirectType: { push: "push" }
 }));
 
 vi.mock("next/cache", () => ({
     revalidatePath: vi.fn()
 }));
+
+function makeSuccessMock(qrSettings: object | null = null) {
+    let callCount = 0;
+    return {
+        auth: {
+            getUser: vi.fn().mockResolvedValue({
+                data: { user: { id: "user-123" } },
+                error: null
+            })
+        },
+        from: vi.fn(() => {
+            callCount++;
+            return {
+                select: vi.fn(() => ({
+                    eq: vi.fn(() => ({
+                        single: vi.fn().mockResolvedValue({
+                            data: callCount === 1
+                                ? { id: "qr-uuid", url_object_id: "url-obj-id", settings: qrSettings }
+                                : { id: "url-obj-id", user_id: "user-123" },
+                            error: null
+                        })
+                    }))
+                })),
+                update: vi.fn(() => ({ eq: vi.fn(() => ({ error: null })) }))
+            };
+        })
+    };
+}
 
 describe("updateQrCode", () => {
     beforeEach(() => {
@@ -64,37 +90,13 @@ describe("updateQrCode", () => {
 
     it("throws error for logo file too large", async () => {
         const { createClient } = await import("@/lib/supabase/server");
-        vi.mocked(createClient).mockResolvedValue({
-            auth: {
-                getUser: vi.fn().mockResolvedValue({
-                    data: { user: { id: "user-123" } },
-                    error: null
-                })
-            },
-            from: vi.fn(() => ({
-                select: vi.fn(() => ({
-                    eq: vi.fn(() => ({
-                        single: vi.fn().mockResolvedValue({
-                            data: { id: "qr-uuid", url_object_id: "url-id", settings: null },
-                            error: null
-                        })
-                    }))
-                })),
-                update: vi.fn(() => ({ eq: vi.fn(() => ({ error: null })) }))
-            })),
-            storage: {
-                from: vi.fn(() => ({
-                    upload: vi.fn(),
-                    getPublicUrl: vi.fn()
-                }))
-            }
-        } as any);
+        vi.mocked(createClient).mockResolvedValue(makeSuccessMock() as any);
 
         const formData = new FormData();
         formData.append("qr_code_id", "test-uuid");
         formData.append("fg_color", "#000000");
         formData.append("bg_color", "#ffffff");
-        
+
         const file = new File(["x".repeat(600 * 1024)], "logo.png", { type: "image/png" });
         formData.append("logo", file);
 
@@ -103,31 +105,7 @@ describe("updateQrCode", () => {
 
     it("throws error for invalid logo file type", async () => {
         const { createClient } = await import("@/lib/supabase/server");
-        vi.mocked(createClient).mockResolvedValue({
-            auth: {
-                getUser: vi.fn().mockResolvedValue({
-                    data: { user: { id: "user-123" } },
-                    error: null
-                })
-            },
-            from: vi.fn(() => ({
-                select: vi.fn(() => ({
-                    eq: vi.fn(() => ({
-                        single: vi.fn().mockResolvedValue({
-                            data: { id: "qr-uuid", url_object_id: "url-id", settings: null },
-                            error: null
-                        })
-                    }))
-                })),
-                update: vi.fn(() => ({ eq: vi.fn(() => ({ error: null })) }))
-            })),
-            storage: {
-                from: vi.fn(() => ({
-                    upload: vi.fn(),
-                    getPublicUrl: vi.fn()
-                }))
-            }
-        } as any);
+        vi.mocked(createClient).mockResolvedValue(makeSuccessMock() as any);
 
         const formData = new FormData();
         formData.append("qr_code_id", "test-uuid");
@@ -190,35 +168,10 @@ describe("updateQrCode", () => {
         await expect(updateQrCode(formData)).rejects.toThrow("QR code not found");
     });
 
-    it("redirects on successful update without logo", async () => {
-        const mockEq = vi.fn(() => ({ error: null }));
-        
-        let callCount = 0;
+    it("saves successfully without a logo", async () => {
         const { createClient } = await import("@/lib/supabase/server");
-        vi.mocked(createClient).mockResolvedValue({
-            auth: {
-                getUser: vi.fn().mockResolvedValue({
-                    data: { user: { id: "user-123" } },
-                    error: null
-                })
-            },
-            from: vi.fn(() => {
-                callCount++;
-                return {
-                    select: vi.fn(() => ({
-                        eq: vi.fn(() => ({
-                            single: vi.fn().mockResolvedValue({
-                                data: callCount === 1 
-                                    ? { id: "qr-uuid", url_object_id: "url-obj-id", settings: null }
-                                    : { id: "url-obj-id", user_id: "user-123" },
-                                error: null
-                            })
-                        }))
-                    })),
-                    update: vi.fn(() => ({ eq: mockEq }))
-                };
-            })
-        } as any);
+        const { revalidatePath } = await import("next/cache");
+        vi.mocked(createClient).mockResolvedValue(makeSuccessMock() as any);
 
         const formData = new FormData();
         formData.append("qr_code_id", "qr-uuid");
@@ -226,14 +179,17 @@ describe("updateQrCode", () => {
         formData.append("bg_color", "#ffffff");
         formData.append("corner_radius", "0.45");
 
-        await expect(updateQrCode(formData)).rejects.toThrow("REDIRECT:/dashboard/urls");
+        await updateQrCode(formData);
+
+        expect(revalidatePath).toHaveBeenCalledWith("/dashboard/urls");
     });
 
-    it("preserves existing logoUrl when saving without a new logo file", async () => {
-        const mockUpdate = vi.fn(() => ({ eq: vi.fn(() => ({ error: null })) }));
+    it("saves successfully with a logo upload", async () => {
+        const mockUpload = vi.fn().mockResolvedValue({ error: null });
+        const { createClient } = await import("@/lib/supabase/server");
+        const { revalidatePath } = await import("next/cache");
 
         let callCount = 0;
-        const { createClient } = await import("@/lib/supabase/server");
         vi.mocked(createClient).mockResolvedValue({
             auth: {
                 getUser: vi.fn().mockResolvedValue({
@@ -248,56 +204,6 @@ describe("updateQrCode", () => {
                         eq: vi.fn(() => ({
                             single: vi.fn().mockResolvedValue({
                                 data: callCount === 1
-                                    ? { id: "qr-uuid", url_object_id: "url-obj-id", settings: { fgColor: "#000000", bgColor: "#ffffff", cornerRadius: 0.45, logoUrl: "https://storage.example.com/qr-logos/user-123/existing-logo.png", logoScale: 0.2 } }
-                                    : { id: "url-obj-id", user_id: "user-123" },
-                                error: null
-                            })
-                        }))
-                    })),
-                    update: mockUpdate
-                };
-            })
-        } as any);
-
-        const formData = new FormData();
-        formData.append("qr_code_id", "qr-uuid");
-        formData.append("fg_color", "#ff0000");
-        formData.append("bg_color", "#ffffff");
-        formData.append("corner_radius", "0.45");
-        formData.append("logo_scale", "0.2");
-        // No logo file appended
-
-        await expect(updateQrCode(formData)).rejects.toThrow("REDIRECT:/dashboard/urls");
-
-        // Verify the existing logoUrl was preserved in the update call
-        expect(mockUpdate).toHaveBeenCalledWith(
-            expect.objectContaining({
-                settings: expect.objectContaining({
-                    logoUrl: "https://storage.example.com/qr-logos/user-123/existing-logo.png"
-                })
-            })
-        );
-    });
-
-    it("redirects on successful update with logo", async () => {
-        const mockUpload = vi.fn().mockResolvedValue({ error: null });
-        
-        let callCount = 0;
-        const { createClient } = await import("@/lib/supabase/server");
-        vi.mocked(createClient).mockResolvedValue({
-            auth: {
-                getUser: vi.fn().mockResolvedValue({
-                    data: { user: { id: "user-123" } },
-                    error: null
-                })
-            },
-            from: vi.fn(() => {
-                callCount++;
-                return {
-                    select: vi.fn(() => ({
-                        eq: vi.fn(() => ({
-                            single: vi.fn().mockResolvedValue({
-                                data: callCount === 1 
                                     ? { id: "qr-uuid", url_object_id: "url-obj-id", settings: null }
                                     : { id: "url-obj-id", user_id: "user-123" },
                                 error: null
@@ -323,16 +229,24 @@ describe("updateQrCode", () => {
         formData.append("bg_color", "#ffffff");
         formData.append("corner_radius", "0.45");
         formData.append("logo_scale", "0.2");
+        formData.append("logo", new File(["test"], "logo.png", { type: "image/png" }));
 
-        const file = new File(["test"], "logo.png", { type: "image/png" });
-        formData.append("logo", file);
+        await updateQrCode(formData);
 
-        await expect(updateQrCode(formData)).rejects.toThrow("REDIRECT:/dashboard/urls");
+        expect(mockUpload).toHaveBeenCalled();
+        expect(revalidatePath).toHaveBeenCalledWith("/dashboard/urls");
     });
 
-    it("allows empty corner radius (use default)", async () => {
-        const mockEq = vi.fn(() => ({ error: null }));
-        
+    it("preserves existing logoUrl when saving without a new logo file", async () => {
+        const existingSettings = {
+            fgColor: "#000000",
+            bgColor: "#ffffff",
+            cornerRadius: 0.45,
+            logoUrl: "https://storage.example.com/qr-logos/user-123/existing-logo.png",
+            logoScale: 0.2
+        };
+        const mockUpdate = vi.fn(() => ({ eq: vi.fn(() => ({ error: null })) }));
+
         let callCount = 0;
         const { createClient } = await import("@/lib/supabase/server");
         vi.mocked(createClient).mockResolvedValue({
@@ -348,24 +262,50 @@ describe("updateQrCode", () => {
                     select: vi.fn(() => ({
                         eq: vi.fn(() => ({
                             single: vi.fn().mockResolvedValue({
-                                data: callCount === 1 
-                                    ? { id: "qr-uuid", url_object_id: "url-obj-id", settings: null }
+                                data: callCount === 1
+                                    ? { id: "qr-uuid", url_object_id: "url-obj-id", settings: existingSettings }
                                     : { id: "url-obj-id", user_id: "user-123" },
                                 error: null
                             })
                         }))
                     })),
-                    update: vi.fn(() => ({ eq: mockEq }))
+                    update: mockUpdate
                 };
             })
         } as any);
 
         const formData = new FormData();
         formData.append("qr_code_id", "qr-uuid");
+        formData.append("fg_color", "#ff0000");
+        formData.append("bg_color", "#ffffff");
+        formData.append("corner_radius", "0.45");
+        formData.append("logo_scale", "0.2");
+        // No logo file appended
+
+        await updateQrCode(formData);
+
+        expect(mockUpdate).toHaveBeenCalledWith(
+            expect.objectContaining({
+                settings: expect.objectContaining({
+                    logoUrl: "https://storage.example.com/qr-logos/user-123/existing-logo.png"
+                })
+            })
+        );
+    });
+
+    it("accepts empty corner radius (uses null default)", async () => {
+        const { createClient } = await import("@/lib/supabase/server");
+        const { revalidatePath } = await import("next/cache");
+        vi.mocked(createClient).mockResolvedValue(makeSuccessMock() as any);
+
+        const formData = new FormData();
+        formData.append("qr_code_id", "qr-uuid");
         formData.append("fg_color", "#000000");
         formData.append("bg_color", "#ffffff");
-        // No corner_radius provided
+        // No corner_radius
 
-        await expect(updateQrCode(formData)).rejects.toThrow("REDIRECT:/dashboard/urls");
+        await updateQrCode(formData);
+
+        expect(revalidatePath).toHaveBeenCalledWith("/dashboard/urls");
     });
 });

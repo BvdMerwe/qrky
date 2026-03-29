@@ -30,12 +30,12 @@ export default async function UrlAnalyticsPage({
     const { data: qrCodes } = await supabase
         .from("qr_codes")
         .select("id")
-        .eq("url_object_uuid", uuid);
+        .eq("url_object_id", url.id);
     
     const { data: aliases } = await supabase
         .from("aliases")
         .select("id")
-        .eq("url_object_uuid", uuid);
+        .eq("url_object_id", url.id);
 
     const qrCodeIds = qrCodes?.map((qr: { id: string }) => qr.id) || [];
     const aliasIds = aliases?.map((alias: { id: string }) => alias.id) || [];

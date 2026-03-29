@@ -8,7 +8,7 @@ import Link from "next/link";
 import {deleteUrl, fetchUrlsBrowser, toggleEnabled} from "@/app/dashboard/urls/actions-browser";
 import CopyToClipboardComponent from "@/components/ui/copy-to-clipboard";
 import DeleteButtonComponent from "@/app/dashboard/urls/components/DeleteButton";
-import QrCodePreviewComponent from "./QrCodePreview";
+import QrCodePreview from "./QrCodePreview";
 import {hashString} from "@/lib/strings";
 
 interface Props extends TableProps {
@@ -91,7 +91,7 @@ export default function UrlTableComponent({
 
                     <td>
                         {url.qr_codes && url.qr_codes.length > 0
-                            ? <QrCodePreviewComponent 
+                            ? <QrCodePreview
                                 qrCodeUuid={url.qr_codes[0].id}
                                 urlUuid={url.uuid}
                                 cacheKey={JSON.stringify(url.qr_codes[0].settings)}
