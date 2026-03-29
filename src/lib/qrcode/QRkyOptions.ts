@@ -10,7 +10,7 @@ import {accessSync, constants, existsSync} from 'fs';
 
 export interface QRkyOptionsInterface extends QROptionsInterface {
     svgLogo?: string | null;
-    svgLogoBuffer?: Buffer | null;
+    customLogoBuffer?: Buffer | null;
     svgViewBoxSize?: number;
     svgLogoScale?: number;
     svgLogoScaleMinimum?: number;
@@ -26,7 +26,7 @@ export class QRkyOptions extends QROptions implements QRkyOptionsInterface {
     svgLogo: string | null = null;
 
     /** SVG logo as Buffer (for loading from URL/Storage) */
-    svgLogoBuffer: Buffer | null = null;
+    customLogoBuffer: Buffer | null = null;
 
     /** The scale of the SVG viewBox */
     svgViewBoxSize: number = 300;
@@ -102,17 +102,17 @@ export class QRkyOptions extends QROptions implements QRkyOptionsInterface {
     /**
      * Set SVG logo from Buffer
      */
-    protected set_svgLogoBuffer(svgLogoBuffer: Buffer | null | undefined): void {
-        if (!svgLogoBuffer) {
-            this.svgLogoBuffer = null;
+    protected set_customLogoBuffer(customLogoBuffer: Buffer | null | undefined): void {
+        if (!customLogoBuffer) {
+            this.customLogoBuffer = null;
             return;
         }
 
-        if (!Buffer.isBuffer(svgLogoBuffer)) {
+        if (!Buffer.isBuffer(customLogoBuffer)) {
             throw new QRCodeException('invalid svg logo buffer: must be a Buffer');
         }
 
-        this.svgLogoBuffer = svgLogoBuffer;
+        this.customLogoBuffer = customLogoBuffer;
     }
 
     /**
@@ -200,5 +200,9 @@ export class QRkyOptions extends QROptions implements QRkyOptionsInterface {
         } else {
             return false;
         }
+    }
+
+    protected set_circleRadius(radius: number): void {
+        this.circleRadius = Math.max(0, Math.min(0.75, radius));
     }
 }

@@ -4,26 +4,26 @@ import { validateLogoScale, clampLogoScale, generateQrCode } from '@/lib/qrcode/
 import { ECC_H } from '@chillerlan/qrcode/dist/js-qrcode-node-src.cjs';
 
 describe('QRkyOptions', () => {
-    describe('svgLogoBuffer', () => {
+    describe('customLogoBuffer', () => {
         it('should default to null', () => {
             const options = new QRkyOptions();
-            expect(options.svgLogoBuffer).toBeNull();
+            expect(options.customLogoBuffer).toBeNull();
         });
 
         it('should accept null explicitly', () => {
-            const options = new QRkyOptions({ svgLogoBuffer: null });
-            expect(options.svgLogoBuffer).toBeNull();
+            const options = new QRkyOptions({ customLogoBuffer: null });
+            expect(options.customLogoBuffer).toBeNull();
         });
 
         it('should accept Buffer', () => {
             const buffer = Buffer.from('<svg></svg>', 'utf-8');
-            const options = new QRkyOptions({ svgLogoBuffer: buffer });
-            expect(options.svgLogoBuffer).toEqual(buffer);
+            const options = new QRkyOptions({ customLogoBuffer: buffer });
+            expect(options.customLogoBuffer).toEqual(buffer);
         });
 
         it('should reject non-Buffer', () => {
             expect(() => {
-                new QRkyOptions({ svgLogoBuffer: 'not a buffer' as unknown as Buffer });
+                new QRkyOptions({ customLogoBuffer: 'not a buffer' as unknown as Buffer });
             }).toThrow('invalid svg logo buffer');
         });
     });

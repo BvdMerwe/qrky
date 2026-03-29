@@ -6,7 +6,6 @@ const nextConfig: NextConfig = {
         localPatterns: [
             {
                 pathname: "/qr/**",
-                search: "",
             },
         ],
         remotePatterns: [
@@ -15,7 +14,6 @@ const nextConfig: NextConfig = {
                 hostname: "localhost",
                 port: "3000",
                 pathname: "/qr/**",
-                search: "",
             },
         ],
     },

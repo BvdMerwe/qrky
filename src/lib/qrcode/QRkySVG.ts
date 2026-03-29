@@ -19,7 +19,8 @@ import { ModuleTypeEnum } from './module-type.enum';
 import { QRkyOptions } from './QRkyOptions';
 import { readFileSync } from 'fs';
 import {DOMParser, XMLSerializer} from "@xmldom/xmldom";
-import {detectBufferMime, detectFilenameMime} from "mime-detect";
+import Mimetics from "mimetics";
+import {imageSize} from "image-size";
 
 export class QRkySVG extends QRMarkupSVG {
     protected declare options: QRkyOptions;
@@ -244,46 +245,48 @@ export class QRkySVG extends QRMarkupSVG {
      */
     protected getLogo(): string {
         const hasFileLogo = this.options.svgLogo !== null && this.options.svgLogo !== undefined;
-        const hasBufferLogo = this.options.svgLogoBuffer !== null && this.options.svgLogoBuffer !== undefined;
-
-        console.log('beep')
+        const hasBufferLogo = this.options.customLogoBuffer !== null && this.options.customLogoBuffer !== undefined;
         if (!hasFileLogo && !hasBufferLogo) {
             return '';
         }
-
         try {
-            let svgLogoContents: string;
             let svgElement: HTMLElement;
+            let logoWidth = 1080;
+            let logoHeight = 1080;
             const parser = new DOMParser();
 
             if (hasBufferLogo) {
-                const imageContentsBase64 = this.options.svgLogoBuffer!.toString('base64');
-                console.log(`<svg> <image href="data:image/png;base64,${imageContentsBase64}" /> </svg>`);
-                const svgDom =parser.parseFromString(`<svg> <image href="data:image/png;base64,${imageContentsBase64}" /> </svg>`);
+                const imageContentsBase64 = this.options.customLogoBuffer!.toString('base64');
+                const fileType = Mimetics.parse(this.options.customLogoBuffer!);
+                const mime = fileType?.mime || 'image/unknown';
+
+                const sizeInfo = imageSize(this.options.customLogoBuffer!);
+                logoWidth = sizeInfo.width ?? this.options.svgViewBoxSize;
+                logoHeight = sizeInfo.height ?? this.options.svgViewBoxSize;
+
+                const svgDom = parser.parseFromString(
+                    `<svg viewBox="0 0 ${logoWidth} ${logoHeight}"><image href="data:${mime};base64,${imageContentsBase64}" width="${logoWidth}" height="${logoHeight}" /></svg>`,
+                    "image/svg+xml"
+                );
                 svgElement = svgDom.documentElement;
-                console.log('svgElement', svgElement);
             } else {
-                svgLogoContents = readFileSync(this.options.svgLogo!, 'utf-8');
+                const svgLogoContents = readFileSync(this.options.svgLogo!, 'utf-8');
                 const svgDom = parser.parseFromString(svgLogoContents, "image/svg+xml");
                 svgElement = svgDom.documentElement;
             }
 
-            svgElement.setAttribute("width", this.options.svgViewBoxSize.toString());
-            svgElement.setAttribute("height", this.options.svgViewBoxSize.toString());
+            svgElement.setAttribute("width", logoWidth.toString() ?? this.options.svgViewBoxSize.toString());
+            svgElement.setAttribute("height", logoHeight.toString() ?? this.options.svgViewBoxSize.toString());
 
-            const width = this.options.svgViewBoxSize;
-            const height = this.options.svgViewBoxSize;
-            const sizeMax = Math.max(width, height);
+            const logoScale = this.options.svgLogoScale ?? 0.2;
+            const scale = (this.moduleCount * logoScale) / Math.max(logoWidth, logoHeight);
+            const center = (this.moduleCount / 2);
 
-            const sizeRelative = this.moduleCount / sizeMax;
-            const sizeScaled = sizeRelative * (this.options.svgLogoScale ?? 0.2);
             const eol = this.options.eol ?? '\n';
             const cssClass = this.options.svgLogoCssClass ?? 'logo';
-            const logoScale = this.options.svgLogoScale ?? 0.2;
-            const translateOffset = (this.moduleCount / 2) - (this.moduleCount * logoScale / 2);
             const serialized = new XMLSerializer().serializeToString(svgElement);
 
-            return `${eol}<g transform="translate(${translateOffset} ${translateOffset}) scale(${sizeScaled})" class="${cssClass}">${eol}\t${serialized}${eol}</g>`;
+            return `${eol}<g transform="translate(${center} ${center}) scale(${scale} ${scale}) translate(${-logoWidth / 2} ${-logoHeight / 2})" class="${cssClass}">${eol}\t${serialized}${eol}</g>`;
         } catch (error) {
             console.error('Error loading SVG logo:', error);
             return '';

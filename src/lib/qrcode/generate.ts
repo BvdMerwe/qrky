@@ -11,6 +11,7 @@ export interface GenerateQrCodeOptions {
     bgColor?: string;
     cornerRadius?: number;
     logoUrl?: string | null;
+    logoClearSpace?: boolean;
     logoScale?: number;
     size?: number;
     eccLevel?: number;
@@ -26,7 +27,7 @@ const DEFAULT_BG_COLOR = '#ffffff';
 const DEFAULT_CORNER_RADIUS = 0.45;
 const DEFAULT_LOGO_SCALE = 0.2;
 const MIN_LOGO_SCALE = 0.1;
-const MAX_LOGO_SCALE = 0.3;
+const MAX_LOGO_SCALE = 0.5;
 const DEFAULT_SIZE = 1080;
 
 export async function generateQrCode(options: GenerateQrCodeOptions): Promise<GenerateQrCodeResult> {
@@ -36,6 +37,7 @@ export async function generateQrCode(options: GenerateQrCodeOptions): Promise<Ge
         bgColor = DEFAULT_BG_COLOR,
         cornerRadius = DEFAULT_CORNER_RADIUS,
         logoUrl = null,
+        logoClearSpace = false,
         logoScale = DEFAULT_LOGO_SCALE,
         size = DEFAULT_SIZE,
         eccLevel = ECC_H,
@@ -55,10 +57,6 @@ export async function generateQrCode(options: GenerateQrCodeOptions): Promise<Ge
         }
     }
 
-    if (!logoBuffer && fs.existsSync(DEFAULT_LOGO_PATH)) {
-        logoBuffer = fs.readFileSync(DEFAULT_LOGO_PATH);
-    }
-
     const clampedLogoScale = Math.max(MIN_LOGO_SCALE, Math.min(MAX_LOGO_SCALE, logoScale));
 
     const qrOptions = new QRkyOptions({
@@ -71,8 +69,9 @@ export async function generateQrCode(options: GenerateQrCodeOptions): Promise<Ge
         outputInterface: QRkySVG,
         drawLightModules: true,
         circleRadius: cornerRadius,
-        svgLogoBuffer: logoBuffer,
-        clearLogoSpace: logoBuffer !== null,
+        customLogoBuffer: logoBuffer,
+        svgLogo: DEFAULT_LOGO_PATH,
+        clearLogoSpace: logoClearSpace,
         svgLogoScale: clampedLogoScale,
         svgLogoScaleMinimum: MIN_LOGO_SCALE,
         svgLogoScaleMaximum: MAX_LOGO_SCALE,

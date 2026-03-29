@@ -1,19 +1,24 @@
 "use client"
 
-import React, {useRef} from "react";
+import React, {useRef, useState} from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {TbPencil, TbQrcode, TbDownload} from "react-icons/tb";
+import {hashString} from "@/lib/strings";
 
 interface Props {
     qrCodeUuid: string;
     urlUuid: string;
+    cacheKey: string
 }
 
-export default function QrCodePreviewComponent({ qrCodeUuid, urlUuid }: Props): React.ReactNode {
+export default function QrCodePreviewComponent({ qrCodeUuid, urlUuid, cacheKey }: Props): React.ReactNode {
     const modalRef = useRef<HTMLDialogElement>(null);
     const qrCodeUrl = `/qr/${qrCodeUuid}`;
     const shortUrl = `${process.env.NEXT_PUBLIC_APP_URL}/u/${qrCodeUuid}`;
+    const [cacheKeyEncoded, setCacheKeyEncoded] = useState<string>();
+
+    hashString(cacheKey).then(setCacheKeyEncoded);
 
     return (
         <>
@@ -32,7 +37,7 @@ export default function QrCodePreviewComponent({ qrCodeUuid, urlUuid }: Props): 
                     <div className="flex flex-col items-center gap-4">
                         <div className="bg-white p-4 rounded-lg shadow-inner">
                             <Image 
-                                src={qrCodeUrl} 
+                                src={`${qrCodeUrl}?ck=${cacheKeyEncoded ?? '0'}`}
                                 alt="QR Code" 
                                 width={300} 
                                 height={300}

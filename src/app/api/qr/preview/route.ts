@@ -15,7 +15,7 @@ function isAllowedLogoUrl(url: string | null): boolean {
         return true;
     }
     
-    const supabaseStoragePattern = /^https:\/\/[^/]+\/storage\/v1\/object\/public\/qr-logos\//i;
+    const supabaseStoragePattern = /^http(s)?:\/\/[^/]+\/storage\/v1\/object\/public\/qr-logos\//i;
     if (supabaseStoragePattern.test(url)) {
         return true;
     }
@@ -29,10 +29,10 @@ export async function GET(request: NextRequest) {
     const data = searchParams.get('data');
     const fgColor = searchParams.get('fg') || DEFAULT_FG_COLOR;
     const bgColor = searchParams.get('bg') || DEFAULT_BG_COLOR;
-    const cornerRadius = parseFloat(searchParams.get('cornerRadius') || '') || DEFAULT_CORNER_RADIUS;
-    const logoScale = parseFloat(searchParams.get('logoScale') || '') || DEFAULT_LOGO_SCALE;
-    const logoUrl = searchParams.get('logoUrl');
-    
+    const cornerRadius = parseFloat(searchParams.get('cr') || '') || DEFAULT_CORNER_RADIUS;
+    const logoScale = parseFloat(searchParams.get('ls') || '') || DEFAULT_LOGO_SCALE;
+    const logoUrl = searchParams.get('logo');
+
     if (!data) {
         return NextResponse.json(
             { error: 'Missing required parameter: data' },

@@ -150,15 +150,17 @@ export default function QrEditForm({ qrCodeId, initialSettings }: QrEditFormProp
                     <label className="label">
                         <span className="label-text">Corner Radius: {cornerRadius}</span>
                     </label>
-                    <input
-                        type="range"
-                        min="0"
-                        max="0.5"
-                        step="0.05"
-                        value={cornerRadius}
-                        onChange={(e) => setCornerRadius(parseFloat(e.target.value))}
-                        className="range range-primary"
-                    />
+                    <div>
+                        <input
+                            type="range"
+                            min="0"
+                            max="0.5"
+                            step="0.0001"
+                            value={cornerRadius}
+                            onChange={(e) => setCornerRadius(parseFloat(e.target.value))}
+                            className="range range-primary w-full"
+                        />
+                    </div>
                     <div className="flex justify-between text-xs opacity-50 mt-1">
                         <span>Square (0)</span>
                         <span>Round (0.5)</span>
@@ -169,18 +171,20 @@ export default function QrEditForm({ qrCodeId, initialSettings }: QrEditFormProp
                     <label className="label">
                         <span className="label-text">Logo Scale: {Math.round(logoScale * 100)}%</span>
                     </label>
-                    <input
-                        type="range"
-                        min="0.1"
-                        max="0.3"
-                        step="0.05"
-                        value={logoScale}
-                        onChange={(e) => setLogoScale(parseFloat(e.target.value))}
-                        className="range range-primary"
-                    />
+                    <div>
+                        <input
+                            type="range"
+                            min="0.1"
+                            max="0.4"
+                            step="0.001"
+                            value={logoScale}
+                            onChange={(e) => setLogoScale(parseFloat(e.target.value))}
+                            className="range range-primary w-full"
+                        />
+                    </div>
                     <div className="flex justify-between text-xs opacity-50 mt-1">
                         <span>10%</span>
-                        <span>30%</span>
+                        <span>40%</span>
                     </div>
                 </div>
 

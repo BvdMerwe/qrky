@@ -9,6 +9,7 @@ import {deleteUrl, fetchUrlsBrowser, toggleEnabled} from "@/app/dashboard/urls/a
 import CopyToClipboardComponent from "@/components/ui/copy-to-clipboard";
 import DeleteButtonComponent from "@/app/dashboard/urls/components/DeleteButton";
 import QrCodePreviewComponent from "./QrCodePreview";
+import {hashString} from "@/lib/strings";
 
 interface Props extends TableProps {
     urlsInitial: UrlObject[];
@@ -23,9 +24,7 @@ export default function UrlTableComponent({
         setUrls(await fetchUrlsBrowser());
     }, []);
     const deleteUrlAction = useCallback(async (uuid: string) => {
-        console.log("deleteUrlAction", uuid);
         await deleteUrl(uuid);
-        console.log("deleteUrlAction done");
         setUrls(await fetchUrlsBrowser());
     }, []);
 
@@ -95,6 +94,7 @@ export default function UrlTableComponent({
                             ? <QrCodePreviewComponent 
                                 qrCodeUuid={url.qr_codes[0].id}
                                 urlUuid={url.uuid}
+                                cacheKey={JSON.stringify(url.qr_codes[0].settings)}
                             />
                             : <Link className="btn btn-soft btn-primary btn-xs tooltip tooltip-top" data-tip="Add a QR code" href={`/dashboard/urls/${url.uuid}/qr/new`}>
                                 <TbPlus/>
