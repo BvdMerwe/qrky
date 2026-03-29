@@ -3,6 +3,7 @@
 import {createClient} from "@/lib/supabase/server";
 import {redirect, RedirectType} from "next/navigation";
 import {revalidatePath} from "next/cache";
+import {QrCodeSettings} from "@/types/db/qr-code";
 
 const MAX_LOGO_SIZE = 500 * 1024; // 500KB
 const ALLOWED_LOGO_TYPES = ["image/svg+xml", "image/png", "image/jpeg", "image/jpg"];
@@ -64,10 +65,10 @@ export async function updateQrCode(formData: FormData): Promise<void> {
         throw new Error("Authentication required");
     }
 
-    // Verify QR code exists and belongs to user's URL
+    // Verify QR code exists and belongs to user's URL (fetch settings to preserve existing logoUrl)
     const { data: qrCode, error: fetchError } = await supabase
         .from("qr_codes")
-        .select("id, url_object_id")
+        .select("id, url_object_id, settings")
         .eq("id", qrCodeId)
         .single();
 
@@ -119,12 +120,15 @@ export async function updateQrCode(formData: FormData): Promise<void> {
         logoUrl = urlData.publicUrl;
     }
 
+    // Preserve existing logoUrl if no new logo was uploaded
+    const existingLogoUrl = (qrCode.settings as QrCodeSettings | null)?.logoUrl ?? null;
+
     // Build settings object
     const settings = {
         fgColor: fgColor || null,
         bgColor: bgColor || null,
         cornerRadius: cornerRadius,
-        logoUrl: logoUrl,
+        logoUrl: logoUrl ?? existingLogoUrl,
         logoScale: formData.get("logo_scale") ? parseFloat(formData.get("logo_scale") as string) : null,
     };
 

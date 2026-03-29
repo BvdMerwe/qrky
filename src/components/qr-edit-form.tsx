@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useTransition } from "react";
+import React, { useState, useEffect, useTransition, useRef, useCallback, useMemo } from "react";
 import Image from "next/image";
+import { ColorPicker, ColorService, IColor } from "react-color-palette";
+import "react-color-palette/css";
 import { updateQrCode } from "@/app/dashboard/urls/[uuid]/qr/edit/actions";
 import { QrCodeSettings } from "@/types/db/qr-code";
-import {buildQrCodeUrl} from "@/lib/qrcode/buildQrCodeUrl";
+import { buildQrCodeUrl } from "@/lib/qrcode/buildQrCodeUrl";
 
 interface QrEditFormProps {
     qrCodeId: string;
@@ -15,6 +17,76 @@ const DEFAULT_FG_COLOR = "#000000";
 const DEFAULT_BG_COLOR = "#ffffff";
 const DEFAULT_CORNER_RADIUS = 0.45;
 const DEFAULT_LOGO_SCALE = 0.2;
+
+interface ColorSwatchPickerProps {
+    label: string;
+    color: string;
+    onChange: (hex: string) => void;
+}
+
+function ColorSwatchPicker({ label, color, onChange }: ColorSwatchPickerProps) {
+    const [open, setOpen] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    // Derive iColor from hex prop; fall back gracefully on invalid input
+    const iColor = useMemo<IColor>(() => {
+        if (/^#[0-9A-Fa-f]{6}$/.test(color)) {
+            return ColorService.convert("hex", color);
+        }
+        return ColorService.convert("hex", "#000000");
+    }, [color]);
+
+    // Close on outside click
+    useEffect(() => {
+        if (!open) return;
+        function handleClick(e: MouseEvent) {
+            if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+                setOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClick);
+        return () => document.removeEventListener("mousedown", handleClick);
+    }, [open]);
+
+    const handlePickerChange = useCallback((c: IColor) => {
+        onChange(c.hex);
+    }, [onChange]);
+
+    return (
+        <div className="form-control relative" ref={containerRef}>
+            <label className="label">
+                <span className="label-text">{label}</span>
+            </label>
+            <div className="flex gap-2 items-center">
+                <button
+                    type="button"
+                    className="btn btn-square btn-sm border border-base-300 w-10 h-10 rounded flex-shrink-0"
+                    style={{ backgroundColor: color }}
+                    onClick={() => setOpen((o) => !o)}
+                    aria-label={`Pick ${label}`}
+                />
+                <input
+                    type="text"
+                    value={color}
+                    onChange={(e) => onChange(e.target.value)}
+                    className="input input-bordered flex-1"
+                    placeholder="#000000"
+                    maxLength={7}
+                />
+            </div>
+            {open && (
+                <div className="absolute top-full left-0 z-50 mt-1 shadow-xl rounded-lg bg-base-100 p-3 border border-base-300">
+                    <ColorPicker
+                        height={150}
+                        hideAlpha
+                        color={iColor}
+                        onChange={handlePickerChange}
+                    />
+                </div>
+            )}
+        </div>
+    );
+}
 
 export default function QrEditForm({ qrCodeId, initialSettings }: QrEditFormProps): React.ReactNode {
     const [fgColor, setFgColor] = useState(initialSettings?.fgColor || DEFAULT_FG_COLOR);
@@ -103,47 +175,16 @@ export default function QrEditForm({ qrCodeId, initialSettings }: QrEditFormProp
                 <h3 className="card-title text-xl mb-6">QR Code Settings</h3>
 
                 <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="form-control">
-                        <label className="label">
-                            <span className="label-text">Foreground Color</span>
-                        </label>
-                        <div className="flex gap-2">
-                            <input
-                                type="color"
-                                value={fgColor}
-                                onChange={(e) => setFgColor(e.target.value)}
-                                className="w-12 h-12 rounded cursor-pointer"
-                            />
-                            <input
-                                type="text"
-                                value={fgColor}
-                                onChange={(e) => setFgColor(e.target.value)}
-                                className="input input-bordered flex-1"
-                                placeholder="#000000"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="form-control">
-                        <label className="label">
-                            <span className="label-text">Background Color</span>
-                        </label>
-                        <div className="flex gap-2">
-                            <input
-                                type="color"
-                                value={bgColor}
-                                onChange={(e) => setBgColor(e.target.value)}
-                                className="w-12 h-12 rounded cursor-pointer"
-                            />
-                            <input
-                                type="text"
-                                value={bgColor}
-                                onChange={(e) => setBgColor(e.target.value)}
-                                className="input input-bordered flex-1"
-                                placeholder="#ffffff"
-                            />
-                        </div>
-                    </div>
+                    <ColorSwatchPicker
+                        label="Foreground Color"
+                        color={fgColor}
+                        onChange={setFgColor}
+                    />
+                    <ColorSwatchPicker
+                        label="Background Color"
+                        color={bgColor}
+                        onChange={setBgColor}
+                    />
                 </div>
 
                 <div className="form-control mb-6">

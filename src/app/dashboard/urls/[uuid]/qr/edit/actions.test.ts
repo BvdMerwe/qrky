@@ -75,7 +75,7 @@ describe("updateQrCode", () => {
                 select: vi.fn(() => ({
                     eq: vi.fn(() => ({
                         single: vi.fn().mockResolvedValue({
-                            data: { id: "qr-uuid", url_object_id: "url-id" },
+                            data: { id: "qr-uuid", url_object_id: "url-id", settings: null },
                             error: null
                         })
                     }))
@@ -114,7 +114,7 @@ describe("updateQrCode", () => {
                 select: vi.fn(() => ({
                     eq: vi.fn(() => ({
                         single: vi.fn().mockResolvedValue({
-                            data: { id: "qr-uuid", url_object_id: "url-id" },
+                            data: { id: "qr-uuid", url_object_id: "url-id", settings: null },
                             error: null
                         })
                     }))
@@ -209,7 +209,7 @@ describe("updateQrCode", () => {
                         eq: vi.fn(() => ({
                             single: vi.fn().mockResolvedValue({
                                 data: callCount === 1 
-                                    ? { id: "qr-uuid", url_object_id: "url-obj-id" }
+                                    ? { id: "qr-uuid", url_object_id: "url-obj-id", settings: null }
                                     : { id: "url-obj-id", user_id: "user-123" },
                                 error: null
                             })
@@ -227,6 +227,56 @@ describe("updateQrCode", () => {
         formData.append("corner_radius", "0.45");
 
         await expect(updateQrCode(formData)).rejects.toThrow("REDIRECT:/dashboard/urls");
+    });
+
+    it("preserves existing logoUrl when saving without a new logo file", async () => {
+        const mockUpdate = vi.fn(() => ({ eq: vi.fn(() => ({ error: null })) }));
+
+        let callCount = 0;
+        const { createClient } = await import("@/lib/supabase/server");
+        vi.mocked(createClient).mockResolvedValue({
+            auth: {
+                getUser: vi.fn().mockResolvedValue({
+                    data: { user: { id: "user-123" } },
+                    error: null
+                })
+            },
+            from: vi.fn(() => {
+                callCount++;
+                return {
+                    select: vi.fn(() => ({
+                        eq: vi.fn(() => ({
+                            single: vi.fn().mockResolvedValue({
+                                data: callCount === 1
+                                    ? { id: "qr-uuid", url_object_id: "url-obj-id", settings: { fgColor: "#000000", bgColor: "#ffffff", cornerRadius: 0.45, logoUrl: "https://storage.example.com/qr-logos/user-123/existing-logo.png", logoScale: 0.2 } }
+                                    : { id: "url-obj-id", user_id: "user-123" },
+                                error: null
+                            })
+                        }))
+                    })),
+                    update: mockUpdate
+                };
+            })
+        } as any);
+
+        const formData = new FormData();
+        formData.append("qr_code_id", "qr-uuid");
+        formData.append("fg_color", "#ff0000");
+        formData.append("bg_color", "#ffffff");
+        formData.append("corner_radius", "0.45");
+        formData.append("logo_scale", "0.2");
+        // No logo file appended
+
+        await expect(updateQrCode(formData)).rejects.toThrow("REDIRECT:/dashboard/urls");
+
+        // Verify the existing logoUrl was preserved in the update call
+        expect(mockUpdate).toHaveBeenCalledWith(
+            expect.objectContaining({
+                settings: expect.objectContaining({
+                    logoUrl: "https://storage.example.com/qr-logos/user-123/existing-logo.png"
+                })
+            })
+        );
     });
 
     it("redirects on successful update with logo", async () => {
@@ -248,7 +298,7 @@ describe("updateQrCode", () => {
                         eq: vi.fn(() => ({
                             single: vi.fn().mockResolvedValue({
                                 data: callCount === 1 
-                                    ? { id: "qr-uuid", url_object_id: "url-obj-id" }
+                                    ? { id: "qr-uuid", url_object_id: "url-obj-id", settings: null }
                                     : { id: "url-obj-id", user_id: "user-123" },
                                 error: null
                             })
@@ -299,7 +349,7 @@ describe("updateQrCode", () => {
                         eq: vi.fn(() => ({
                             single: vi.fn().mockResolvedValue({
                                 data: callCount === 1 
-                                    ? { id: "qr-uuid", url_object_id: "url-obj-id" }
+                                    ? { id: "qr-uuid", url_object_id: "url-obj-id", settings: null }
                                     : { id: "url-obj-id", user_id: "user-123" },
                                 error: null
                             })
