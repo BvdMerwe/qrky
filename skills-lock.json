@@ -106,6 +106,11 @@
       "sourceType": "github",
       "computedHash": "9b446f0c7fe1cfb560b1d34439523b1a76d5f177290007b2c053a1c749a4a8ba"
     },
+    "vitest": {
+      "source": "bobmatnyc/claude-mpm-skills",
+      "sourceType": "github",
+      "computedHash": "9d2eef62dbba4528c258222534cf2f1bfa37bdc1a00547add05e3367ac4946f3"
+    },
     "writing-plans": {
       "source": "obra/superpowers",
       "sourceType": "github",
