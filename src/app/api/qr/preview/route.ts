@@ -23,6 +23,18 @@ function isAllowedLogoUrl(url: string | null): boolean {
     return false;
 }
 
+/**
+ * Generate a preview QR code.
+ * @param request {
+ *  data = the QR code data
+ *  fg = the foreground color (filled modules)
+ *  bg = the background color (empty modules)
+ *  cr = corner radius of modules
+ *  ls = the scale of the logo from 0 to 1
+ *  logo = the URL of the logo (must be a valid internal image)
+ * }
+ * @constructor
+ */
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     

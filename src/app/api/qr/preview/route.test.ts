@@ -65,7 +65,7 @@ describe('QR Preview Endpoint', () => {
     it('applies custom cornerRadius', async () => {
         const { generateQrCode } = await import('@/lib/qrcode/generate');
         const { GET } = await import('./route');
-        const request = createMockRequest('http://localhost:3000/api/qr/preview?data=https://example.com&cornerRadius=0.3');
+        const request = createMockRequest('http://localhost:3000/api/qr/preview?data=https://example.com&cr=0.3');
         
         await GET(request);
         
@@ -79,7 +79,7 @@ describe('QR Preview Endpoint', () => {
     it('applies custom logoScale', async () => {
         const { generateQrCode } = await import('@/lib/qrcode/generate');
         const { GET } = await import('./route');
-        const request = createMockRequest('http://localhost:3000/api/qr/preview?data=https://example.com&logoScale=0.25');
+        const request = createMockRequest('http://localhost:3000/api/qr/preview?data=https://example.com&ls=0.25');
         
         await GET(request);
         
@@ -93,7 +93,7 @@ describe('QR Preview Endpoint', () => {
     it('allows empty logoUrl', async () => {
         const { generateQrCode } = await import('@/lib/qrcode/generate');
         const { GET } = await import('./route');
-        const request = createMockRequest('http://localhost:3000/api/qr/preview?data=https://example.com&logoUrl=');
+        const request = createMockRequest('http://localhost:3000/api/qr/preview?data=https://example.com&logo=');
         
         const response = await GET(request);
         
@@ -108,7 +108,7 @@ describe('QR Preview Endpoint', () => {
     it('allows "default" logoUrl', async () => {
         const { generateQrCode } = await import('@/lib/qrcode/generate');
         const { GET } = await import('./route');
-        const request = createMockRequest('http://localhost:3000/api/qr/preview?data=https://example.com&logoUrl=default');
+        const request = createMockRequest('http://localhost:3000/api/qr/preview?data=https://example.com&logo=default');
         
         const response = await GET(request);
         
@@ -123,7 +123,7 @@ describe('QR Preview Endpoint', () => {
     it('allows Supabase Storage URL from qr-logos bucket', async () => {
         const { GET } = await import('./route');
         const logoUrl = 'https://api.qrky.app/storage/v1/object/public/qr-logos/user123/logo.png';
-        const request = createMockRequest(`http://localhost:3000/api/qr/preview?data=https://example.com&logoUrl=${encodeURIComponent(logoUrl)}`);
+        const request = createMockRequest(`http://localhost:3000/api/qr/preview?data=https://example.com&logo=${encodeURIComponent(logoUrl)}`);
         
         const response = await GET(request);
         
@@ -132,7 +132,7 @@ describe('QR Preview Endpoint', () => {
 
     it('rejects arbitrary external URL as logoUrl', async () => {
         const { GET } = await import('./route');
-        const request = createMockRequest('http://localhost:3000/api/qr/preview?data=https://example.com&logoUrl=https://evil.com/logo.png');
+        const request = createMockRequest('http://localhost:3000/api/qr/preview?data=https://example.com&logo=https://evil.com/logo.png');
         
         const response = await GET(request);
         
@@ -143,7 +143,7 @@ describe('QR Preview Endpoint', () => {
 
     it('rejects other Supabase buckets', async () => {
         const { GET } = await import('./route');
-        const request = createMockRequest('http://localhost:3000/api/qr/preview?data=https://example.com&logoUrl=https://api.qrky.app/storage/v1/object/public/other-bucket/logo.png');
+        const request = createMockRequest('http://localhost:3000/api/qr/preview?data=https://example.com&logo=https://api.qrky.app/storage/v1/object/public/other-bucket/logo.png');
         
         const response = await GET(request);
         
