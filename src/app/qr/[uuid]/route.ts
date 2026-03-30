@@ -83,8 +83,10 @@ export async function GET(request: NextRequest, {
         bgColor = searchParams.get("bg")
             ? `#${searchParams.get("bg")}`
             : (savedSettings?.bgColor || DEFAULT_BG_COLOR);
-        cornerRadius = parseFloat(searchParams.get("cr") || "") ||
-            (savedSettings?.cornerRadius ?? DEFAULT_CORNER_RADIUS);
+        const crStr = searchParams.get("cr");
+        cornerRadius = crStr !== null && crStr !== ''
+            ? parseFloat(crStr)
+            : (savedSettings?.cornerRadius ?? DEFAULT_CORNER_RADIUS);
         logoScale = parseFloat(searchParams.get("ls") || "") ||
             (savedSettings?.logoScale ?? DEFAULT_LOGO_SCALE);
         logoUrl = searchParams.get("logo") ||

@@ -76,6 +76,20 @@ describe('QR Preview Endpoint', () => {
         );
     });
 
+    it('applies cornerRadius of 0 (square modules) without falling back to default', async () => {
+        const { generateQrCode } = await import('@/lib/qrcode/generate');
+        const { GET } = await import('./route');
+        const request = createMockRequest('http://localhost:3000/api/qr/preview?data=https://example.com&cr=0');
+
+        await GET(request);
+
+        expect(generateQrCode).toHaveBeenCalledWith(
+            expect.objectContaining({
+                cornerRadius: 0,
+            })
+        );
+    });
+
     it('applies custom logoScale', async () => {
         const { generateQrCode } = await import('@/lib/qrcode/generate');
         const { GET } = await import('./route');
