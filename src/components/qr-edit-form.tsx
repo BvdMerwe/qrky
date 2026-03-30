@@ -95,6 +95,8 @@ export default function QrEditForm({ qrCodeId, initialSettings }: QrEditFormProp
     const [logoScale, setLogoScale] = useState(initialSettings?.logoScale ?? DEFAULT_LOGO_SCALE);
     const [logoFile, setLogoFile] = useState<File | null>(null);
     const [logoPreview, setLogoPreview] = useState<string | null>(initialSettings?.logoUrl || null);
+    const [clearLogo, setClearLogo] = useState(false);
+    const [clearLogoSpace, setClearLogoSpace] = useState(initialSettings?.clearLogoSpace ?? false);
     const [isPending, startTransition] = useTransition();
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
@@ -109,8 +111,13 @@ export default function QrEditForm({ qrCodeId, initialSettings }: QrEditFormProp
             ls: logoScale.toString(),
             data: buildQrCodeUrl(qrCodeId),
         });
-        if (initialSettings?.logoUrl) {
-            params.set("logo", initialSettings.logoUrl);
+        // Use logo from new file preview, or existing URL (unless being cleared)
+        const effectiveLogoUrl = clearLogo ? null : (logoFile ? null : initialSettings?.logoUrl);
+        if (effectiveLogoUrl) {
+            params.set("logo", effectiveLogoUrl);
+        }
+        if (clearLogoSpace) {
+            params.set("cls", "1");
         }
         
         const timer = setTimeout(() => {
@@ -118,7 +125,7 @@ export default function QrEditForm({ qrCodeId, initialSettings }: QrEditFormProp
         }, 300);
         
         return () => clearTimeout(timer);
-    }, [qrCodeId, fgColor, bgColor, cornerRadius, logoScale, initialSettings?.logoUrl]);
+    }, [qrCodeId, fgColor, bgColor, cornerRadius, logoScale, initialSettings?.logoUrl, clearLogo, logoFile, clearLogoSpace]);
 
     const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -137,12 +144,19 @@ export default function QrEditForm({ qrCodeId, initialSettings }: QrEditFormProp
 
         setError(null);
         setLogoFile(file);
+        setClearLogo(false); // new upload cancels any pending removal
 
         const reader = new FileReader();
         reader.onload = (e) => {
             setLogoPreview(e.target?.result as string);
         };
         reader.readAsDataURL(file);
+    };
+
+    const handleRemoveLogo = () => {
+        setClearLogo(true);
+        setLogoFile(null);
+        setLogoPreview(null);
     };
 
     const handleSubmit = async (formData: FormData) => {
@@ -154,6 +168,8 @@ export default function QrEditForm({ qrCodeId, initialSettings }: QrEditFormProp
         formData.append("bg_color", bgColor);
         formData.append("corner_radius", cornerRadius.toString());
         formData.append("logo_scale", logoScale.toString());
+        formData.append("clear_logo", clearLogo.toString());
+        formData.append("clear_logo_space", clearLogoSpace.toString());
 
         if (logoFile) {
             formData.append("logo", logoFile);
@@ -249,11 +265,32 @@ export default function QrEditForm({ qrCodeId, initialSettings }: QrEditFormProp
                         <label className="label">
                             <span className="label-text">Logo Preview</span>
                         </label>
-                        <div className="w-24 h-24 rounded border p-2 bg-base-100">
-                            <Image src={logoPreview} alt="Logo preview" width={80} height={80} className="w-full h-full object-contain" unoptimized />
+                        <div className="flex items-center gap-4">
+                            <div className="w-24 h-24 rounded border p-2 bg-base-100">
+                                <Image src={logoPreview} alt="Logo preview" width={80} height={80} className="w-full h-full object-contain" unoptimized />
+                            </div>
+                            <button
+                                type="button"
+                                className="btn btn-sm btn-error btn-outline"
+                                onClick={handleRemoveLogo}
+                            >
+                                Remove Logo
+                            </button>
                         </div>
                     </div>
                 )}
+
+                <div className="form-control mb-6">
+                    <label className="label cursor-pointer justify-start gap-3">
+                        <input
+                            type="checkbox"
+                            className="checkbox checkbox-sm"
+                            checked={clearLogoSpace}
+                            onChange={(e) => setClearLogoSpace(e.target.checked)}
+                        />
+                        <span className="label-text">Reserve logo space (blank area even without a logo)</span>
+                    </label>
+                </div>
 
                 {error && (
                     <div className="alert alert-error mb-4">

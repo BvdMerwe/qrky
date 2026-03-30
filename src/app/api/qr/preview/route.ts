@@ -44,6 +44,7 @@ export async function GET(request: NextRequest) {
     const cornerRadius = parseFloat(searchParams.get('cr') || '') || DEFAULT_CORNER_RADIUS;
     const logoScale = parseFloat(searchParams.get('ls') || '') || DEFAULT_LOGO_SCALE;
     const logoUrl = searchParams.get('logo');
+    const logoClearSpace = searchParams.get('cls') === '1';
 
     if (!data) {
         return NextResponse.json(
@@ -71,6 +72,7 @@ export async function GET(request: NextRequest) {
         bgColor,
         cornerRadius,
         logoUrl: processedLogoUrl,
+        logoClearSpace,
         logoScale,
     });
 

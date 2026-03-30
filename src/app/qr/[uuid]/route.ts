@@ -22,6 +22,7 @@ interface QrCodeSettings {
     cornerRadius: number | null;
     logoUrl: string | null;
     logoScale: number | null;
+    clearLogoSpace: boolean | null;
 }
 
 if (typeof globalThis.DOMParser === "undefined") {
@@ -73,6 +74,7 @@ export async function GET(request: NextRequest, {
     let cornerRadius: number;
     let logoScale: number;
     let logoUrl: string | undefined;
+    let logoClearSpace: boolean;
 
     if (previewMode) {
         fgColor = searchParams.get("fg")
@@ -87,12 +89,14 @@ export async function GET(request: NextRequest, {
             (savedSettings?.logoScale ?? DEFAULT_LOGO_SCALE);
         logoUrl = searchParams.get("logo") ||
             (savedSettings?.logoUrl || undefined);
+        logoClearSpace = searchParams.get("cls") === "1" || (savedSettings?.clearLogoSpace ?? false);
     } else {
         fgColor = savedSettings?.fgColor || DEFAULT_FG_COLOR;
         bgColor = savedSettings?.bgColor || DEFAULT_BG_COLOR;
         cornerRadius = savedSettings?.cornerRadius ?? DEFAULT_CORNER_RADIUS;
         logoScale = savedSettings?.logoScale ?? DEFAULT_LOGO_SCALE;
         logoUrl = savedSettings?.logoUrl || undefined;
+        logoClearSpace = savedSettings?.clearLogoSpace ?? false;
     }
 
     const url = buildQrCodeUrl(uuid);
@@ -104,6 +108,7 @@ export async function GET(request: NextRequest, {
             cornerRadius,
             logoScale,
             logoUrl,
+            logoClearSpace,
         }) as BodyInit,
         {
             headers: {
@@ -122,6 +127,7 @@ async function generateQrCodeResponse(data: string, options?: {
     cornerRadius?: number;
     logoScale?: number;
     logoUrl?: string;
+    logoClearSpace?: boolean;
 }): Promise<Uint8Array> {
     try {
         const qr = await generateQrCode({
@@ -130,6 +136,7 @@ async function generateQrCodeResponse(data: string, options?: {
             bgColor: options?.bgColor,
             cornerRadius: options?.cornerRadius,
             logoUrl: options?.logoUrl || null,
+            logoClearSpace: options?.logoClearSpace,
             logoScale: options?.logoScale,
         });
 

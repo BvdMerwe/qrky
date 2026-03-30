@@ -293,6 +293,114 @@ describe("updateQrCode", () => {
         );
     });
 
+    it("nulls out logoUrl when clear_logo is true", async () => {
+        const existingSettings = {
+            fgColor: "#000000",
+            bgColor: "#ffffff",
+            cornerRadius: 0.45,
+            logoUrl: "https://storage.example.com/qr-logos/user-123/existing-logo.png",
+            logoScale: 0.2,
+            clearLogoSpace: false,
+        };
+        const mockUpdate = vi.fn(() => ({ eq: vi.fn(() => ({ error: null })) }));
+
+        let callCount = 0;
+        const { createClient } = await import("@/lib/supabase/server");
+        vi.mocked(createClient).mockResolvedValue({
+            auth: {
+                getUser: vi.fn().mockResolvedValue({
+                    data: { user: { id: "user-123" } },
+                    error: null
+                })
+            },
+            from: vi.fn(() => {
+                callCount++;
+                return {
+                    select: vi.fn(() => ({
+                        eq: vi.fn(() => ({
+                            single: vi.fn().mockResolvedValue({
+                                data: callCount === 1
+                                    ? { id: "qr-uuid", url_object_id: "url-obj-id", settings: existingSettings }
+                                    : { id: "url-obj-id", user_id: "user-123" },
+                                error: null
+                            })
+                        }))
+                    })),
+                    update: mockUpdate
+                };
+            })
+        } as any);
+
+        const formData = new FormData();
+        formData.append("qr_code_id", "qr-uuid");
+        formData.append("fg_color", "#000000");
+        formData.append("bg_color", "#ffffff");
+        formData.append("corner_radius", "0.45");
+        formData.append("logo_scale", "0.2");
+        formData.append("clear_logo", "true");
+        formData.append("clear_logo_space", "false");
+
+        await updateQrCode(formData);
+
+        expect(mockUpdate).toHaveBeenCalledWith(
+            expect.objectContaining({
+                settings: expect.objectContaining({
+                    logoUrl: null
+                })
+            })
+        );
+    });
+
+    it("persists clearLogoSpace in settings when true", async () => {
+        const mockUpdate = vi.fn(() => ({ eq: vi.fn(() => ({ error: null })) }));
+
+        let callCount = 0;
+        const { createClient } = await import("@/lib/supabase/server");
+        vi.mocked(createClient).mockResolvedValue({
+            auth: {
+                getUser: vi.fn().mockResolvedValue({
+                    data: { user: { id: "user-123" } },
+                    error: null
+                })
+            },
+            from: vi.fn(() => {
+                callCount++;
+                return {
+                    select: vi.fn(() => ({
+                        eq: vi.fn(() => ({
+                            single: vi.fn().mockResolvedValue({
+                                data: callCount === 1
+                                    ? { id: "qr-uuid", url_object_id: "url-obj-id", settings: null }
+                                    : { id: "url-obj-id", user_id: "user-123" },
+                                error: null
+                            })
+                        }))
+                    })),
+                    update: mockUpdate
+                };
+            })
+        } as any);
+
+        const formData = new FormData();
+        formData.append("qr_code_id", "qr-uuid");
+        formData.append("fg_color", "#000000");
+        formData.append("bg_color", "#ffffff");
+        formData.append("corner_radius", "0.45");
+        formData.append("logo_scale", "0.2");
+        formData.append("clear_logo", "false");
+        formData.append("clear_logo_space", "true");
+
+        await updateQrCode(formData);
+
+        expect(mockUpdate).toHaveBeenCalledWith(
+            expect.objectContaining({
+                settings: expect.objectContaining({
+                    clearLogoSpace: true
+                })
+            })
+        );
+    });
+
     it("accepts empty corner radius (uses null default)", async () => {
         const { createClient } = await import("@/lib/supabase/server");
         const { revalidatePath } = await import("next/cache");

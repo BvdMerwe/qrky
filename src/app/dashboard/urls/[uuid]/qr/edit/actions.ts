@@ -23,6 +23,8 @@ export async function updateQrCode(formData: FormData): Promise<void> {
     const bgColor = formData.get("bg_color") as string;
     const cornerRadiusStr = formData.get("corner_radius") as string;
     const logoFile = formData.get("logo") as File | null;
+    const clearLogo = formData.get("clear_logo") === "true";
+    const clearLogoSpace = formData.get("clear_logo_space") === "true";
 
     if (!qrCodeId) {
         throw new Error("Invalid input: missing QR code ID");
@@ -119,16 +121,18 @@ export async function updateQrCode(formData: FormData): Promise<void> {
         logoUrl = urlData.publicUrl;
     }
 
-    // Preserve existing logoUrl if no new logo was uploaded
+    // Preserve existing logoUrl if no new logo was uploaded; null it out if clearLogo requested
     const existingLogoUrl = (qrCode.settings as QrCodeSettings | null)?.logoUrl ?? null;
+    const resolvedLogoUrl = clearLogo ? null : (logoUrl ?? existingLogoUrl);
 
     // Build settings object
-    const settings = {
+    const settings: QrCodeSettings = {
         fgColor: fgColor || null,
         bgColor: bgColor || null,
         cornerRadius: cornerRadius,
-        logoUrl: logoUrl ?? existingLogoUrl,
+        logoUrl: resolvedLogoUrl,
         logoScale: formData.get("logo_scale") ? parseFloat(formData.get("logo_scale") as string) : null,
+        clearLogoSpace: clearLogoSpace,
     };
 
     // Update QR code settings
