@@ -60,7 +60,7 @@ function ColorSwatchPicker({ label, color, onChange }: ColorSwatchPickerProps) {
             <div className="flex gap-2 items-center">
                 <button
                     type="button"
-                    className="btn btn-square btn-sm border border-base-300 w-10 h-10 rounded flex-shrink-0"
+                    className="btn btn-square btn-sm border border-base-300 w-10 h-10 rounded shrink-0"
                     style={{ backgroundColor: color }}
                     onClick={() => setOpen((o) => !o)}
                     aria-label={`Pick ${label}`}
@@ -232,7 +232,7 @@ export default function QrEditForm({ qrCodeId, initialSettings }: QrEditFormProp
                         <input
                             type="range"
                             min="0.1"
-                            max="0.4"
+                            max="0.35"
                             step="0.001"
                             value={logoScale}
                             onChange={(e) => setLogoScale(parseFloat(e.target.value))}
@@ -241,7 +241,7 @@ export default function QrEditForm({ qrCodeId, initialSettings }: QrEditFormProp
                     </div>
                     <div className="flex justify-between text-xs opacity-50 mt-1">
                         <span>10%</span>
-                        <span>40%</span>
+                        <span>35%</span>
                     </div>
                 </div>
 

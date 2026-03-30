@@ -173,15 +173,15 @@ describe('generateQrCode', () => {
 });
 
 describe('validateLogoScale', () => {
-    it('should return true for scale within 0.1-0.3', () => {
+    it('should return true for scale within 0.1-0.35', () => {
         expect(validateLogoScale(0.1)).toBe(true);
         expect(validateLogoScale(0.2)).toBe(true);
-        expect(validateLogoScale(0.3)).toBe(true);
+        expect(validateLogoScale(0.35)).toBe(true);
     });
 
-    it('should return false for scale outside 0.1-0.4', () => {
+    it('should return false for scale outside 0.1-0.35', () => {
         expect(validateLogoScale(0.05)).toBe(false);
-        expect(validateLogoScale(0.45)).toBe(false);
+        expect(validateLogoScale(0.36)).toBe(false);
         expect(validateLogoScale(0)).toBe(false);
         expect(validateLogoScale(1)).toBe(false);
     });
@@ -190,7 +190,7 @@ describe('validateLogoScale', () => {
 describe('clampLogoScale', () => {
     it('should clamp scale to valid range', () => {
         expect(clampLogoScale(0.05)).toBe(0.1);
-        expect(clampLogoScale(0.45)).toBe(0.4);
+        expect(clampLogoScale(0.45)).toBe(0.35);
         expect(clampLogoScale(0.2)).toBe(0.2);
     });
 });
