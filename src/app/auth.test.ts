@@ -33,6 +33,7 @@ const mockResetPasswordForEmail = vi.fn();
 const mockUpdateUser = vi.fn();
 const mockGetUser = vi.fn();
 const mockExchangeCodeForSession = vi.fn();
+const mockSignOut = vi.fn();
 
 vi.mock('@/lib/supabase/server', () => ({
     createClient: vi.fn(() => Promise.resolve({
@@ -42,7 +43,8 @@ vi.mock('@/lib/supabase/server', () => ({
             resetPasswordForEmail: mockResetPasswordForEmail,
             updateUser: mockUpdateUser,
             getUser: mockGetUser,
-            exchangeCodeForSession: mockExchangeCodeForSession
+            exchangeCodeForSession: mockExchangeCodeForSession,
+            signOut: mockSignOut
         }
     }))
 }));
@@ -562,6 +564,34 @@ describe('Authentication Actions', () => {
                     theme: 'dark'
                 }
             });
+        });
+    });
+
+    describe('signOut action', () => {
+        it('calls supabase.auth.signOut and redirects to /login', async () => {
+            mockSignOut.mockResolvedValue({ error: null });
+
+            const { signOut } = await import('@/app/actions/auth');
+
+            try {
+                await signOut();
+            } catch (e: unknown) {
+                const err = e as { type: string; url: string };
+                expect(err.type).toBe('redirect');
+                expect(err.url).toBe('/login');
+            }
+
+            expect(mockSignOut).toHaveBeenCalledOnce();
+        });
+
+        it('throws error if signOut fails (no error handling)', async () => {
+            mockSignOut.mockRejectedValue(new Error('network error'));
+
+            const { signOut } = await import('@/app/actions/auth');
+
+            await expect(signOut()).rejects.toThrow('network error');
+            expect(mockSignOut).toHaveBeenCalledOnce();
+            expect(mockRedirect).not.toHaveBeenCalled();
         });
     });
 });
