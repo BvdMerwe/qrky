@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen } from '@testing-library/react';
 import React from 'react';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -74,9 +75,13 @@ describe('Alias New Page - Component Integration', () => {
         
         // Should not throw serialization errors
         const result = await NewAliasPage({ params });
-        
-        // Just verify we got a result - the key is no serialization error was thrown
         expect(result).toBeDefined();
+        
+        // Verify meaningful content is rendered
+        render(result);
+        expect(screen.getByTestId('alias-form')).toBeInTheDocument();
+        expect(screen.getByText(/test-uuid-123/)).toBeInTheDocument();
+        expect(screen.getByText(/https:\/\/example.com\/test-url/)).toBeInTheDocument();
     });
 
     it('fetches URL data from Supabase', async () => {
@@ -91,8 +96,13 @@ describe('Alias New Page - Component Integration', () => {
         
         const params = Promise.resolve({ uuid: 'url-uuid-456' });
         const result = await NewAliasPage({ params });
-        
         expect(result).toBeDefined();
+        
+        // Verify the fetched URL data appears in the rendered output
+        render(result);
+        expect(screen.getByTestId('alias-form')).toBeInTheDocument();
+        expect(screen.getByText(/url-uuid-456/)).toBeInTheDocument();
+        expect(screen.getByText(/https:\/\/test.com\/page/)).toBeInTheDocument();
     });
 
     it('throws error when URL not found', async () => {

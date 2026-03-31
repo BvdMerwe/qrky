@@ -38,7 +38,8 @@ vi.mock('@/lib/qrcode', () => ({
     QRkyOptions: vi.fn(function(this: any, options: any) {
         Object.assign(this, options);
     }),
-    QRkySVG: 'QRkySVG'
+    QRkySVG: 'QRkySVG',
+    generateQrCode: vi.fn(() => Promise.resolve({ buffer: Buffer.from('<svg></svg>') }))
 }));
 
 // Mock the server supabase client
@@ -63,7 +64,7 @@ function createMockRequest(url: string): NextRequest {
 describe('QR Code Generation Endpoint', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        mockSelectResult = { data: { id: 'test-id', settings: null, url_objects: [{ enabled: true }] }, error: null };
+        mockSelectResult = { data: { id: 'test-id', settings: null, url_objects: { enabled: true } }, error: null };
         mockQrRenderResult = '<svg xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100"/></svg>';
         
         // Mock sharp to return a fake PNG buffer
@@ -92,7 +93,7 @@ describe('QR Code Generation Endpoint', () => {
     });
 
     it('returns 404 for disabled QR code', async () => {
-        mockSelectResult = { data: { id: 'test-id', settings: null, url_objects: [{ enabled: false }] }, error: null };
+        mockSelectResult = { data: { id: 'test-id', settings: null, url_objects: { enabled: false } }, error: null };
         
         vi.resetModules();
         const { GET } = await import('./route');
@@ -113,5 +114,137 @@ describe('QR Code Generation Endpoint', () => {
         const params = Promise.resolve({ uuid: 'test-uuid' });
         
         await expect(GET(request, { params })).rejects.toThrow('REDIRECT:/500');
+    });
+
+    it('returns JPEG with correct Content-Type on success', async () => {
+        mockSelectResult = { 
+            data: { 
+                id: 'test-uuid', 
+                settings: { fgColor: '#000000', bgColor: '#ffffff', cornerRadius: 0.45, logoScale: 0.2, logoUrl: null, clearLogoSpace: false },
+                url_objects: { enabled: true }
+            }, 
+            error: null 
+        };
+        
+        vi.resetModules();
+        const { GET } = await import('./route');
+        
+        const request = createMockRequest('http://localhost:3000/qr/test-uuid');
+        const params = Promise.resolve({ uuid: 'test-uuid' });
+        
+        const response = await GET(request, { params });
+        
+        expect(response.status).toBe(200);
+        expect(response.headers.get('Content-Type')).toBe('image/jpeg');
+    });
+
+    it('preview mode overrides colors from query params', async () => {
+        mockSelectResult = { 
+            data: { 
+                id: 'test-uuid', 
+                settings: { fgColor: '#000000', bgColor: '#ffffff', cornerRadius: 0.45, logoScale: 0.2, logoUrl: null, clearLogoSpace: false },
+                url_objects: { enabled: true }
+            }, 
+            error: null 
+        };
+        
+        vi.resetModules();
+        
+        // Mock generateQrCode to capture the options
+        let capturedOptions: any;
+        vi.doMock('@/lib/qrcode', () => ({
+            generateQrCode: vi.fn((opts: any) => {
+                capturedOptions = opts;
+                return Promise.resolve({ buffer: Buffer.from('<svg></svg>') });
+            })
+        }));
+        
+        const { GET } = await import('./route');
+        
+        const request = createMockRequest('http://localhost:3000/qr/test-uuid?preview=true&fg=ff0000&bg=00ff00');
+        const params = Promise.resolve({ uuid: 'test-uuid' });
+        
+        await GET(request, { params });
+        
+        expect(capturedOptions.fgColor).toBe('#ff0000');
+        expect(capturedOptions.bgColor).toBe('#00ff00');
+    });
+
+    it('preview mode sets no-cache headers', async () => {
+        mockSelectResult = { 
+            data: { 
+                id: 'test-uuid', 
+                settings: { fgColor: '#000000', bgColor: '#ffffff', cornerRadius: 0.45, logoScale: 0.2, logoUrl: null, clearLogoSpace: false },
+                url_objects: { enabled: true }
+            }, 
+            error: null 
+        };
+        
+        vi.resetModules();
+        const { GET } = await import('./route');
+        
+        const request = createMockRequest('http://localhost:3000/qr/test-uuid?preview=true');
+        const params = Promise.resolve({ uuid: 'test-uuid' });
+        
+        const response = await GET(request, { params });
+        
+        expect(response.headers.get('Cache-Control')).toBe('no-cache, no-store');
+    });
+
+    it('non-preview mode sets long-cache headers', async () => {
+        mockSelectResult = { 
+            data: { 
+                id: 'test-uuid', 
+                settings: { fgColor: '#000000', bgColor: '#ffffff', cornerRadius: 0.45, logoScale: 0.2, logoUrl: null, clearLogoSpace: false },
+                url_objects: { enabled: true }
+            }, 
+            error: null 
+        };
+        
+        vi.resetModules();
+        const { GET } = await import('./route');
+        
+        const request = createMockRequest('http://localhost:3000/qr/test-uuid');
+        const params = Promise.resolve({ uuid: 'test-uuid' });
+        
+        const response = await GET(request, { params });
+        
+        expect(response.headers.get('Cache-Control')).toBe('public, max-age=31536000, immutable');
+    });
+
+    it('preview mode falls back to saved settings when query params absent', async () => {
+        mockSelectResult = { 
+            data: { 
+                id: 'test-uuid', 
+                settings: { fgColor: '#123456', bgColor: '#abcdef', cornerRadius: 0.3, logoScale: 0.15, logoUrl: 'https://example.com/logo.png', clearLogoSpace: true },
+                url_objects: { enabled: true }
+            }, 
+            error: null 
+        };
+        
+        vi.resetModules();
+        
+        // Mock generateQrCode to capture the options
+        let capturedOptions: any;
+        vi.doMock('@/lib/qrcode', () => ({
+            generateQrCode: vi.fn((opts: any) => {
+                capturedOptions = opts;
+                return Promise.resolve({ buffer: Buffer.from('<svg></svg>') });
+            })
+        }));
+        
+        const { GET } = await import('./route');
+        
+        const request = createMockRequest('http://localhost:3000/qr/test-uuid?preview=true');
+        const params = Promise.resolve({ uuid: 'test-uuid' });
+        
+        await GET(request, { params });
+        
+        expect(capturedOptions.fgColor).toBe('#123456');
+        expect(capturedOptions.bgColor).toBe('#abcdef');
+        expect(capturedOptions.cornerRadius).toBe(0.3);
+        expect(capturedOptions.logoScale).toBe(0.15);
+        expect(capturedOptions.logoUrl).toBe('https://example.com/logo.png');
+        expect(capturedOptions.logoClearSpace).toBe(true);
     });
 });

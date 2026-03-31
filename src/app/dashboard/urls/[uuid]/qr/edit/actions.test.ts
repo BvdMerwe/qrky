@@ -416,4 +416,119 @@ describe("updateQrCode", () => {
 
         expect(revalidatePath).toHaveBeenCalledWith("/dashboard/urls");
     });
+
+    it("throws error when user is unauthorized (URL belongs to different user)", async () => {
+        let callCount = 0;
+        const { createClient } = await import("@/lib/supabase/server");
+        vi.mocked(createClient).mockResolvedValue({
+            auth: {
+                getUser: vi.fn().mockResolvedValue({
+                    data: { user: { id: "user-123" } },
+                    error: null
+                })
+            },
+            from: vi.fn(() => {
+                callCount++;
+                return {
+                    select: vi.fn(() => ({
+                        eq: vi.fn(() => ({
+                            single: vi.fn().mockResolvedValue({
+                                data: callCount === 1
+                                    ? { id: "qr-uuid", url_object_id: "url-obj-id", settings: null }
+                                    : { id: "url-obj-id", user_id: "different-user-456" }, // Different user!
+                                error: null
+                            })
+                        }))
+                    }))
+                };
+            })
+        } as any);
+
+        const formData = new FormData();
+        formData.append("qr_code_id", "qr-uuid");
+        formData.append("fg_color", "#000000");
+        formData.append("bg_color", "#ffffff");
+        formData.append("corner_radius", "0.45");
+
+        await expect(updateQrCode(formData)).rejects.toThrow("Unauthorized");
+    });
+
+    it("throws error when logo upload fails", async () => {
+        const mockUpload = vi.fn().mockResolvedValue({ error: new Error("Storage error") });
+        let callCount = 0;
+        const { createClient } = await import("@/lib/supabase/server");
+        vi.mocked(createClient).mockResolvedValue({
+            auth: {
+                getUser: vi.fn().mockResolvedValue({
+                    data: { user: { id: "user-123" } },
+                    error: null
+                })
+            },
+            from: vi.fn(() => {
+                callCount++;
+                return {
+                    select: vi.fn(() => ({
+                        eq: vi.fn(() => ({
+                            single: vi.fn().mockResolvedValue({
+                                data: callCount === 1
+                                    ? { id: "qr-uuid", url_object_id: "url-obj-id", settings: null }
+                                    : { id: "url-obj-id", user_id: "user-123" },
+                                error: null
+                            })
+                        }))
+                    }))
+                };
+            }),
+            storage: {
+                from: vi.fn(() => ({
+                    upload: mockUpload
+                }))
+            }
+        } as any);
+
+        const formData = new FormData();
+        formData.append("qr_code_id", "qr-uuid");
+        formData.append("fg_color", "#000000");
+        formData.append("bg_color", "#ffffff");
+        formData.append("corner_radius", "0.45");
+        formData.append("logo", new File(["test"], "logo.png", { type: "image/png" }));
+
+        await expect(updateQrCode(formData)).rejects.toThrow("Failed to upload logo");
+    });
+
+    it("throws error when URL not found in second query", async () => {
+        let callCount = 0;
+        const { createClient } = await import("@/lib/supabase/server");
+        vi.mocked(createClient).mockResolvedValue({
+            auth: {
+                getUser: vi.fn().mockResolvedValue({
+                    data: { user: { id: "user-123" } },
+                    error: null
+                })
+            },
+            from: vi.fn(() => {
+                callCount++;
+                return {
+                    select: vi.fn(() => ({
+                        eq: vi.fn(() => ({
+                            single: vi.fn().mockResolvedValue({
+                                data: callCount === 1
+                                    ? { id: "qr-uuid", url_object_id: "url-obj-id", settings: null }
+                                    : null, // URL not found!
+                                error: callCount === 2 ? new Error("Not found") : null
+                            })
+                        }))
+                    }))
+                };
+            })
+        } as any);
+
+        const formData = new FormData();
+        formData.append("qr_code_id", "qr-uuid");
+        formData.append("fg_color", "#000000");
+        formData.append("bg_color", "#ffffff");
+        formData.append("corner_radius", "0.45");
+
+        await expect(updateQrCode(formData)).rejects.toThrow("URL not found");
+    });
 });

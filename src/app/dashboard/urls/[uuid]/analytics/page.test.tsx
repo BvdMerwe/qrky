@@ -1,4 +1,5 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {render, screen} from '@testing-library/react';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -79,11 +80,10 @@ describe('Analytics Page', () => {
         
         const params = Promise.resolve({ uuid: 'non-existent-uuid' });
         
-        // Component renders "URL Not Found" message instead of calling notFound()
         const result = await UrlAnalyticsPage({ params });
-        expect(result).toBeDefined();
-        // Check that it returns the not found JSX structure
-        expect(result.props.children[0].props.children).toBe('URL Not Found');
+        render(result);
+        
+        expect(screen.getByText('URL Not Found')).toBeInTheDocument();
     });
 
     it('displays analytics for URL with no visits', async () => {
@@ -127,9 +127,13 @@ describe('Analytics Page', () => {
         
         const params = Promise.resolve({ uuid: 'test-uuid' });
         
-        // Should not throw - renders successfully with 0 visits
         const result = await UrlAnalyticsPage({ params });
-        expect(result).toBeDefined();
+        render(result);
+        
+        // Verify the URL is displayed
+        expect(screen.getByText('https://example.com')).toBeInTheDocument();
+        // Verify no visits message is shown
+        expect(screen.getByText('No visits yet.')).toBeInTheDocument();
     });
 
     it('fetches visits for QR codes associated with URL', async () => {
@@ -180,8 +184,12 @@ describe('Analytics Page', () => {
         
         const params = Promise.resolve({ uuid: 'test-uuid' });
         const result = await UrlAnalyticsPage({ params });
+        render(result);
         
-        expect(result).toBeDefined();
+        // Verify the URL is displayed
+        expect(screen.getByText('https://example.com')).toBeInTheDocument();
+        // Verify analytics section is present
+        expect(screen.getByText('Recent Visits')).toBeInTheDocument();
     });
 
     it('fetches visits for aliases associated with URL', async () => {
@@ -232,7 +240,11 @@ describe('Analytics Page', () => {
         
         const params = Promise.resolve({ uuid: 'test-uuid' });
         const result = await UrlAnalyticsPage({ params });
+        render(result);
         
-        expect(result).toBeDefined();
+        // Verify the URL is displayed
+        expect(screen.getByText('https://example.com')).toBeInTheDocument();
+        // Verify analytics section is present
+        expect(screen.getByText('Recent Visits')).toBeInTheDocument();
     });
 });

@@ -153,4 +153,27 @@ describe("updateAlias", () => {
 
         await expect(updateAlias(initialState, formData)).rejects.toThrow("REDIRECT:/dashboard/urls");
     });
+
+    it("returns error when alias availability check fails", async () => {
+        const { createClient } = await import("@/lib/supabase/server");
+        vi.mocked(createClient).mockResolvedValue({
+            from: vi.fn(() => ({
+                select: vi.fn(() => ({
+                    eq: vi.fn(() => ({
+                        single: vi.fn(() => ({ data: { id: 1, value: "old-alias", url_object_id: 1 }, error: null })),
+                        neq: vi.fn(() => ({
+                            maybeSingle: vi.fn(() => ({ data: null, error: new Error("Database connection error") }))
+                        }))
+                    }))
+                }))
+            }))
+        } as any);
+
+        const formData = new FormData();
+        formData.append("aliasId", "1");
+        formData.append("alias", "new-alias");
+
+        const result = await updateAlias(initialState, formData);
+        expect(result).toMatchObject({ message: "Failed to check alias availability", success: false });
+    });
 });

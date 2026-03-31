@@ -118,6 +118,7 @@ describe('URL Actions', () => {
     });
 
     afterEach(() => {
+        // Clear call history but don't restore (spy is module-level)
         mockConsoleError.mockClear();
     });
 
@@ -751,6 +752,57 @@ describe('URL Actions', () => {
             const { fetchUrls } = await import('@/app/dashboard/urls/actions');
             
             await expect(fetchUrls(mockSupabase as any)).rejects.toThrow('Connection timeout');
+        });
+
+        it('fetchUrls returns empty array when user is null', async () => {
+            const mockSupabase = { 
+                auth: { getUser: vi.fn(() => ({ data: { user: null }, error: null })) },
+                from: vi.fn()
+            };
+
+            const { fetchUrls } = await import('@/app/dashboard/urls/actions');
+            
+            const result = await fetchUrls(mockSupabase as any);
+            
+            expect(result).toEqual([]);
+            expect(mockSupabase.from).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('fetchUrlsServer', () => {
+        it('creates server supabase client and delegates to fetchUrls', async () => {
+            const mockUrls = [{ id: 1, uuid: 'abc-1', url: 'https://example.com' }];
+            const mockUser = { id: 'user-123' };
+            
+            // Mock the server createClient
+            const mockCreateClient = vi.fn(() => Promise.resolve({
+                from: vi.fn((table: string) => {
+                    if (table === 'url_objects') {
+                        return {
+                            select: vi.fn(() => ({ 
+                                eq: vi.fn(() => ({ 
+                                    order: vi.fn(() => ({ data: mockUrls, error: null }))
+                                }))
+                            }))
+                        };
+                    }
+                    return { select: vi.fn(() => ({ in: vi.fn(() => ({ data: [], error: null })) })) };
+                }),
+                auth: { getUser: vi.fn(() => ({ data: { user: mockUser }, error: null })) }
+            }));
+
+            vi.doMock('@/lib/supabase/server', () => ({
+                createClient: mockCreateClient
+            }));
+
+            const { fetchUrlsServer } = await import('@/app/dashboard/urls/actions-server');
+            
+            const result = await fetchUrlsServer();
+            
+            expect(mockCreateClient).toHaveBeenCalled();
+            expect(result).toHaveLength(1);
+            expect(result[0].aliases).toEqual([]);
+            expect(result[0].qr_codes).toEqual([]);
         });
     });
 });

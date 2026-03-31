@@ -104,6 +104,29 @@ describe('QR Code Server Actions', () => {
 
             await expect(createQrCode(formData)).rejects.toThrow('Insert failed');
         });
+
+        it('should throw error when UUID is empty', async () => {
+            const { createQrCode } = await import('@/app/dashboard/urls/[uuid]/qr/new/actions');
+
+            const formData = new FormData();
+            formData.append('uuid', '');
+
+            await expect(createQrCode(formData)).rejects.toThrow('Invalid input: missing URL UUID');
+        });
+
+        it('should throw error when data is null but no error from URL query', async () => {
+            mockSingle.mockResolvedValue({ 
+                data: null, 
+                error: null 
+            });
+
+            const { createQrCode } = await import('@/app/dashboard/urls/[uuid]/qr/new/actions');
+
+            const formData = new FormData();
+            formData.append('uuid', 'test-uuid-123');
+
+            await expect(createQrCode(formData)).rejects.toThrow('URL not found');
+        });
     });
 
 });

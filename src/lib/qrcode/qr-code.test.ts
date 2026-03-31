@@ -1,210 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { ModuleTypeEnum } from '@/lib/qrcode/module-type.enum';
 import { QRkyOptions } from '@/lib/qrcode/QRkyOptions';
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-// Mock console.error and console.log to prevent noise
-const mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-// Mock next/navigation
-const mockRedirect = vi.fn();
-const mockNotFound = vi.fn();
-vi.mock('next/navigation', () => ({
-    redirect: mockRedirect,
-    notFound: mockNotFound,
-    RedirectType: {
-        push: 'push',
-        replace: 'replace'
-    }
-}));
-
-// Mock next/cache
-const mockRevalidatePath = vi.fn();
-vi.mock('next/cache', () => ({
-    revalidatePath: mockRevalidatePath
-}));
-
-// Mock next/headers
-const mockCookieStore = {
-    getAll: vi.fn(() => []),
-    set: vi.fn()
-};
-
-vi.mock('next/headers', () => ({
-    cookies: vi.fn(() => Promise.resolve(mockCookieStore))
-}));
-
-// Mock supabase methods
-let mockSelect = vi.fn();
-let mockInsert = vi.fn();
-
-vi.mock('@/lib/supabase/server', () => ({
-    createClient: vi.fn(() => Promise.resolve({
-        from: vi.fn(() => ({
-            select: mockSelect,
-            insert: mockInsert
-        }))
-    }))
-}));
-
-describe('QR Code Actions', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-        mockRedirect.mockImplementation((url: string) => {
-            throw new Error(`REDIRECT:${url}`);
-        });
-        mockNotFound.mockImplementation(() => {
-            throw new Error('NOT_FOUND');
-        });
-        
-        // Reset mock implementations
-        mockSelect = vi.fn();
-        mockInsert = vi.fn();
-    });
-
-    afterEach(() => {
-        mockConsoleError.mockClear();
-    });
-
-    describe('createQrCode', () => {
-        it('creates QR code and redirects on success', async () => {
-            const mockUrlData = { id: 123 };
-            const mockInsertResult = { error: null };
-            
-            let fromCallCount = 0;
-            const mockFrom = vi.fn(() => {
-                fromCallCount++;
-                if (fromCallCount === 1) {
-                    // First call: get URL by UUID
-                    return {
-                        select: vi.fn(() => ({
-                            eq: vi.fn(() => ({
-                                single: vi.fn(() => Promise.resolve({ data: mockUrlData, error: null }))
-                            }))
-                        }))
-                    };
-                }
-                // Second call: insert QR code
-                return {
-                    insert: vi.fn(() => Promise.resolve(mockInsertResult))
-                };
-            });
-
-            const { createClient } = await import('@/lib/supabase/server');
-            vi.mocked(createClient).mockResolvedValue({
-                from: mockFrom
-            } as any);
-
-            const { createQrCode } = await import('@/app/dashboard/urls/[uuid]/qr/new/actions');
-            
-            const formData = new FormData();
-            formData.append('uuid', 'test-uuid-123');
-
-            await expect(createQrCode(formData)).rejects.toThrow('REDIRECT:/dashboard/urls');
-            expect(mockRevalidatePath).toHaveBeenCalledWith('/dashboard/urls');
-        });
-
-        it('throws error when UUID is missing', async () => {
-            const { createQrCode } = await import('@/app/dashboard/urls/[uuid]/qr/new/actions');
-            
-            const formData = new FormData();
-            // No uuid appended
-
-            await expect(createQrCode(formData)).rejects.toThrow('Invalid input: missing URL UUID');
-        });
-
-        it('throws error when UUID is empty', async () => {
-            const { createQrCode } = await import('@/app/dashboard/urls/[uuid]/qr/new/actions');
-            
-            const formData = new FormData();
-            formData.append('uuid', '');
-
-            await expect(createQrCode(formData)).rejects.toThrow('Invalid input: missing URL UUID');
-        });
-
-        it('throws error when URL not found', async () => {
-            const mockFrom = vi.fn(() => ({
-                select: vi.fn(() => ({
-                    eq: vi.fn(() => ({
-                        single: vi.fn(() => Promise.resolve({ data: null, error: new Error('URL not found') }))
-                    }))
-                }))
-            }));
-
-            const { createClient } = await import('@/lib/supabase/server');
-            vi.mocked(createClient).mockResolvedValue({
-                from: mockFrom
-            } as any);
-
-            const { createQrCode } = await import('@/app/dashboard/urls/[uuid]/qr/new/actions');
-            
-            const formData = new FormData();
-            formData.append('uuid', 'non-existent-uuid');
-
-            await expect(createQrCode(formData)).rejects.toThrow('URL not found');
-            expect(mockConsoleError).toHaveBeenCalled();
-        });
-
-        it('throws error when supabase insert fails', async () => {
-            const mockUrlData = { id: 123 };
-            const insertError = new Error('Database constraint violation');
-            
-            let fromCallCount = 0;
-            const mockFrom = vi.fn(() => {
-                fromCallCount++;
-                if (fromCallCount === 1) {
-                    return {
-                        select: vi.fn(() => ({
-                            eq: vi.fn(() => ({
-                                single: vi.fn(() => Promise.resolve({ data: mockUrlData, error: null }))
-                            }))
-                        }))
-                    };
-                }
-                return {
-                    insert: vi.fn(() => Promise.resolve({ error: insertError }))
-                };
-            });
-
-            const { createClient } = await import('@/lib/supabase/server');
-            vi.mocked(createClient).mockResolvedValue({
-                from: mockFrom
-            } as any);
-
-            const { createQrCode } = await import('@/app/dashboard/urls/[uuid]/qr/new/actions');
-            
-            const formData = new FormData();
-            formData.append('uuid', 'test-uuid-123');
-
-            await expect(createQrCode(formData)).rejects.toThrow('Database constraint violation');
-            expect(mockConsoleError).toHaveBeenCalledWith('Database constraint violation');
-        });
-
-        it('throws error when data is null but no error from URL query', async () => {
-            const mockFrom = vi.fn(() => ({
-                select: vi.fn(() => ({
-                    eq: vi.fn(() => ({
-                        single: vi.fn(() => Promise.resolve({ data: null, error: null }))
-                    }))
-                }))
-            }));
-
-            const { createClient } = await import('@/lib/supabase/server');
-            vi.mocked(createClient).mockResolvedValue({
-                from: mockFrom
-            } as any);
-
-            const { createQrCode } = await import('@/app/dashboard/urls/[uuid]/qr/new/actions');
-            
-            const formData = new FormData();
-            formData.append('uuid', 'test-uuid-123');
-
-            await expect(createQrCode(formData)).rejects.toThrow('URL not found');
-        });
-    });
-
-});
 
 
 describe('ModuleTypeEnum', () => {
@@ -290,42 +86,42 @@ describe('QRkyOptions Extended', () => {
         });
     });
 
-    describe('setter methods behavior', () => {
-        it('should set svgLogoCssClass correctly', () => {
-            const options = new QRkyOptions();
-            (options as any).set_svgLogoCssClass('my-custom-class');
+    describe('constructor options behavior', () => {
+        it('should set svgLogoCssClass via constructor', () => {
+            const options = new QRkyOptions({ svgLogoCssClass: 'my-custom-class' });
             expect(options.svgLogoCssClass).toBe('my-custom-class');
         });
 
-        it('should set clearLogoSpace correctly', () => {
-            const options = new QRkyOptions();
-            expect(options.clearLogoSpace).toBe(true);
-            (options as any).set_clearLogoSpace(false);
-            expect(options.clearLogoSpace).toBe(false);
+        it('should set clearLogoSpace via constructor', () => {
+            const optionsTrue = new QRkyOptions({ clearLogoSpace: true });
+            expect(optionsTrue.clearLogoSpace).toBe(true);
+            
+            const optionsFalse = new QRkyOptions({ clearLogoSpace: false });
+            expect(optionsFalse.clearLogoSpace).toBe(false);
         });
 
-        it('should clamp svgLogoScaleMinimum to 0-1 range', () => {
-            const options = new QRkyOptions();
-            (options as any).set_svgLogoScaleMinimum(-0.5);
-            expect(options.svgLogoScaleMinimum).toBe(0);
-            (options as any).set_svgLogoScaleMinimum(1.5);
-            expect(options.svgLogoScaleMinimum).toBe(1);
+        it('should clamp svgLogoScaleMinimum to 0-1 range via constructor', () => {
+            const optionsNegative = new QRkyOptions({ svgLogoScaleMinimum: -0.5 });
+            expect(optionsNegative.svgLogoScaleMinimum).toBe(0);
+            
+            const optionsOverOne = new QRkyOptions({ svgLogoScaleMinimum: 1.5 });
+            expect(optionsOverOne.svgLogoScaleMinimum).toBe(1);
         });
 
-        it('should clamp svgLogoScaleMaximum to 0-1 range', () => {
-            const options = new QRkyOptions();
-            (options as any).set_svgLogoScaleMaximum(-0.5);
-            expect(options.svgLogoScaleMaximum).toBe(0);
-            (options as any).set_svgLogoScaleMaximum(1.5);
-            expect(options.svgLogoScaleMaximum).toBe(1);
+        it('should clamp svgLogoScaleMaximum to 0-1 range via constructor', () => {
+            const optionsNegative = new QRkyOptions({ svgLogoScaleMaximum: -0.5 });
+            expect(optionsNegative.svgLogoScaleMaximum).toBe(0);
+            
+            const optionsOverOne = new QRkyOptions({ svgLogoScaleMaximum: 1.5 });
+            expect(optionsOverOne.svgLogoScaleMaximum).toBe(1);
         });
 
-        it('should ensure svgViewBoxSize is at least 1', () => {
-            const options = new QRkyOptions();
-            (options as any).set_svgViewBoxSize(0);
-            expect(options.svgViewBoxSize).toBe(1);
-            (options as any).set_svgViewBoxSize(-100);
-            expect(options.svgViewBoxSize).toBe(1);
+        it('should ensure svgViewBoxSize is at least 1 via constructor', () => {
+            const optionsZero = new QRkyOptions({ svgViewBoxSize: 0 });
+            expect(optionsZero.svgViewBoxSize).toBe(1);
+            
+            const optionsNegative = new QRkyOptions({ svgViewBoxSize: -100 });
+            expect(optionsNegative.svgViewBoxSize).toBe(1);
         });
     });
 

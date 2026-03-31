@@ -1,5 +1,5 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {fireEvent, render, screen} from '@testing-library/react';
+import {fireEvent, render, screen, waitFor} from '@testing-library/react';
 import OAuthButtons from '@/components/auth/oauth-buttons';
 
 // Mock the Supabase browser client
@@ -42,14 +42,13 @@ describe('OAuthButtons', () => {
         
         fireEvent.click(googleButton);
         
-        // Wait for async operation
-        await new Promise(resolve => setTimeout(resolve, 0));
-        
-        expect(mockSignInWithOAuth).toHaveBeenCalledWith({
-            provider: 'google',
-            options: {
-                redirectTo: 'http://localhost:3000/auth/callback'
-            }
+        await waitFor(() => {
+            expect(mockSignInWithOAuth).toHaveBeenCalledWith({
+                provider: 'google',
+                options: {
+                    redirectTo: 'http://localhost:3000/auth/callback'
+                }
+            });
         });
     });
 
@@ -61,14 +60,13 @@ describe('OAuthButtons', () => {
         
         fireEvent.click(githubButton);
         
-        // Wait for async operation
-        await new Promise(resolve => setTimeout(resolve, 0));
-        
-        expect(mockSignInWithOAuth).toHaveBeenCalledWith({
-            provider: 'github',
-            options: {
-                redirectTo: 'http://localhost:3000/auth/callback'
-            }
+        await waitFor(() => {
+            expect(mockSignInWithOAuth).toHaveBeenCalledWith({
+                provider: 'github',
+                options: {
+                    redirectTo: 'http://localhost:3000/auth/callback'
+                }
+            });
         });
     });
 
@@ -82,10 +80,9 @@ describe('OAuthButtons', () => {
         
         fireEvent.click(googleButton);
         
-        // Wait for async operation
-        await new Promise(resolve => setTimeout(resolve, 0));
-        
-        expect(consoleErrorSpy).toHaveBeenCalledWith('OAuth error:', mockError);
+        await waitFor(() => {
+            expect(consoleErrorSpy).toHaveBeenCalledWith('OAuth error:', mockError);
+        });
         
         consoleErrorSpy.mockRestore();
     });

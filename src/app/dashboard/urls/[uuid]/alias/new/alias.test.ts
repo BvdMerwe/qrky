@@ -70,6 +70,7 @@ describe('Alias Actions', () => {
     });
 
     afterEach(() => {
+        // Clear call history but don't restore (spy is module-level)
         mockConsoleError.mockClear();
     });
 
@@ -389,6 +390,44 @@ describe('Alias Actions', () => {
                 expect(result).toMatchObject({ message: 'Alias already exists', success: false });
             }
             
+            expect(mockInsert).not.toHaveBeenCalled();
+        });
+
+        it('returns error when alias availability check fails', async () => {
+            const mockUrlData = { id: 123, user_id: 'user-123' };
+            mockSingle.mockResolvedValue({ data: mockUrlData, error: null });
+            
+            // Simulate database error during alias check
+            mockMaybeSingle.mockResolvedValue({ data: null, error: new Error('Database connection error') });
+            
+            let callCount = 0;
+            mockFromImplementation = () => {
+                callCount++;
+                if (callCount === 1) {
+                    return {
+                        select: vi.fn(() => ({ eq: vi.fn(() => ({ single: mockSingle })) }))
+                    };
+                } else if (callCount === 2) {
+                    return {
+                        select: vi.fn(() => ({ eq: vi.fn(() => ({ maybeSingle: mockMaybeSingle })) }))
+                    };
+                }
+                return { insert: mockInsert };
+            };
+
+            const { createClient } = await import('@/lib/supabase/server');
+            vi.mocked(createClient).mockReturnValue({
+                from: vi.fn(() => mockFromImplementation())
+            } as any);
+
+            const { createAlias } = await import('./actions');
+            
+            const formData = new FormData();
+            formData.append('uuid', 'abc-123');
+            formData.append('alias', 'my-alias');
+
+            const result = await createAlias(initialState, formData);
+            expect(result).toMatchObject({ message: 'Failed to check alias availability', success: false });
             expect(mockInsert).not.toHaveBeenCalled();
         });
     });
