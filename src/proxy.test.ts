@@ -12,7 +12,7 @@ vi.mock('next/server', async () => {
     return {
         ...actual,
         NextResponse: {
-            next: vi.fn((config?: any) => ({
+            next: vi.fn((_config?: any) => ({
                 cookies: {
                     set: vi.fn(),
                     getAll: vi.fn(() => []),

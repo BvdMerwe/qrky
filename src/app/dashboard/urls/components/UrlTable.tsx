@@ -9,7 +9,7 @@ import {deleteUrl, fetchUrlsBrowser, toggleEnabled} from "@/app/dashboard/urls/a
 import CopyToClipboardComponent from "@/components/ui/copy-to-clipboard";
 import DeleteButtonComponent from "@/app/dashboard/urls/components/DeleteButton";
 import QrCodePreview from "./QrCodePreview";
-import {hashString} from "@/lib/strings";
+
 
 interface Props extends TableProps {
     urlsInitial: UrlObject[];

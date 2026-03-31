@@ -80,7 +80,7 @@ describe('Alias Actions', () => {
             mockMaybeSingle.mockResolvedValue({ data: null, error: null }); // No existing alias
             
             let callCount = 0;
-            mockFromImplementation = (table: string, count: number) => {
+            mockFromImplementation = (table: string, _count: number) => {
                 callCount++;
                 if (callCount === 1) {
                     // First call: lookup url_objects
@@ -133,7 +133,7 @@ describe('Alias Actions', () => {
             });
             
             let callCount = 0;
-            mockFromImplementation = (table: string, count: number) => {
+            mockFromImplementation = (_table: string, _count: number) => {
                 callCount++;
                 if (callCount === 1) {
                     return {

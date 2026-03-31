@@ -37,8 +37,6 @@ vi.mock('next/headers', () => ({
 
 // Mock supabase methods
 let mockSelect = vi.fn();
-let mockEq = vi.fn();
-let mockSingle = vi.fn();
 let mockInsert = vi.fn();
 
 vi.mock('@/lib/supabase/server', () => ({
@@ -62,8 +60,6 @@ describe('QR Code Actions', () => {
         
         // Reset mock implementations
         mockSelect = vi.fn();
-        mockEq = vi.fn();
-        mockSingle = vi.fn();
         mockInsert = vi.fn();
     });
 

@@ -1,5 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import React from 'react';
+import {beforeEach, describe, expect, it, vi} from 'vitest';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -160,9 +159,9 @@ describe('Analytics Page', () => {
                 }
                 if (table === 'visits') {
                     return {
-                        select: vi.fn((fields: string) => ({
+                        select: vi.fn((_fields: string) => ({
                             eq: vi.fn(() => Promise.resolve({ data: [] })),
-                            in: vi.fn((field: string, values: string[]) => {
+                            in: vi.fn((field: string, _values: string[]) => {
                                 // Return QR visits when querying by qr_code_id
                                 if (field === 'qr_code_id') {
                                     return Promise.resolve({ data: mockQrVisits });

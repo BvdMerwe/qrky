@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {fireEvent, render, screen} from '@testing-library/react';
 import OAuthButtons from '@/components/auth/oauth-buttons';
 
 // Mock the Supabase browser client

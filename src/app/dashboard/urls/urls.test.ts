@@ -56,6 +56,49 @@ vi.mock('@/app/dashboard/urls/constants', () => ({
     STRING_TABLE_NAME_URL_OBJECTS: 'url_objects'
 }));
 
+function generateMockSupabase({
+  mockUrls,
+  mockAliases,
+  mockQrCodes,
+  mockUser,
+}: {
+    mockUrls: any;
+    mockAliases: any;
+    mockQrCodes: any;
+    mockUser: any;
+}) {
+    const mockSupabaseFrom = vi.fn((table: string) => {
+        if (table === 'url_objects') {
+            return {
+                select: vi.fn(() => ({
+                    eq: vi.fn(() => ({ order: vi.fn(() => ({ data: mockUrls, error: null })) }))
+                }))
+            };
+        }
+        if (table === 'aliases') {
+            return {
+                select: vi.fn(() => ({
+                    in: vi.fn(() => ({ data: mockAliases, error: null }))
+                }))
+            };
+        }
+        if (table === 'qr_codes') {
+            return {
+                select: vi.fn(() => ({
+                    in: vi.fn(() => ({ data: mockQrCodes, error: null }))
+                }))
+            };
+        }
+        return { select: vi.fn() };
+    });
+    const mockSupabase = {
+        from: mockSupabaseFrom,
+        auth: { getUser: vi.fn(() => ({ data: { user: mockUser }, error: null })) }
+    };
+
+    return {mockSupabase, mockSupabaseFrom};
+}
+
 describe('URL Actions', () => {
     beforeEach(() => {
         vi.clearAllMocks();
@@ -608,34 +651,12 @@ describe('URL Actions', () => {
                 { id: 201, url_object_id: 1, uuid: 'qr-1' }
             ];
             
-            const mockSupabaseFrom = vi.fn((table: string) => {
-                if (table === 'url_objects') {
-                    return {
-                        select: vi.fn(() => ({ 
-                            eq: vi.fn(() => ({ order: vi.fn(() => ({ data: mockUrls, error: null })) }))
-                        }))
-                    };
-                }
-                if (table === 'aliases') {
-                    return {
-                        select: vi.fn(() => ({ 
-                            in: vi.fn(() => ({ data: mockAliases, error: null })) 
-                        }))
-                    };
-                }
-                if (table === 'qr_codes') {
-                    return {
-                        select: vi.fn(() => ({ 
-                            in: vi.fn(() => ({ data: mockQrCodes, error: null })) 
-                        }))
-                    };
-                }
-                return { select: vi.fn() };
+            const { mockSupabase } = generateMockSupabase({
+                mockUrls,
+                mockAliases,
+                mockQrCodes,
+                mockUser,
             });
-            const mockSupabase = { 
-                from: mockSupabaseFrom,
-                auth: { getUser: vi.fn(() => ({ data: { user: mockUser }, error: null })) }
-            };
 
             const { fetchUrls } = await import('@/app/dashboard/urls/actions');
             
@@ -694,37 +715,13 @@ describe('URL Actions', () => {
             const mockAliases: { id: number; url_object_id: number; value: string }[] = [];
             const mockQrCodes: { id: string; url_object_id: number }[] = [];
             const mockUser = { id: 'user-123' };
-            
-            let callCount = 0;
-            const mockSupabaseFrom = vi.fn((table: string) => {
-                callCount++;
-                if (table === 'url_objects') {
-                    return {
-                        select: vi.fn(() => ({ 
-                            eq: vi.fn(() => ({ order: vi.fn(() => ({ data: mockUrls, error: null })) }))
-                        }))
-                    };
-                }
-                if (table === 'aliases') {
-                    return {
-                        select: vi.fn(() => ({ 
-                            in: vi.fn(() => ({ data: mockAliases, error: null })) 
-                        }))
-                    };
-                }
-                if (table === 'qr_codes') {
-                    return {
-                        select: vi.fn(() => ({ 
-                            in: vi.fn(() => ({ data: mockQrCodes, error: null })) 
-                        }))
-                    };
-                }
-                return { select: vi.fn() };
+
+            const { mockSupabase, mockSupabaseFrom } = generateMockSupabase({
+                mockUrls,
+                mockAliases,
+                mockQrCodes,
+                mockUser,
             });
-            const mockSupabase = { 
-                from: mockSupabaseFrom,
-                auth: { getUser: vi.fn(() => ({ data: { user: mockUser }, error: null })) }
-            };
 
             const { fetchUrls } = await import('@/app/dashboard/urls/actions');
             

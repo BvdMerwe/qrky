@@ -1,15 +1,10 @@
-import { ECC_H, QRCode } from "@chillerlan/qrcode/dist/js-qrcode-node-src.cjs";
-import { DOMParser } from "@xmldom/xmldom";
-import {generateQrCode, QRkyOptions, QRkySVG} from "@/lib/qrcode";
+import {DOMParser} from "@xmldom/xmldom";
+import {generateQrCode} from "@/lib/qrcode";
 import sharp from "sharp";
-import { createClient } from "@/lib/supabase/server";
-import { notFound, redirect, RedirectType } from "next/navigation";
-import { NextRequest } from "next/server";
-import path from "node:path";
-import fs from "node:fs";
+import {createClient} from "@/lib/supabase/server";
+import {notFound, redirect, RedirectType} from "next/navigation";
+import {NextRequest} from "next/server";
 import {buildQrCodeUrl} from "@/lib/qrcode/buildQrCodeUrl";
-
-const LOGO_PATH = path.join(process.cwd(), "public", "qrky-logo.svg");
 
 const DEFAULT_FG_COLOR = "#000000";
 const DEFAULT_BG_COLOR = "#ffffff";
