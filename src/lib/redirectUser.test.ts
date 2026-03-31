@@ -25,11 +25,12 @@ vi.mock('@/lib/record-view', () => ({
     default: mockRecordView
 }));
 
-// Mock console.error
-const mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+// Mock console.error (set up in beforeEach to work with vi.restoreAllMocks)
+let mockConsoleError: ReturnType<typeof vi.spyOn>;
 
 describe('redirectUser', () => {
     beforeEach(() => {
+        mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
         vi.clearAllMocks();
         
         // Make redirect and notFound throw for easier testing

@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-// Mock console.error to prevent noise
-const mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+// Mock console.error to prevent noise (declared here, set up in beforeEach)
+let mockConsoleError: ReturnType<typeof vi.spyOn>;
 
 // Mock next/navigation
 const mockRedirect = vi.fn();
@@ -54,6 +54,7 @@ const initialState = { message: '', success: false };
 
 describe('Alias Actions', () => {
     beforeEach(() => {
+        mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
         vi.clearAllMocks();
         fromCallCount = 0;
         mockFromImplementation = null;
@@ -70,8 +71,7 @@ describe('Alias Actions', () => {
     });
 
     afterEach(() => {
-        // Clear call history but don't restore (spy is module-level)
-        mockConsoleError.mockClear();
+        // Restore is handled by global vi.restoreAllMocks() in vitest.setup.ts
     });
 
     describe('createAlias', () => {

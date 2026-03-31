@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-// Mock console.error to prevent noise
-const mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+// Mock console.error to prevent noise (declared here, set up in beforeEach)
+let mockConsoleError: ReturnType<typeof vi.spyOn>;
 
 // Mock next/navigation
 const mockRedirect = vi.fn();
@@ -101,6 +101,7 @@ function generateMockSupabase({
 
 describe('URL Actions', () => {
     beforeEach(() => {
+        mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
         vi.clearAllMocks();
         mockRedirect.mockImplementation((url: string) => {
             throw new Error(`REDIRECT:${url}`);
@@ -118,8 +119,7 @@ describe('URL Actions', () => {
     });
 
     afterEach(() => {
-        // Clear call history but don't restore (spy is module-level)
-        mockConsoleError.mockClear();
+        // Restore is handled by global vi.restoreAllMocks() in vitest.setup.ts
     });
 
     describe('createUrl', () => {
