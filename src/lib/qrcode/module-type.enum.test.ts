@@ -1,7 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import { ModuleTypeEnum } from '@/lib/qrcode/module-type.enum';
-import { QRkyOptions } from '@/lib/qrcode/QRkyOptions';
-
 
 describe('ModuleTypeEnum', () => {
     it('should have correct binary values for all module types', () => {
@@ -60,95 +58,5 @@ describe('ModuleTypeEnum', () => {
         const values = Object.values(ModuleTypeEnum).filter(v => typeof v === 'number');
         expect(values).toHaveLength(16);
         expect(values.sort((a, b) => a - b)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
-    });
-});
-
-describe('QRkyOptions Extended', () => {
-    describe('logo path validation', () => {
-        it('should accept null svgLogo', () => {
-            const options = new QRkyOptions({ svgLogo: null });
-            expect(options.svgLogo).toBeNull();
-        });
-
-        it('should accept undefined svgLogo', () => {
-            const options = new QRkyOptions({});
-            expect(options.svgLogo).toBeNull();
-        });
-
-        it('should reject empty string svgLogo', () => {
-            const options = new QRkyOptions({ svgLogo: '' });
-            expect(options.svgLogo).toBeNull();
-        });
-
-        it('should reject whitespace-only svgLogo', () => {
-            const options = new QRkyOptions({ svgLogo: '   ' });
-            expect(options.svgLogo).toBeNull();
-        });
-    });
-
-    describe('constructor options behavior', () => {
-        it('should set svgLogoCssClass via constructor', () => {
-            const options = new QRkyOptions({ svgLogoCssClass: 'my-custom-class' });
-            expect(options.svgLogoCssClass).toBe('my-custom-class');
-        });
-
-        it('should set clearLogoSpace via constructor', () => {
-            const optionsTrue = new QRkyOptions({ clearLogoSpace: true });
-            expect(optionsTrue.clearLogoSpace).toBe(true);
-            
-            const optionsFalse = new QRkyOptions({ clearLogoSpace: false });
-            expect(optionsFalse.clearLogoSpace).toBe(false);
-        });
-
-        it('should clamp svgLogoScaleMinimum to 0-1 range via constructor', () => {
-            const optionsNegative = new QRkyOptions({ svgLogoScaleMinimum: -0.5 });
-            expect(optionsNegative.svgLogoScaleMinimum).toBe(0);
-            
-            const optionsOverOne = new QRkyOptions({ svgLogoScaleMinimum: 1.5 });
-            expect(optionsOverOne.svgLogoScaleMinimum).toBe(1);
-        });
-
-        it('should clamp svgLogoScaleMaximum to 0-1 range via constructor', () => {
-            const optionsNegative = new QRkyOptions({ svgLogoScaleMaximum: -0.5 });
-            expect(optionsNegative.svgLogoScaleMaximum).toBe(0);
-            
-            const optionsOverOne = new QRkyOptions({ svgLogoScaleMaximum: 1.5 });
-            expect(optionsOverOne.svgLogoScaleMaximum).toBe(1);
-        });
-
-        it('should ensure svgViewBoxSize is at least 1 via constructor', () => {
-            const optionsZero = new QRkyOptions({ svgViewBoxSize: 0 });
-            expect(optionsZero.svgViewBoxSize).toBe(1);
-            
-            const optionsNegative = new QRkyOptions({ svgViewBoxSize: -100 });
-            expect(optionsNegative.svgViewBoxSize).toBe(1);
-        });
-    });
-
-    describe('option inheritance from QROptions', () => {
-        it('should inherit standard QR options', () => {
-            const options = new QRkyOptions({
-                version: 5,
-                eccLevel: 3,
-                quietzoneSize: 4,
-                addQuietzone: true,
-                bgColor: '#ffffff',
-                drawLightModules: true
-            });
-            
-            expect(options.version).toBe(5);
-            expect(options.eccLevel).toBe(3);
-            expect(options.quietzoneSize).toBe(4);
-            expect(options.addQuietzone).toBe(true);
-            expect(options.bgColor).toBe('#ffffff');
-            expect(options.drawLightModules).toBe(true);
-        });
-
-        it('should allow circleRadius option', () => {
-            const options = new QRkyOptions({
-                circleRadius: 0.35
-            });
-            expect(options.circleRadius).toBe(0.35);
-        });
     });
 });

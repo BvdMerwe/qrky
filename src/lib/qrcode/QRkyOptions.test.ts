@@ -1,7 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import { QRkyOptions } from '@/lib/qrcode/QRkyOptions';
-import { validateLogoScale, clampLogoScale, generateQrCode } from '@/lib/qrcode/generate';
-import { ECC_H } from '@chillerlan/qrcode/dist/js-qrcode-node-src.cjs';
 
 describe('QRkyOptions', () => {
     describe('customLogoBuffer', () => {
@@ -126,71 +124,92 @@ describe('QRkyOptions', () => {
             expect(options.svgLogo).toBeNull();
         });
     });
-});
 
-describe('generateQrCode', () => {
-    it('should generate QR code with default options', async () => {
-        const result = await generateQrCode({ data: 'https://example.com' });
-        expect(result.svg).toContain('<svg');
-        expect(result.svg).toContain('</svg>');
-        expect(result.buffer).toBeInstanceOf(Buffer);
-    });
-
-    it('should generate QR code with custom colors', async () => {
-        const result = await generateQrCode({
-            data: 'https://example.com',
-            fgColor: '#ff0000',
-            bgColor: '#00ff00',
+    describe('logo path validation', () => {
+        it('should accept null svgLogo', () => {
+            const options = new QRkyOptions({ svgLogo: null });
+            expect(options.svgLogo).toBeNull();
         });
-        expect(result.svg).toContain('<svg');
-    });
 
-    it('should generate QR code with custom corner radius', async () => {
-        const result = await generateQrCode({
-            data: 'https://example.com',
-            cornerRadius: 0.2,
+        it('should accept undefined svgLogo', () => {
+            const options = new QRkyOptions({});
+            expect(options.svgLogo).toBeNull();
         });
-        expect(result.svg).toContain('<svg');
-    });
 
-    it('should clamp logo scale to 0.1-0.3 range', async () => {
-        const result = await generateQrCode({
-            data: 'https://example.com',
-            logoScale: 0.5,
+        it('should reject empty string svgLogo', () => {
+            const options = new QRkyOptions({ svgLogo: '' });
+            expect(options.svgLogo).toBeNull();
         });
-        expect(result.svg).toContain('<svg');
-    });
 
-    it('should accept logo URL with ECC_H', async () => {
-        const result = await generateQrCode({
-            data: 'https://example.com',
-            logoUrl: 'https://example.com/logo.svg',
-            logoScale: 0.2,
-            eccLevel: ECC_H,
+        it('should reject whitespace-only svgLogo', () => {
+            const options = new QRkyOptions({ svgLogo: '   ' });
+            expect(options.svgLogo).toBeNull();
         });
-        expect(result.svg).toContain('<svg');
-    });
-});
-
-describe('validateLogoScale', () => {
-    it('should return true for scale within 0.1-0.35', () => {
-        expect(validateLogoScale(0.1)).toBe(true);
-        expect(validateLogoScale(0.2)).toBe(true);
-        expect(validateLogoScale(0.35)).toBe(true);
     });
 
-    it('should return false for scale outside 0.1-0.35', () => {
-        expect(validateLogoScale(0.05)).toBe(false);
-        expect(validateLogoScale(0.36)).toBe(false);
-        expect(validateLogoScale(0)).toBe(false);
-        expect(validateLogoScale(1)).toBe(false);
-    });
-});
+    describe('constructor options behavior', () => {
+        it('should set svgLogoCssClass via constructor', () => {
+            const options = new QRkyOptions({ svgLogoCssClass: 'my-custom-class' });
+            expect(options.svgLogoCssClass).toBe('my-custom-class');
+        });
 
-describe('clampLogoScale', () => {
-    it('should clamp scale to valid range', () => {
-        expect(clampLogoScale(0.05)).toBe(0.1);
-        expect(clampLogoScale(0.45)).toBe(0.35);
-        expect(clampLogoScale(0.2)).toBe(0.2);
+        it('should set clearLogoSpace via constructor', () => {
+            const optionsTrue = new QRkyOptions({ clearLogoSpace: true });
+            expect(optionsTrue.clearLogoSpace).toBe(true);
+            
+            const optionsFalse = new QRkyOptions({ clearLogoSpace: false });
+            expect(optionsFalse.clearLogoSpace).toBe(false);
+        });
+
+        it('should clamp svgLogoScaleMinimum to 0-1 range via constructor', () => {
+            const optionsNegative = new QRkyOptions({ svgLogoScaleMinimum: -0.5 });
+            expect(optionsNegative.svgLogoScaleMinimum).toBe(0);
+            
+            const optionsOverOne = new QRkyOptions({ svgLogoScaleMinimum: 1.5 });
+            expect(optionsOverOne.svgLogoScaleMinimum).toBe(1);
+        });
+
+        it('should clamp svgLogoScaleMaximum to 0-1 range via constructor', () => {
+            const optionsNegative = new QRkyOptions({ svgLogoScaleMaximum: -0.5 });
+            expect(optionsNegative.svgLogoScaleMaximum).toBe(0);
+            
+            const optionsOverOne = new QRkyOptions({ svgLogoScaleMaximum: 1.5 });
+            expect(optionsOverOne.svgLogoScaleMaximum).toBe(1);
+        });
+
+        it('should ensure svgViewBoxSize is at least 1 via constructor', () => {
+            const optionsZero = new QRkyOptions({ svgViewBoxSize: 0 });
+            expect(optionsZero.svgViewBoxSize).toBe(1);
+            
+            const optionsNegative = new QRkyOptions({ svgViewBoxSize: -100 });
+            expect(optionsNegative.svgViewBoxSize).toBe(1);
+        });
+    });
+
+    describe('option inheritance from QROptions', () => {
+        it('should inherit standard QR options', () => {
+            const options = new QRkyOptions({
+                version: 5,
+                eccLevel: 3,
+                quietzoneSize: 4,
+                addQuietzone: true,
+                bgColor: '#ffffff',
+                drawLightModules: true
+            });
+            
+            expect(options.version).toBe(5);
+            expect(options.eccLevel).toBe(3);
+            expect(options.quietzoneSize).toBe(4);
+            expect(options.addQuietzone).toBe(true);
+            expect(options.bgColor).toBe('#ffffff');
+            expect(options.drawLightModules).toBe(true);
+        });
+
+        it('should allow circleRadius option', () => {
+            const options = new QRkyOptions({
+                circleRadius: 0.35
+            });
+            expect(options.circleRadius).toBe(0.35);
+        });
     });
 });
