@@ -8,8 +8,7 @@ VALUES (
     true,
     NOW(),
     NOW()
-) ON CONFLICT (id) DO NOTHING
-DO UPDATE SET public = true;
+) ON CONFLICT (id) DO UPDATE SET public = true;
 
 -- RLS is enabled on storage.objects by default
 -- Allow public read access to all objects in qr-logos bucket

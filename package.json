@@ -49,7 +49,7 @@
     "eslint-config-next": "16.0.0",
     "jsdom": "^28.1.0",
     "qrcode": "link:@types/chillerlan/qrcode",
-    "supabase": "^2.54.11",
+    "supabase": "^2.84.6",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.0"
