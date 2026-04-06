@@ -3,6 +3,8 @@ import { Reader } from '@maxmind/geoip2-node';
 import ReaderModel from '@maxmind/geoip2-node/dist/src/readerModel';
 import { ReadonlyHeaders } from 'next/dist/server/web/spec-extension/adapters/headers';
 
+const STRING_KEY_UNKNOWN = 'UNKNOWN';
+
 // Singleton GeoLite2 reader — initialised once at module load.
 // If GEOIP_DB_PATH is unset or the file is unreadable, reader stays null
 // and all geo lookups degrade to "UNKNOWN".
@@ -46,16 +48,16 @@ export async function enrichVisit(headers: ReadonlyHeaders): Promise<VisitEnrich
 
     const reader = await getReader();
     if (!reader) {
-        return { ipHash, country: 'UNKNOWN', region: 'UNKNOWN' };
+        return { ipHash, country: STRING_KEY_UNKNOWN, region: STRING_KEY_UNKNOWN };
     }
 
     try {
-        const response = await Promise.resolve(reader.city(ip));
-        const countryCode = response.country?.isoCode ?? 'UNKNOWN';
+        const response = reader.city(ip);
+        const countryCode = response.country?.isoCode ?? STRING_KEY_UNKNOWN;
         const subdivisionCode = response.subdivisions?.[0]?.isoCode;
-        const region = subdivisionCode ? `${countryCode}-${subdivisionCode}` : 'UNKNOWN';
+        const region = subdivisionCode ? `${countryCode}-${subdivisionCode}` : STRING_KEY_UNKNOWN;
         return { ipHash, country: countryCode, region };
     } catch {
-        return { ipHash, country: 'UNKNOWN', region: 'UNKNOWN' };
+        return { ipHash, country: STRING_KEY_UNKNOWN, region: STRING_KEY_UNKNOWN };
     }
 }
