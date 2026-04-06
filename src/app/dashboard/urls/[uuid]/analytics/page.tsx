@@ -95,7 +95,8 @@ export default async function UrlAnalyticsPage({
                                         <th>Time</th>
                                         <th>Type</th>
                                         <th>User Agent</th>
-                                        <th>IP Address</th>
+                                        <th>Country</th>
+                                        <th>Region</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -116,7 +117,8 @@ export default async function UrlAnalyticsPage({
                                             <td className="max-w-xs truncate" title={visit.user_agent}>
                                                 {visit.user_agent || "Unknown"}
                                             </td>
-                                            <td>{visit.ip || "Unknown"}</td>
+                                            <td>{visit.country || "Unknown"}</td>
+                                            <td>{visit.region || "Unknown"}</td>
                                         </tr>
                                     ))}
                                 </tbody>
