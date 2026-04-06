@@ -52,6 +52,7 @@ export async function enrichVisit(headers: ReadonlyHeaders): Promise<VisitEnrich
 
     try {
         const response = reader.city(ip);
+        console.log(response);
         const countryCode = response.country?.isoCode ?? 'UNKNOWN';
         const subdivisionCode = response.subdivisions?.[0]?.isoCode;
         const region = subdivisionCode ? `${countryCode}-${subdivisionCode}` : 'UNKNOWN';

@@ -1,6 +1,8 @@
 import React from "react";
 import { createClient } from "@/lib/supabase/server";
 import { formatDistanceToNow } from "date-fns";
+import {getName} from 'i18n-iso-countries';
+import {iso31662} from 'iso-3166'
 
 export default async function UrlAnalyticsPage({
     params
@@ -13,7 +15,7 @@ export default async function UrlAnalyticsPage({
     // Fetch URL data
     const { data: url, error: urlError } = await supabase
         .from("url_objects")
-        .select("*")
+        .select()
         .eq("uuid", uuid)
         .maybeSingle();
 
@@ -42,31 +44,34 @@ export default async function UrlAnalyticsPage({
 
     const { data: directVisits } = await supabase
         .from("visits")
-        .select("*")
+        .select()
         .eq("url_object_id", url.id);
 
     const { data: qrVisits } = qrCodeIds.length > 0
         ? await supabase
             .from("visits")
-            .select("*")
+            .select()
             .in("qr_code_id", qrCodeIds)
         : { data: [] };
 
     const { data: aliasVisits } = aliasIds.length > 0
         ? await supabase
             .from("visits")
-            .select("*")
+            .select()
             .in("alias_id", aliasIds)
         : { data: [] };
 
-    const allVisits = [...(directVisits || []), ...(qrVisits || []), ...(aliasVisits || [])];
+    const allVisits = [
+        ...(directVisits || []),
+        ...(qrVisits || []),
+        ...(aliasVisits || [])
+    ];
     const visits = allVisits || [];
     const totalVisits = visits.length;
 
     const sortedVisits = [...visits].sort(
         (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
-    const recentVisits = sortedVisits.slice(0, 20);
 
     return (
         <div className="container mx-auto p-4">
@@ -85,7 +90,7 @@ export default async function UrlAnalyticsPage({
             <div className="card bg-base-200">
                 <div className="card-body">
                     <h2 className="card-title">Recent Visits</h2>
-                    {recentVisits.length === 0 ? (
+                    {sortedVisits.length === 0 ? (
                         <p className="text-base-content/70">No visits yet.</p>
                     ) : (
                         <div className="overflow-x-auto">
@@ -100,7 +105,7 @@ export default async function UrlAnalyticsPage({
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {recentVisits.map((visit) => (
+                                    {sortedVisits.map((visit) => (
                                         <tr key={visit.id}>
                                             <td>
                                                 {formatDistanceToNow(
@@ -117,8 +122,8 @@ export default async function UrlAnalyticsPage({
                                             <td className="max-w-xs truncate" title={visit.user_agent}>
                                                 {visit.user_agent || "Unknown"}
                                             </td>
-                                            <td>{visit.country || "Unknown"}</td>
-                                            <td>{visit.region || "Unknown"}</td>
+                                            <td><span className="tooltip tooltip-top" data-tip={visit.country}>{getRegionalName(visit.country) || "Unknown"}</span></td>
+                                            <td><span className="tooltip tooltip-top" data-tip={visit.region}>{getRegionalName(visit.region) || "Unknown"}</span></td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -129,4 +134,21 @@ export default async function UrlAnalyticsPage({
             </div>
         </div>
     );
+}
+
+const nameCache: Record<string, string | undefined> = {};
+
+const getRegionalName = (isoCode: string) => {
+    if (!isoCode) return undefined;
+
+    if (nameCache[isoCode]) {
+        return nameCache[isoCode];
+    }
+
+    const i18nName = getName(isoCode, 'en');
+    const resolvedName = i18nName ? i18nName : iso31662.find(i => i.code === isoCode)?.name;
+
+    nameCache[isoCode] = resolvedName;
+
+    return resolvedName;
 }
