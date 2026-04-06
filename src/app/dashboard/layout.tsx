@@ -1,4 +1,4 @@
-import SidebarLayout from "@/components/ui/sidebar-layout";
+import TopNavbar from "@/components/ui/top-navbar";
 import React from "react";
 
 export default function DashboardLayout({
@@ -7,8 +7,8 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <SidebarLayout>
+        <TopNavbar>
             {children}
-        </SidebarLayout>
+        </TopNavbar>
     )
 }

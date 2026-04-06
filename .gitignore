@@ -1,5 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# Superpowers brainstorming sessions
+.superpowers/
+
 # dependencies
 /node_modules
 /.pnp
@@ -32,6 +35,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -41,3 +45,12 @@ yarn-error.log*
 next-env.d.ts
 
 .idea
+
+# Dolt database files (added by bd init)
+.dolt/
+*.db
+.worktrees/
+.tech-team/
+
+# Maxmind GeoLite2
+geo-ip/

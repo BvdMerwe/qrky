@@ -1,8 +1,8 @@
 import {createClient} from "@/lib/supabase/server";
 import {redirect} from "next/navigation";
 import Link from "next/link";
-import {FaGithub, FaGoogle} from "react-icons/fa6";
 import FormRegisterComponent from "@/components/auth/form-register";
+import OAuthButtons from "@/components/auth/oauth-buttons";
 
 export default async function RegisterPage() {
     const supabase = await createClient()
@@ -21,15 +21,7 @@ export default async function RegisterPage() {
                 <Link href="/login" className="link link-secondary">Log in</Link>
             </span>
 
-            <a className="btn btn-neutral">
-                <FaGoogle />
-                Register with Google
-            </a>
-
-            <a className="btn btn-neutral">
-                <FaGithub />
-                Register with Github
-            </a>
+            <OAuthButtons />
 
             <div className="divider">OR</div>
 

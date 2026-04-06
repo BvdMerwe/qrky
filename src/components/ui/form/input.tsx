@@ -1,5 +1,5 @@
 import React from "react";
-import {TbLockPassword} from "react-icons/tb";
+import {TbPencil} from "react-icons/tb";
 
 export interface InputProps {
     name: string;
@@ -24,7 +24,7 @@ export default function Input({
 }: InputProps): React.ReactNode {
     return (
         <label className="input w-full">
-            <span className="label">{icon ?? <TbLockPassword/>}</span>
+            <span className="label">{icon ?? <TbPencil/>}</span>
             <input
                 type={type ?? "text"}
                 className=""

@@ -10,17 +10,23 @@ import {accessSync, constants, existsSync} from 'fs';
 
 export interface QRkyOptionsInterface extends QROptionsInterface {
     svgLogo?: string | null;
+    customLogoBuffer?: Buffer | null;
     svgViewBoxSize?: number;
     svgLogoScale?: number;
     svgLogoScaleMinimum?: number;
     svgLogoScaleMaximum?: number;
     svgLogoCssClass?: string;
     clearLogoSpace?: boolean;
+    bgColor?: string;
+    color?: string;
 }
 
 export class QRkyOptions extends QROptions implements QRkyOptionsInterface {
     /** Path to SVG logo file */
     svgLogo: string | null = null;
+
+    /** SVG logo as Buffer (for loading from URL/Storage) */
+    customLogoBuffer: Buffer | null = null;
 
     /** The scale of the SVG viewBox */
     svgViewBoxSize: number = 300;
@@ -40,20 +46,27 @@ export class QRkyOptions extends QROptions implements QRkyOptionsInterface {
     /** Whether to clear the logo space in the QR code */
     clearLogoSpace: boolean = true;
 
+    /** The color of the empty module */
+    bgColor?: string = '#ffffff';
+
+    /** The color of the filled module */
+    color?: string = '#000000';
+
     constructor(options?: QRkyOptionsInterface) {
         super(options);
 
         if (options) {
             // Apply all options
             Object.keys(options).forEach(key => {
-                const value = options[key];
+                const value = (options as Record<string, unknown>)[key];
                 if (value !== undefined) {
                     // Use setter methods if they exist
                     const setterName = `set_${key}`;
-                    if (typeof (this as any)[setterName] === 'function') {
-                        (this as any)[setterName](value);
+                    const self = this as unknown as Record<string, unknown>;
+                    if (typeof self[setterName] === 'function') {
+                        (self[setterName] as (value: unknown) => void)(value);
                     } else {
-                        (this as any)[key] = value;
+                        self[key] = value;
                     }
                 }
             });
@@ -84,6 +97,22 @@ export class QRkyOptions extends QROptions implements QRkyOptionsInterface {
 
         // @todo: validate SVG content
         this.svgLogo = svgLogo;
+    }
+
+    /**
+     * Set SVG logo from Buffer
+     */
+    protected set_customLogoBuffer(customLogoBuffer: Buffer | null | undefined): void {
+        if (!customLogoBuffer) {
+            this.customLogoBuffer = null;
+            return;
+        }
+
+        if (!Buffer.isBuffer(customLogoBuffer)) {
+            throw new QRCodeException('invalid svg logo buffer: must be a Buffer');
+        }
+
+        this.customLogoBuffer = customLogoBuffer;
     }
 
     /**
@@ -129,5 +158,51 @@ export class QRkyOptions extends QROptions implements QRkyOptionsInterface {
      */
     protected set_svgLogoCssClass(svgLogoCssClass: string): void {
         this.svgLogoCssClass = svgLogoCssClass;
+    }
+
+    /**
+     * Set empty module fill
+     */
+    protected set_bgColor(bgColor: string): void {
+        if (this.validateColor(bgColor)) {
+            this.bgColor = bgColor;
+        } else if (this.validateColorWithoutHash(bgColor)) {
+            this.bgColor = `#${bgColor}`;
+        }
+    }
+
+    /**
+     * Set filled module fill
+     */
+    protected set_color(color: string): void {
+        if (this.validateColor(color)) {
+            this.color = color;
+        } else if (this.validateColorWithoutHash(color)) {
+            this.color = `#${color}`;
+        }
+    }
+
+    private validateColor(color: string): boolean {
+        if (color.match(/^#[0-9a-fA-F]{6}$/i)) { // #ABC123 || #abc123
+            return true;
+        } else if (color.match(/^#[0-9a-fA-F]{3}$/i)) { // #ABC || #abc
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private validateColorWithoutHash(color: string): boolean {
+        if (color.match(/^[0-9a-fA-F]{6}$/i)) { // ABC123 || abc123
+            return true;
+        } else if (color.match(/^[0-9a-fA-F]{3}$/i)) { // ABC || abc
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    protected set_circleRadius(radius: number): void {
+        this.circleRadius = Math.max(0, Math.min(0.75, radius));
     }
 }

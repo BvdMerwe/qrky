@@ -1,25 +1,29 @@
 "use client"
 
-import {useCallback, useRef} from "react";
+import {useRef, useState} from "react";
 import {createClient} from "@/lib/supabase/browser";
+import {AuthError, User} from "@supabase/auth-js";
 import FormChangePassword from "@/components/auth/form-change-password";
-
-const initialState = {message: "", success: false};
 
 export default function LayoutChangePassword() {
     const supabase = createClient();
     const passwordModalRef = useRef<HTMLDialogElement>(null);
+    const [, setFormState] = useState({message: "", success: false});
 
-    const initiatePasswordChange = useCallback(() => {
-        // Reset form state when opening modal
-        initialState.success = false;
+    const initiatePasswordChange = () => {
+        setFormState({message: "", success: false});
 
-        supabase.auth.reauthenticate().then(({error, data}) => {
-            if (error) return console.error(error);
-            if (data)
-                passwordModalRef.current?.showModal();
-        });
-    }, [passwordModalRef, supabase]);
+        supabase.auth.reauthenticate()
+            .then(({ error, data }: { data: { user: User | null }; error: AuthError | null }) => {
+                if (error) {
+                    console.error(error);
+                    return;
+                }
+                if (data)
+                    passwordModalRef.current?.showModal();
+            })
+            .catch(console.error);
+    };
 
     return (
         <>
@@ -28,7 +32,7 @@ export default function LayoutChangePassword() {
             </button>
 
             <dialog id="password-modal" className="modal" ref={passwordModalRef}>
-                <div className="modal-box prose">
+                <div className="prose modal-box">
                     <h2 className="text-center">Update your password</h2>
 
                     <FormChangePassword />

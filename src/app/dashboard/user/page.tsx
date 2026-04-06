@@ -4,7 +4,7 @@ import {createClient} from '@/lib/supabase/browser'
 import {TbMail, TbUser} from "react-icons/tb";
 import {saveUser} from "@/app/dashboard/user/actions";
 import {useActionState, useEffect, useState} from "react";
-import {User} from "@supabase/auth-js";
+import {User, AuthError} from "@supabase/auth-js";
 import ErrorMessageComponent from "@/components/ui/alert/error-message";
 import LayoutChangePassword from "@/components/auth/layout-change-password";
 import InfoMessageComponent from "@/components/ui/alert/info-message";
@@ -24,13 +24,14 @@ export default function DashboardUserPage() {
     useEffect(() => {
         if (!userFormPending)
         supabase.auth.getUser()
-            .then(({data, error}) => {
+            .then(({ data, error }: { data: { user: User | null }; error: AuthError | null }) => {
                 if (error || !data?.user) {
                     redirect('/login')
                 } else {
                     setUser(data.user);
                 }
-            });
+            })
+            .catch(console.error);
     }, [userFormPending]);
 
 

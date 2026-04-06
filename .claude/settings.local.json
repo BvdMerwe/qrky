@@ -1,0 +1,8 @@
+{
+  "disabledMcpjsonServers": [
+    "filesystem",
+    "sqlite",
+    "brave-search",
+    "puppeteer"
+  ]
+}

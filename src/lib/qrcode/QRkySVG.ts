@@ -5,11 +5,22 @@
  * Create SVG QR Codes with embedded logos and customizable module shapes
  */
 
-import { QRMarkupSVG, QRMatrix } from '@chillerlan/qrcode/dist/js-qrcode-node-src.cjs';
+import {
+    M_ALIGNMENT, M_ALIGNMENT_DARK, M_DARKMODULE, M_DARKMODULE_LIGHT,
+    M_DATA,
+    M_DATA_DARK,
+    M_FINDER, M_FINDER_DARK, M_FINDER_DOT, M_FINDER_DOT_LIGHT, M_FORMAT, M_FORMAT_DARK, M_LOGO, M_LOGO_DARK,
+    M_NULL, M_QUIETZONE,
+    M_QUIETZONE_DARK, M_SEPARATOR, M_SEPARATOR_DARK, M_TIMING, M_TIMING_DARK, M_VERSION, M_VERSION_DARK,
+    QRMarkupSVG,
+    QRMatrix
+} from '@chillerlan/qrcode/dist/js-qrcode-node-src.cjs';
 import { ModuleTypeEnum } from './module-type.enum';
 import { QRkyOptions } from './QRkyOptions';
 import { readFileSync } from 'fs';
 import {DOMParser, XMLSerializer} from "@xmldom/xmldom";
+import Mimetics from "mimetics";
+import {imageSize} from "image-size";
 
 export class QRkySVG extends QRMarkupSVG {
     protected declare options: QRkyOptions;
@@ -25,10 +36,49 @@ export class QRkySVG extends QRMarkupSVG {
         const viewBoxSize = this.options.svgViewBoxSize ?? 300;
 
         if (this.options.drawLightModules) {
-            header += `<rect x="0" y="0" width="${viewBoxSize}" height="${viewBoxSize}" fill="#ffffff"></rect>`
+            header += `<rect x="0" y="0" width="${viewBoxSize}" height="${viewBoxSize}" fill="${this.options.bgColor}"></rect>`
         }
 
         return header.replace('>', ` width="${viewBoxSize}" height="${viewBoxSize}">`);
+    }
+
+    /**
+     * Get the fill value for a given module type.
+     * @param M_TYPE
+     * @protected
+     */
+    protected getModuleValue(M_TYPE: string): string {
+        switch (parseInt(M_TYPE)) {
+            case M_NULL:
+            case M_DATA:
+            case M_FINDER:
+            case M_FINDER_DOT_LIGHT:
+            case M_SEPARATOR:
+            case M_ALIGNMENT:
+            case M_TIMING:
+            case M_FORMAT:
+            case M_VERSION:
+            case M_QUIETZONE:
+            case M_LOGO:
+                return this.options.bgColor ?? super.getModuleValue(M_TYPE);
+
+            case M_DATA_DARK:
+            case M_FINDER_DARK:
+            case M_FINDER_DOT:
+            case M_SEPARATOR_DARK:
+            case M_ALIGNMENT_DARK:
+            case M_TIMING_DARK:
+            case M_FORMAT_DARK:
+            case M_VERSION_DARK:
+            case M_DARKMODULE:
+            case M_DARKMODULE_LIGHT:
+            case M_QUIETZONE_DARK:
+            case M_LOGO_DARK:
+                return this.options.color ?? super.getModuleValue(M_TYPE)
+
+            default:
+                return super.getModuleValue(M_TYPE);
+        }
     }
 
     /**
@@ -42,9 +92,7 @@ export class QRkySVG extends QRMarkupSVG {
 
         let svg = super.paths();
 
-        if (this.options.svgLogo !== null && this.options.svgLogo !== undefined) {
-            svg += this.getLogo();
-        }
+        svg += this.getLogo();
 
         return svg;
     }
@@ -196,35 +244,49 @@ export class QRkySVG extends QRMarkupSVG {
      * @returns SVG group element with embedded logo
      */
     protected getLogo(): string {
-        if (!this.options.svgLogo) {
+        const hasFileLogo = this.options.svgLogo !== null && this.options.svgLogo !== undefined;
+        const hasBufferLogo = this.options.customLogoBuffer !== null && this.options.customLogoBuffer !== undefined;
+        if (!hasFileLogo && !hasBufferLogo) {
             return '';
         }
-
         try {
-            // Read the SVG logo file
-            const svgLogoContents = readFileSync(this.options.svgLogo, 'utf-8');
-
+            let svgElement: HTMLElement;
+            let logoWidth = 1080;
+            let logoHeight = 1080;
             const parser = new DOMParser();
-            const svgDom = parser.parseFromString(svgLogoContents, "image/svg+xml");
-            const svgElement = svgDom.documentElement;
-            svgElement.setAttribute("width", this.options.svgViewBoxSize.toString());
-            svgElement.setAttribute("height", this.options.svgViewBoxSize.toString());
 
-            // Extract width and height from SVG attributes
-            const width = this.options.svgViewBoxSize;
-            const height = this.options.svgViewBoxSize;
-            const sizeMax = Math.max(width, height);
+            if (hasBufferLogo) {
+                const imageContentsBase64 = this.options.customLogoBuffer!.toString('base64');
+                const fileType = Mimetics.parse(this.options.customLogoBuffer!);
+                const mime = fileType?.mime || 'image/unknown';
 
-            // Normalize to QR code size and scale
-            const sizeRelative = this.moduleCount / sizeMax;
-            const sizeScaled = sizeRelative * (this.options.svgLogoScale ?? 0.2);
+                const sizeInfo = imageSize(this.options.customLogoBuffer!);
+                logoWidth = sizeInfo.width ?? this.options.svgViewBoxSize;
+                logoHeight = sizeInfo.height ?? this.options.svgViewBoxSize;
+
+                const svgDom = parser.parseFromString(
+                    `<svg viewBox="0 0 ${logoWidth} ${logoHeight}"><image href="data:${mime};base64,${imageContentsBase64}" width="${logoWidth}" height="${logoHeight}" /></svg>`,
+                    "image/svg+xml"
+                );
+                svgElement = svgDom.documentElement;
+            } else {
+                const svgLogoContents = readFileSync(this.options.svgLogo!, 'utf-8');
+                const svgDom = parser.parseFromString(svgLogoContents, "image/svg+xml");
+                svgElement = svgDom.documentElement;
+            }
+
+            svgElement.setAttribute("width", logoWidth.toString() ?? this.options.svgViewBoxSize.toString());
+            svgElement.setAttribute("height", logoHeight.toString() ?? this.options.svgViewBoxSize.toString());
+
+            const logoScale = this.options.svgLogoScale ?? 0.2;
+            const scale = (this.moduleCount * logoScale) / Math.max(logoWidth, logoHeight);
+            const center = (this.moduleCount / 2);
+
             const eol = this.options.eol ?? '\n';
             const cssClass = this.options.svgLogoCssClass ?? 'logo';
-            const logoScale = this.options.svgLogoScale ?? 0.2;
-            const translateOffset = (this.moduleCount / 2) - (this.moduleCount * logoScale / 2);
             const serialized = new XMLSerializer().serializeToString(svgElement);
 
-            return `${eol}<g transform="translate(${translateOffset} ${translateOffset}) scale(${sizeScaled})" class="${cssClass}">${eol}\t${serialized}${eol}</g>`;
+            return `${eol}<g transform="translate(${center} ${center}) scale(${scale} ${scale}) translate(${-logoWidth / 2} ${-logoHeight / 2})" class="${cssClass}">${eol}\t${serialized}${eol}</g>`;
         } catch (error) {
             console.error('Error loading SVG logo:', error);
             return '';
