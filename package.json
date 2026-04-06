@@ -21,7 +21,7 @@
     "@supabase/auth-js": "^2.76.1",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.76.1",
-    "@xmldom/xmldom": "^0.8.11",
+    "@xmldom/xmldom": "^0.8.12",
     "classcat": "^5.0.5",
     "date-fns": "^4.1.0",
     "i18n-iso-countries": "^7.14.0",
