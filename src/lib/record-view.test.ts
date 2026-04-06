@@ -2,126 +2,86 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ReadonlyHeaders } from 'next/dist/server/web/spec-extension/adapters/headers';
 
 const mockRpc = vi.fn();
-const mockSupabase = {
-    rpc: mockRpc
-};
+const mockSupabase = { rpc: mockRpc };
+const mockEnrichVisit = vi.fn();
 
 vi.mock('@/lib/supabase/server', () => ({
-    createClient: vi.fn(() => Promise.resolve(mockSupabase))
+    createClient: vi.fn(() => Promise.resolve(mockSupabase)),
+}));
+
+vi.mock('@/lib/enrich-visit', () => ({
+    enrichVisit: mockEnrichVisit,
 }));
 
 describe('recordView', () => {
-    let recordView: (headers: ReadonlyHeaders, objectType: "qr_codes" | "aliases" | "url_objects", identifier: string) => Promise<void>;
+    let recordView: (
+        headers: ReadonlyHeaders,
+        objectType: 'qr_codes' | 'aliases' | 'url_objects',
+        identifier: string
+    ) => Promise<void>;
 
     beforeEach(async () => {
         vi.clearAllMocks();
-        const recordViewModule = await import('@/lib/record-view');
-        recordView = recordViewModule.default;
+        mockEnrichVisit.mockResolvedValue({
+            ipHash: 'abc123hash',
+            country: 'ZA',
+            region: 'ZA-WC',
+        });
+        mockRpc.mockResolvedValue({ data: null, error: null });
+        const mod = await import('@/lib/record-view');
+        recordView = mod.default;
     });
 
-    it('calls record_view RPC with correct parameters for url_objects', async () => {
-        mockRpc.mockResolvedValue({ data: null, error: null });
-
-        const headers = new Headers({
-            'x-forwarded-for': '192.168.1.1',
-            'user-agent': 'Test Agent'
-        }) as ReadonlyHeaders;
-
+    it('calls enrichVisit with the headers object', async () => {
+        const headers = new Headers({ 'x-forwarded-for': '1.2.3.4' }) as ReadonlyHeaders;
         await recordView(headers, 'url_objects', 'test-uuid');
+        expect(mockEnrichVisit).toHaveBeenCalledWith(headers);
+    });
 
+    it('calls record_view RPC with ip_hash, country, region for url_objects', async () => {
+        const headers = new Headers({ 'user-agent': 'Test Agent' }) as ReadonlyHeaders;
+        await recordView(headers, 'url_objects', 'test-uuid');
         expect(mockRpc).toHaveBeenCalledWith('record_view', {
             objecttype: 'url_objects',
             identifier: 'test-uuid',
-            ip: '192.168.1.1',
-            useragent: 'Test Agent'
+            ip_hash: 'abc123hash',
+            useragent: 'Test Agent',
+            country: 'ZA',
+            region: 'ZA-WC',
         });
     });
 
-    it('calls record_view RPC for qr_codes', async () => {
-        mockRpc.mockResolvedValue({ data: null, error: null });
-
-        const headers = new Headers({
-            'x-forwarded-for': '10.0.0.1',
-            'user-agent': 'Mobile Agent'
-        }) as ReadonlyHeaders;
-
+    it('calls record_view RPC with correct params for qr_codes', async () => {
+        const headers = new Headers({ 'user-agent': 'Mobile Agent' }) as ReadonlyHeaders;
         await recordView(headers, 'qr_codes', 'qr-uuid');
-
         expect(mockRpc).toHaveBeenCalledWith('record_view', {
             objecttype: 'qr_codes',
             identifier: 'qr-uuid',
-            ip: '10.0.0.1',
-            useragent: 'Mobile Agent'
+            ip_hash: 'abc123hash',
+            useragent: 'Mobile Agent',
+            country: 'ZA',
+            region: 'ZA-WC',
         });
     });
 
-    it('calls record_view RPC for aliases', async () => {
-        mockRpc.mockResolvedValue({ data: null, error: null });
-
-        const headers = new Headers({
-            'x-forwarded-for': '172.16.0.1',
-            'user-agent': 'Browser Agent'
-        }) as ReadonlyHeaders;
-
-        await recordView(headers, 'aliases', 'alias-value');
-
+    it('calls record_view RPC with correct params for aliases', async () => {
+        const headers = new Headers({ 'user-agent': 'Browser' }) as ReadonlyHeaders;
+        await recordView(headers, 'aliases', 'alias-uuid');
         expect(mockRpc).toHaveBeenCalledWith('record_view', {
             objecttype: 'aliases',
-            identifier: 'alias-value',
-            ip: '172.16.0.1',
-            useragent: 'Browser Agent'
+            identifier: 'alias-uuid',
+            ip_hash: 'abc123hash',
+            useragent: 'Browser',
+            country: 'ZA',
+            region: 'ZA-WC',
         });
     });
 
-    it('uses x-real-ip when x-forwarded-for is not available', async () => {
-        mockRpc.mockResolvedValue({ data: null, error: null });
-
-        const headers = new Headers({
-            'x-real-ip': '127.0.0.1',
-            'user-agent': 'Local Agent'
-        }) as ReadonlyHeaders;
-
+    it('uses empty string for user-agent when header is absent', async () => {
+        const headers = new Headers({}) as ReadonlyHeaders;
         await recordView(headers, 'url_objects', 'test-id');
-
-        expect(mockRpc).toHaveBeenCalledWith('record_view', {
-            objecttype: 'url_objects',
-            identifier: 'test-id',
-            ip: '127.0.0.1',
-            useragent: 'Local Agent'
-        });
-    });
-
-    it('uses empty string when no IP headers are present', async () => {
-        mockRpc.mockResolvedValue({ data: null, error: null });
-
-        const headers = new Headers({
-            'user-agent': 'No IP Agent'
-        }) as ReadonlyHeaders;
-
-        await recordView(headers, 'url_objects', 'test-id');
-
-        expect(mockRpc).toHaveBeenCalledWith('record_view', {
-            objecttype: 'url_objects',
-            identifier: 'test-id',
-            ip: '',
-            useragent: 'No IP Agent'
-        });
-    });
-
-    it('uses empty string when user-agent is not present', async () => {
-        mockRpc.mockResolvedValue({ data: null, error: null });
-
-        const headers = new Headers({
-            'x-forwarded-for': '192.168.1.1'
-        }) as ReadonlyHeaders;
-
-        await recordView(headers, 'url_objects', 'test-id');
-
-        expect(mockRpc).toHaveBeenCalledWith('record_view', {
-            objecttype: 'url_objects',
-            identifier: 'test-id',
-            ip: '192.168.1.1',
-            useragent: ''
-        });
+        expect(mockRpc).toHaveBeenCalledWith('record_view', expect.objectContaining({
+            useragent: '',
+        }));
     });
 });
