@@ -191,6 +191,15 @@ drop trigger if exists "objects_insert_create_prefix" on "storage"."objects";
 
 drop trigger if exists "objects_update_create_prefix" on "storage"."objects";
 
-drop trigger if exists "prefixes_create_hierarchy" on "storage"."prefixes";
-
-drop trigger if exists "prefixes_delete_hierarchy" on "storage"."prefixes";
+-- storage.prefixes only exists in newer Supabase storage versions.
+-- Guard these drops so the migration works on older local Docker images too.
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.tables
+        WHERE table_schema = 'storage' AND table_name = 'prefixes'
+    ) THEN
+        DROP TRIGGER IF EXISTS "prefixes_create_hierarchy" ON "storage"."prefixes";
+        DROP TRIGGER IF EXISTS "prefixes_delete_hierarchy" ON "storage"."prefixes";
+    END IF;
+END $$;
