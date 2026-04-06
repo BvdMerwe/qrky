@@ -44,7 +44,7 @@ describe('enrichVisit', () => {
     }
 
     it('produces a deterministic hash for the same IP and secret', async () => {
-        mockCity.mockResolvedValue({
+        mockCity.mockReturnValue({
             country: { isoCode: 'ZA' },
             subdivisions: [{ isoCode: 'WC' }],
         });
@@ -59,7 +59,7 @@ describe('enrichVisit', () => {
     });
 
     it('hash changes when IP changes', async () => {
-        mockCity.mockResolvedValue({
+        mockCity.mockReturnValue({
             country: { isoCode: 'ZA' },
             subdivisions: [{ isoCode: 'WC' }],
         });
@@ -72,7 +72,7 @@ describe('enrichVisit', () => {
     });
 
     it('hash changes when secret changes', async () => {
-        mockCity.mockResolvedValue({
+        mockCity.mockReturnValue({
             country: { isoCode: 'ZA' },
             subdivisions: [{ isoCode: 'WC' }],
         });
@@ -86,7 +86,7 @@ describe('enrichVisit', () => {
     });
 
     it('empty string IP produces a valid hash without error', async () => {
-        mockCity.mockResolvedValue({
+        mockCity.mockReturnValue({
             country: { isoCode: 'ZA' },
             subdivisions: [{ isoCode: 'WC' }],
         });
@@ -96,7 +96,7 @@ describe('enrichVisit', () => {
     });
 
     it('uses the first IP from a comma-separated x-forwarded-for list', async () => {
-        mockCity.mockResolvedValue({
+        mockCity.mockReturnValue({
             country: { isoCode: 'US' },
             subdivisions: [{ isoCode: 'CA' }],
         });
@@ -106,7 +106,7 @@ describe('enrichVisit', () => {
     });
 
     it('falls back to x-real-ip when x-forwarded-for is absent', async () => {
-        mockCity.mockResolvedValue({
+        mockCity.mockReturnValue({
             country: { isoCode: 'DE' },
             subdivisions: [{ isoCode: 'BY' }],
         });
@@ -116,7 +116,7 @@ describe('enrichVisit', () => {
     });
 
     it('falls back to empty string when no IP headers are present', async () => {
-        mockCity.mockResolvedValue({
+        mockCity.mockReturnValue({
             country: { isoCode: 'ZA' },
             subdivisions: [{ isoCode: 'WC' }],
         });
@@ -126,7 +126,7 @@ describe('enrichVisit', () => {
     });
 
     it('returns correct country and region from GeoLite2', async () => {
-        mockCity.mockResolvedValue({
+        mockCity.mockReturnValue({
             country: { isoCode: 'ZA' },
             subdivisions: [{ isoCode: 'WC' }],
         });
@@ -138,7 +138,6 @@ describe('enrichVisit', () => {
 
     it('returns UNKNOWN for country and region when GEOIP_DB_PATH is not set', async () => {
         delete process.env.GEOIP_DB_PATH;
-        vi.resetModules();
         const { Reader } = await import('@maxmind/geoip2-node');
         vi.mocked(Reader.open).mockRejectedValue(new Error('no path'));
         const { enrichVisit } = await import('@/lib/enrich-visit');
@@ -148,7 +147,7 @@ describe('enrichVisit', () => {
     });
 
     it('returns UNKNOWN when IP is not found in the database', async () => {
-        mockCity.mockRejectedValue(Object.assign(new Error('not found'), { name: 'AddressNotFoundError' }));
+        mockCity.mockImplementation(() => { throw Object.assign(new Error('not found'), { name: 'AddressNotFoundError' }); });
         const enrichVisit = await getEnrichVisit();
         const result = await enrichVisit(makeHeaders({ 'x-forwarded-for': '0.0.0.0' }));
         expect(result.country).toBe('UNKNOWN');
@@ -156,7 +155,7 @@ describe('enrichVisit', () => {
     });
 
     it('returns UNKNOWN when the reader throws (corrupt file)', async () => {
-        mockCity.mockRejectedValue(new Error('corrupt mmdb'));
+        mockCity.mockImplementation(() => { throw new Error('corrupt mmdb'); });
         const enrichVisit = await getEnrichVisit();
         const result = await enrichVisit(makeHeaders({ 'x-forwarded-for': '1.2.3.4' }));
         expect(result.country).toBe('UNKNOWN');
