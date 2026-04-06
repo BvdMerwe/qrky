@@ -138,6 +138,7 @@ describe('enrichVisit', () => {
 
     it('returns UNKNOWN for country and region when GEOIP_DB_PATH is not set', async () => {
         delete process.env.GEOIP_DB_PATH;
+        vi.resetModules();
         const { Reader } = await import('@maxmind/geoip2-node');
         vi.mocked(Reader.open).mockRejectedValue(new Error('no path'));
         const { enrichVisit } = await import('@/lib/enrich-visit');

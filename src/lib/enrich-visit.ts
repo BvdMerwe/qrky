@@ -1,16 +1,15 @@
 import { createHmac } from 'crypto';
 import { Reader } from '@maxmind/geoip2-node';
-import ReaderModel from '@maxmind/geoip2-node/dist/src/readerModel';
 import { ReadonlyHeaders } from 'next/dist/server/web/spec-extension/adapters/headers';
 
-const STRING_KEY_UNKNOWN = 'UNKNOWN';
+type GeoReader = Awaited<ReturnType<typeof Reader.open>>;
 
 // Singleton GeoLite2 reader — initialised once at module load.
 // If GEOIP_DB_PATH is unset or the file is unreadable, reader stays null
 // and all geo lookups degrade to "UNKNOWN".
-let readerPromise: Promise<ReaderModel | null>;
+let readerPromise: Promise<GeoReader | null> | undefined;
 
-function getReader(): Promise<ReaderModel | null> {
+function getReader(): Promise<GeoReader | null> {
     if (!readerPromise) {
         const dbPath = process.env.GEOIP_DB_PATH;
         if (!dbPath) {
@@ -48,16 +47,16 @@ export async function enrichVisit(headers: ReadonlyHeaders): Promise<VisitEnrich
 
     const reader = await getReader();
     if (!reader) {
-        return { ipHash, country: STRING_KEY_UNKNOWN, region: STRING_KEY_UNKNOWN };
+        return { ipHash, country: 'UNKNOWN', region: 'UNKNOWN' };
     }
 
     try {
-        const response = reader.city(ip);
-        const countryCode = response.country?.isoCode ?? STRING_KEY_UNKNOWN;
+        const response = await Promise.resolve(reader.city(ip));
+        const countryCode = response.country?.isoCode ?? 'UNKNOWN';
         const subdivisionCode = response.subdivisions?.[0]?.isoCode;
-        const region = subdivisionCode ? `${countryCode}-${subdivisionCode}` : STRING_KEY_UNKNOWN;
+        const region = subdivisionCode ? `${countryCode}-${subdivisionCode}` : 'UNKNOWN';
         return { ipHash, country: countryCode, region };
     } catch {
-        return { ipHash, country: STRING_KEY_UNKNOWN, region: STRING_KEY_UNKNOWN };
+        return { ipHash, country: 'UNKNOWN', region: 'UNKNOWN' };
     }
 }
