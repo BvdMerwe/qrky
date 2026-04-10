@@ -91,122 +91,87 @@ DO $$ BEGIN
     END IF;
 END $$;
 
+-- Grants: already exist on remote, warnings are harmless.
 grant delete on table "public"."aliases" to "postgres";
-
 grant insert on table "public"."aliases" to "postgres";
-
 grant references on table "public"."aliases" to "postgres";
-
 grant select on table "public"."aliases" to "postgres";
-
 grant trigger on table "public"."aliases" to "postgres";
-
 grant truncate on table "public"."aliases" to "postgres";
-
 grant update on table "public"."aliases" to "postgres";
 
 grant delete on table "public"."qr_codes" to "postgres";
-
 grant insert on table "public"."qr_codes" to "postgres";
-
 grant references on table "public"."qr_codes" to "postgres";
-
 grant select on table "public"."qr_codes" to "postgres";
-
 grant trigger on table "public"."qr_codes" to "postgres";
-
 grant truncate on table "public"."qr_codes" to "postgres";
-
 grant update on table "public"."qr_codes" to "postgres";
 
 grant delete on table "public"."url_objects" to "postgres";
-
 grant insert on table "public"."url_objects" to "postgres";
-
 grant references on table "public"."url_objects" to "postgres";
-
 grant select on table "public"."url_objects" to "postgres";
-
 grant trigger on table "public"."url_objects" to "postgres";
-
 grant truncate on table "public"."url_objects" to "postgres";
-
 grant update on table "public"."url_objects" to "postgres";
 
 grant delete on table "public"."visits" to "postgres";
-
 grant insert on table "public"."visits" to "postgres";
-
 grant references on table "public"."visits" to "postgres";
-
 grant select on table "public"."visits" to "postgres";
-
 grant trigger on table "public"."visits" to "postgres";
-
 grant truncate on table "public"."visits" to "postgres";
-
 grant update on table "public"."visits" to "postgres";
 
+-- Policies: guard with existence checks — already present on remote.
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Enable insert for authenticated users only' AND tablename = 'aliases') THEN
+        create policy "Enable insert for authenticated users only"
+            on "public"."aliases" as permissive for insert to authenticated
+            with check ((( SELECT auth.uid() AS uid) = ( SELECT url_objects.user_id FROM public.url_objects WHERE (url_objects.id = aliases.url_object_id))));
+    END IF;
+END $$;
 
-create policy "Enable insert for authenticated users only"
-    on "public"."aliases"
-    as permissive
-    for insert
-    to authenticated
-    with check ((( SELECT auth.uid() AS uid) = ( SELECT url_objects.user_id
-                                                 FROM public.url_objects
-                                                 WHERE (url_objects.id = aliases.url_object_id))));
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Enable users to view their own data only' AND tablename = 'aliases') THEN
+        create policy "Enable users to view their own data only"
+            on "public"."aliases" as permissive for select to authenticated
+            using ((( SELECT auth.uid() AS uid) = ( SELECT url_objects.user_id FROM public.url_objects WHERE (url_objects.id = aliases.url_object_id))));
+    END IF;
+END $$;
 
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Enable insert for users based on user_id' AND tablename = 'qr_codes') THEN
+        create policy "Enable insert for users based on user_id"
+            on "public"."qr_codes" as permissive for insert to public
+            with check ((( SELECT auth.uid() AS uid) = ( SELECT url_objects.user_id FROM public.url_objects WHERE (url_objects.id = qr_codes.url_object_id))));
+    END IF;
+END $$;
 
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Enable users to view their own data only' AND tablename = 'qr_codes') THEN
+        create policy "Enable users to view their own data only"
+            on "public"."qr_codes" as permissive for select to authenticated
+            using ((( SELECT auth.uid() AS uid) = ( SELECT url_objects.user_id FROM public.url_objects WHERE (url_objects.id = qr_codes.url_object_id))));
+    END IF;
+END $$;
 
-create policy "Enable users to view their own data only"
-    on "public"."aliases"
-    as permissive
-    for select
-    to authenticated
-    using ((( SELECT auth.uid() AS uid) = ( SELECT url_objects.user_id
-                                            FROM public.url_objects
-                                            WHERE (url_objects.id = aliases.url_object_id))));
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Enable insert for users based on user_id' AND tablename = 'url_objects') THEN
+        create policy "Enable insert for users based on user_id"
+            on "public"."url_objects" as permissive for insert to public
+            with check ((( SELECT auth.uid() AS uid) = user_id));
+    END IF;
+END $$;
 
-
-
-create policy "Enable insert for users based on user_id"
-    on "public"."qr_codes"
-    as permissive
-    for insert
-    to public
-    with check ((( SELECT auth.uid() AS uid) = ( SELECT url_objects.user_id
-                                                 FROM public.url_objects
-                                                 WHERE (url_objects.id = qr_codes.url_object_id))));
-
-
-
-create policy "Enable users to view their own data only"
-    on "public"."qr_codes"
-    as permissive
-    for select
-    to authenticated
-    using ((( SELECT auth.uid() AS uid) = ( SELECT url_objects.user_id
-                                            FROM public.url_objects
-                                            WHERE (url_objects.id = qr_codes.url_object_id))));
-
-
-
-create policy "Enable insert for users based on user_id"
-    on "public"."url_objects"
-    as permissive
-    for insert
-    to public
-    with check ((( SELECT auth.uid() AS uid) = user_id));
-
-
-
-create policy "Enable users to view their own data only"
-    on "public"."url_objects"
-    as permissive
-    for select
-    to authenticated
-    using ((( SELECT auth.uid() AS uid) = user_id));
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Enable users to view their own data only' AND tablename = 'url_objects') THEN
+        create policy "Enable users to view their own data only"
+            on "public"."url_objects" as permissive for select to authenticated
+            using ((( SELECT auth.uid() AS uid) = user_id));
+    END IF;
+END $$;
 
 
 drop trigger if exists "enforce_bucket_name_length_trigger" on "storage"."buckets";
