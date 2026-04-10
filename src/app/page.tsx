@@ -1,32 +1,9 @@
 import Link from "next/link";
 import {TbQrcode, TbLink, TbChartBar, TbSparkles, TbLock, TbBolt} from "react-icons/tb";
 import Image from "next/image";
-import { unstable_cache } from "next/cache";
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import StatsSection from "@/components/home/stats-section";
 
-const getStats = unstable_cache(
-  async () => {
-    const supabase = createSupabaseClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_ADMIN_KEY!
-    );
-    const [visitResult, userResult, urlResult] = await Promise.all([
-      supabase.from('visits').select('*', { count: "planned", head: true }),
-      supabase.from('url_objects').select('*', { count: "exact", head: true }),
-      supabase.from('url_objects').select('*', { count: "planned", head: true }),
-    ]);
-    return {
-      visitCount: visitResult.count || 0,
-      userCount: userResult.count || 0,
-      urlCount: urlResult.count || 0,
-    };
-  },
-  ['homepage-stats'],
-  { revalidate: 60 }
-);
-
-export default async function Home() {
-  const { visitCount, userCount, urlCount } = await getStats();
+export default function Home() {
 
     return (
         <div className="flex flex-col">
@@ -181,28 +158,7 @@ export default async function Home() {
                 </div>
             </section>
 
-            {/* Stats Section */}
-            <section className="py-16 bg-base-100">
-                <div className="container mx-auto px-4">
-                    <div className="stats stats-vertical lg:stats-horizontal shadow w-full">
-                        <div className="stat place-items-center">
-                            <div className="stat-title">URLs Shortened</div>
-                            <div className="stat-value text-primary">{ urlCount }</div>
-                            <div className="stat-desc">And counting</div>
-                        </div>
-                        <div className="stat place-items-center">
-                            <div className="stat-title">Total Visits</div>
-                            <div className="stat-value text-secondary">{ visitCount }</div>
-                            <div className="stat-desc">Across all URLs</div>
-                        </div>
-                        <div className="stat place-items-center">
-                            <div className="stat-title">Active Users</div>
-                            <div className="stat-value text-accent">{ userCount }</div>
-                            <div className="stat-desc">Worldwide</div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            <StatsSection />
         </div>
     );
 }
