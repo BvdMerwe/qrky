@@ -1,9 +1,7 @@
 SET ROLE postgres;
 
 drop policy if exists "Enable read access for all users" on "public"."aliases";
-
 drop policy if exists "Enable read access for all users" on "public"."qr_codes";
-
 drop policy if exists "Enable read access for all users" on "public"."url_objects";
 
 DO $$ BEGIN
@@ -44,33 +42,22 @@ END $$;
 
 set check_function_bodies = off;
 
--- Both functions already exist on remote (owned by postgres).
--- Skip if present — later migrations replace record_view anyway.
 DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'generate_url_identifier') THEN
         CREATE FUNCTION public.generate_url_identifier()
-            RETURNS text
-            LANGUAGE sql
+            RETURNS text LANGUAGE sql
         AS $func$
-        select string_agg(
-                       substr(characters, (random() * length(characters) + 1)::integer, 1),
-                       ''
-               )
+        select string_agg(substr(characters, (random() * length(characters) + 1)::integer, 1), '')
         from (values('abcdefghijklmnopqrstuvwxyz0123456789-')) as symbols(characters)
-                 join generate_series(1, 6) on true;
+        join generate_series(1, 6) on true;
         $func$;
     END IF;
 END $$;
 
 DO $$ BEGIN
-    IF NOT EXISTS (
-        SELECT 1 FROM pg_proc
-        WHERE proname = 'record_view'
-          AND pronargs = 4
-    ) THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'record_view' AND pronargs = 4) THEN
         CREATE FUNCTION public.record_view(objecttype text, identifier text, ip text, useragent text)
-            RETURNS void
-            LANGUAGE plpgsql
+            RETURNS void LANGUAGE plpgsql
         AS $func$
         DECLARE
             alias_id uuid;
@@ -93,7 +80,6 @@ DO $$ BEGIN
     END IF;
 END $$;
 
--- Grants: already exist on remote, warnings are harmless.
 grant delete on table "public"."aliases" to "postgres";
 grant insert on table "public"."aliases" to "postgres";
 grant references on table "public"."aliases" to "postgres";
@@ -126,66 +112,41 @@ grant trigger on table "public"."visits" to "postgres";
 grant truncate on table "public"."visits" to "postgres";
 grant update on table "public"."visits" to "postgres";
 
--- Policies: guard with existence checks — already present on remote.
-DO $$ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Enable insert for authenticated users only' AND tablename = 'aliases') THEN
-        create policy "Enable insert for authenticated users only"
-            on "public"."aliases" as permissive for insert to authenticated
-            with check ((( SELECT auth.uid() AS uid) = ( SELECT url_objects.user_id FROM public.url_objects WHERE (url_objects.id = aliases.url_object_id))));
-    END IF;
-END $$;
+drop policy if exists "Enable insert for authenticated users only" on "public"."aliases";
+create policy "Enable insert for authenticated users only"
+    on "public"."aliases" as permissive for insert to authenticated
+    with check ((( SELECT auth.uid() AS uid) = ( SELECT url_objects.user_id FROM public.url_objects WHERE (url_objects.id = aliases.url_object_id))));
 
-DO $$ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Enable users to view their own data only' AND tablename = 'aliases') THEN
-        create policy "Enable users to view their own data only"
-            on "public"."aliases" as permissive for select to authenticated
-            using ((( SELECT auth.uid() AS uid) = ( SELECT url_objects.user_id FROM public.url_objects WHERE (url_objects.id = aliases.url_object_id))));
-    END IF;
-END $$;
+drop policy if exists "Enable users to view their own data only" on "public"."aliases";
+create policy "Enable users to view their own data only"
+    on "public"."aliases" as permissive for select to authenticated
+    using ((( SELECT auth.uid() AS uid) = ( SELECT url_objects.user_id FROM public.url_objects WHERE (url_objects.id = aliases.url_object_id))));
 
-DO $$ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Enable insert for users based on user_id' AND tablename = 'qr_codes') THEN
-        create policy "Enable insert for users based on user_id"
-            on "public"."qr_codes" as permissive for insert to public
-            with check ((( SELECT auth.uid() AS uid) = ( SELECT url_objects.user_id FROM public.url_objects WHERE (url_objects.id = qr_codes.url_object_id))));
-    END IF;
-END $$;
+drop policy if exists "Enable insert for users based on user_id" on "public"."qr_codes";
+create policy "Enable insert for users based on user_id"
+    on "public"."qr_codes" as permissive for insert to public
+    with check ((( SELECT auth.uid() AS uid) = ( SELECT url_objects.user_id FROM public.url_objects WHERE (url_objects.id = qr_codes.url_object_id))));
 
-DO $$ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Enable users to view their own data only' AND tablename = 'qr_codes') THEN
-        create policy "Enable users to view their own data only"
-            on "public"."qr_codes" as permissive for select to authenticated
-            using ((( SELECT auth.uid() AS uid) = ( SELECT url_objects.user_id FROM public.url_objects WHERE (url_objects.id = qr_codes.url_object_id))));
-    END IF;
-END $$;
+drop policy if exists "Enable users to view their own data only" on "public"."qr_codes";
+create policy "Enable users to view their own data only"
+    on "public"."qr_codes" as permissive for select to authenticated
+    using ((( SELECT auth.uid() AS uid) = ( SELECT url_objects.user_id FROM public.url_objects WHERE (url_objects.id = qr_codes.url_object_id))));
 
-DO $$ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Enable insert for users based on user_id' AND tablename = 'url_objects') THEN
-        create policy "Enable insert for users based on user_id"
-            on "public"."url_objects" as permissive for insert to public
-            with check ((( SELECT auth.uid() AS uid) = user_id));
-    END IF;
-END $$;
+drop policy if exists "Enable insert for users based on user_id" on "public"."url_objects";
+create policy "Enable insert for users based on user_id"
+    on "public"."url_objects" as permissive for insert to public
+    with check ((( SELECT auth.uid() AS uid) = user_id));
 
-DO $$ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Enable users to view their own data only' AND tablename = 'url_objects') THEN
-        create policy "Enable users to view their own data only"
-            on "public"."url_objects" as permissive for select to authenticated
-            using ((( SELECT auth.uid() AS uid) = user_id));
-    END IF;
-END $$;
-
+drop policy if exists "Enable users to view their own data only" on "public"."url_objects";
+create policy "Enable users to view their own data only"
+    on "public"."url_objects" as permissive for select to authenticated
+    using ((( SELECT auth.uid() AS uid) = user_id));
 
 drop trigger if exists "enforce_bucket_name_length_trigger" on "storage"."buckets";
-
 drop trigger if exists "objects_delete_delete_prefix" on "storage"."objects";
-
 drop trigger if exists "objects_insert_create_prefix" on "storage"."objects";
-
 drop trigger if exists "objects_update_create_prefix" on "storage"."objects";
 
--- storage.prefixes only exists in newer Supabase storage versions.
--- Guard these drops so the migration works on older local Docker images too.
 DO $$
 BEGIN
     IF EXISTS (
@@ -196,4 +157,5 @@ BEGIN
         DROP TRIGGER IF EXISTS "prefixes_delete_hierarchy" ON "storage"."prefixes";
     END IF;
 END $$;
+
 RESET ROLE;
