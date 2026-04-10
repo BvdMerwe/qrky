@@ -42,52 +42,54 @@ END $$;
 
 set check_function_bodies = off;
 
-CREATE OR REPLACE FUNCTION public.generate_url_identifier()
-    RETURNS text
-    LANGUAGE sql
-AS $function$
-select string_agg(
-               substr(characters, (random() * length(characters) + 1)::integer, 1),
-               ''
-       )
-from (values('abcdefghijklmnopqrstuvwxyz0123456789-')) as symbols(characters)
-         join generate_series(1, 6) on true;
-$function$
-;
-
-CREATE OR REPLACE FUNCTION public.record_view(objecttype text, identifier text, ip text, useragent text)
-    RETURNS void
-    LANGUAGE plpgsql
-AS $function$DECLARE
-    alias_id uuid;
-    qr_code_id uuid;
-    url_object_id int;
-
-BEGIN
-    -- find object
-    IF objectType = 'url_objects' THEN
-        select id into url_object_id
-        from url_objects
-        where id = record_view.identifier::int;
+-- Both functions already exist on remote (owned by postgres).
+-- Skip if present — later migrations replace record_view anyway.
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'generate_url_identifier') THEN
+        CREATE FUNCTION public.generate_url_identifier()
+            RETURNS text
+            LANGUAGE sql
+        AS $func$
+        select string_agg(
+                       substr(characters, (random() * length(characters) + 1)::integer, 1),
+                       ''
+               )
+        from (values('abcdefghijklmnopqrstuvwxyz0123456789-')) as symbols(characters)
+                 join generate_series(1, 6) on true;
+        $func$;
     END IF;
+END $$;
 
-    IF objectType = 'qr_codes' THEN
-        select id into qr_code_id
-        from qr_codes
-        where id = record_view.identifier::uuid;
+DO $$ BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_proc
+        WHERE proname = 'record_view'
+          AND pronargs = 4
+    ) THEN
+        CREATE FUNCTION public.record_view(objecttype text, identifier text, ip text, useragent text)
+            RETURNS void
+            LANGUAGE plpgsql
+        AS $func$
+        DECLARE
+            alias_id uuid;
+            qr_code_id uuid;
+            url_object_id int;
+        BEGIN
+            IF objectType = 'url_objects' THEN
+                select id into url_object_id from url_objects where id = record_view.identifier::int;
+            END IF;
+            IF objectType = 'qr_codes' THEN
+                select id into qr_code_id from qr_codes where id = record_view.identifier::uuid;
+            END IF;
+            IF objectType = 'aliases' THEN
+                select id into alias_id from aliases where id = record_view.identifier::uuid;
+            END IF;
+            insert into visits (ip, user_agent, url_object_id, qr_code_id, alias_id)
+            values (ip, userAgent, url_object_id, qr_code_id, alias_id);
+        END;
+        $func$;
     END IF;
-
-    IF objectType = 'aliases' THEN
-        select id into alias_id
-        from aliases
-        where id = record_view.identifier::uuid;
-    END IF;
-
--- insert into db
-    insert into visits (ip, user_agent, url_object_id, qr_code_id, alias_id)
-    values (ip, userAgent, url_object_id, qr_code_id, alias_id);
-end;$function$
-;
+END $$;
 
 grant delete on table "public"."aliases" to "postgres";
 
