@@ -1,8 +1,8 @@
-drop policy "Enable read access for all users" on "public"."aliases";
+drop policy if exists "Enable read access for all users" on "public"."aliases";
 
-drop policy "Enable read access for all users" on "public"."qr_codes";
+drop policy if exists "Enable read access for all users" on "public"."qr_codes";
 
-drop policy "Enable read access for all users" on "public"."url_objects";
+drop policy if exists "Enable read access for all users" on "public"."url_objects";
 
 CREATE UNIQUE INDEX aliases_url_object_id_key ON public.aliases USING btree (url_object_id);
 
