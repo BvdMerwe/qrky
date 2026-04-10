@@ -1,3 +1,5 @@
+SET ROLE postgres;
+
 -- Fix aliases UPDATE policy - add WITH CHECK clause
 DROP POLICY IF EXISTS "User can update own aliases" ON aliases;
 
@@ -13,3 +15,5 @@ DO $$ BEGIN
         );
     END IF;
 END $$;
+
+RESET ROLE;

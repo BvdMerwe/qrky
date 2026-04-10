@@ -1,3 +1,5 @@
+SET ROLE postgres;
+
 -- Fix conflicting RLS SELECT policies
 -- Drop the conflicting public SELECT policies from 20251115120000
 DROP POLICY IF EXISTS "Public read access for url_objects" ON url_objects;
@@ -44,3 +46,5 @@ DO $$ BEGIN
         );
     END IF;
 END $$;
+
+RESET ROLE;

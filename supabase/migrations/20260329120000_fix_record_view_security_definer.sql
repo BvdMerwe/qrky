@@ -1,3 +1,5 @@
+SET ROLE postgres;
+
 -- Fix analytics: visits were not being recorded for anonymous visitors because
 -- the RLS INSERT policy on visits requires auth.uid(), but redirects are hit
 -- by unauthenticated users. Marking record_view as SECURITY DEFINER allows it
@@ -42,3 +44,5 @@ END;
 $$;
 
 ALTER FUNCTION "public"."record_view"("objecttype" "text", "identifier" "text", "ip" "text", "useragent" "text") OWNER TO "postgres";
+
+RESET ROLE;

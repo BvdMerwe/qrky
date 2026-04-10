@@ -1,3 +1,5 @@
+SET ROLE postgres;
+
 drop policy if exists "Enable read access for all users" on "public"."aliases";
 
 drop policy if exists "Enable read access for all users" on "public"."qr_codes";
@@ -194,3 +196,4 @@ BEGIN
         DROP TRIGGER IF EXISTS "prefixes_delete_hierarchy" ON "storage"."prefixes";
     END IF;
 END $$;
+RESET ROLE;

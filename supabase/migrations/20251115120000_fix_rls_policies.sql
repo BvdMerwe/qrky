@@ -1,3 +1,5 @@
+SET ROLE postgres;
+
 -- Fix RLS policies to add proper user ownership
 DROP POLICY IF EXISTS "Enable read access for all users" ON aliases;
 DROP POLICY IF EXISTS "Enable read access for all users" ON qr_codes;
@@ -102,3 +104,5 @@ DO $$ BEGIN
         );
     END IF;
 END $$;
+
+RESET ROLE;

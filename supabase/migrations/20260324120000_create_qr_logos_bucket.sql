@@ -1,3 +1,5 @@
+SET ROLE postgres;
+
 -- Create qr-logos storage bucket for user-uploaded QR code logos
 -- Public bucket so logos can be accessed without authentication
 
@@ -39,3 +41,4 @@ FOR UPDATE USING (
     bucket_id = 'qr-logos'
     AND (storage.foldername(name))[1] = auth.uid()::text
 );
+RESET ROLE;
