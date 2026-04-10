@@ -1,3 +1,5 @@
+SET ROLE postgres;
+
 -- Update record_view to accept ip_hash, country, region instead of ip.
 -- Retains SECURITY DEFINER so anonymous redirect visitors can call it.
 -- DROP the old 4-argument overload first — CREATE OR REPLACE cannot replace a
@@ -52,3 +54,5 @@ ALTER FUNCTION "public"."record_view"(
     "country" "text",
     "region" "text"
     ) OWNER TO "postgres";
+
+RESET ROLE;

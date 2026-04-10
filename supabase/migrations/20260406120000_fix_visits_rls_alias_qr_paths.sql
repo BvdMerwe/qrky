@@ -1,3 +1,5 @@
+SET ROLE postgres;
+
 -- Fix visits RLS policies to cover alias and QR code visit rows.
 --
 -- The previous policies only checked url_object_id, but alias and QR code
@@ -71,3 +73,5 @@ CREATE POLICY "User can insert own visits" ON visits FOR INSERT WITH CHECK (
         )
     )
 );
+
+RESET ROLE;
