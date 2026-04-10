@@ -4,17 +4,41 @@ drop policy if exists "Enable read access for all users" on "public"."qr_codes";
 
 drop policy if exists "Enable read access for all users" on "public"."url_objects";
 
-CREATE UNIQUE INDEX aliases_url_object_id_key ON public.aliases USING btree (url_object_id);
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'aliases_url_object_id_key') THEN
+        CREATE UNIQUE INDEX aliases_url_object_id_key ON public.aliases USING btree (url_object_id);
+    END IF;
+END $$;
 
-CREATE UNIQUE INDEX qr_codes_pkey ON public.qr_codes USING btree (id);
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'qr_codes_pkey') THEN
+        CREATE UNIQUE INDEX qr_codes_pkey ON public.qr_codes USING btree (id);
+    END IF;
+END $$;
 
-CREATE UNIQUE INDEX qr_codes_url_object_id_key ON public.qr_codes USING btree (url_object_id);
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'qr_codes_url_object_id_key') THEN
+        CREATE UNIQUE INDEX qr_codes_url_object_id_key ON public.qr_codes USING btree (url_object_id);
+    END IF;
+END $$;
 
-alter table "public"."qr_codes" add constraint "qr_codes_pkey" PRIMARY KEY using index "qr_codes_pkey";
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'qr_codes_pkey' AND conrelid = 'public.qr_codes'::regclass) THEN
+        alter table "public"."qr_codes" add constraint "qr_codes_pkey" PRIMARY KEY using index "qr_codes_pkey";
+    END IF;
+END $$;
 
-alter table "public"."aliases" add constraint "aliases_url_object_id_key" UNIQUE using index "aliases_url_object_id_key";
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'aliases_url_object_id_key' AND conrelid = 'public.aliases'::regclass) THEN
+        alter table "public"."aliases" add constraint "aliases_url_object_id_key" UNIQUE using index "aliases_url_object_id_key";
+    END IF;
+END $$;
 
-alter table "public"."qr_codes" add constraint "qr_codes_url_object_id_key" UNIQUE using index "qr_codes_url_object_id_key";
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'qr_codes_url_object_id_key' AND conrelid = 'public.qr_codes'::regclass) THEN
+        alter table "public"."qr_codes" add constraint "qr_codes_url_object_id_key" UNIQUE using index "qr_codes_url_object_id_key";
+    END IF;
+END $$;
 
 set check_function_bodies = off;
 
