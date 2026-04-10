@@ -4,6 +4,9 @@ import Image from "next/image";
 import { unstable_cache } from "next/cache";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 
+// Stats require a live DB connection — opt out of static prerendering.
+export const dynamic = "force-dynamic";
+
 const getStats = unstable_cache(
   async () => {
     const supabase = createSupabaseClient(
