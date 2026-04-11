@@ -52,16 +52,14 @@
             color: #4b5563;
             margin-bottom: 24px;
         }
-        .button {
-            display: inline-block;
-            background-color: #000000;
-            color: #ffffff;
-            padding: 12px 24px;
-            border-radius: 6px;
-            font-weight: 500;
-            text-decoration: none;
-            font-size: 16px;
+        .alert-box {
+            background-color: #fef2f2;
+            border: 1px solid #fee2e2;
+            border-radius: 8px;
+            padding: 20px;
             margin-bottom: 32px;
+            color: #991b1b;
+            font-weight: 500;
         }
         .otp-container {
             background-color: #f3f4f6;
@@ -82,10 +80,6 @@
             font-size: 14px;
             color: #9ca3af;
         }
-        .divider {
-            border-top: 1px solid #e5e7eb;
-            margin: 32px 0;
-        }
     </style>
 </head>
 <body>
@@ -93,17 +87,17 @@
         <div class="container">
             <div class="content">
                 <a href="{{ .SiteURL }}" class="logo">QRky</a>
-                <h1>Sign In to QRky</h1>
-                <p>Click the button below to securely sign in to your account. This link will expire shortly.</p>
-                
-                <a href="{{ .ConfirmationURL }}" class="button">Sign In Now</a>
-                
-<!--                <div class="divider"></div>-->
-<!--                -->
-<!--                <p>Or use this verification code:</p>-->
-<!--                <div class="otp-container">-->
-<!--                    {{ .Token }}-->
-<!--                </div>-->
+                <h1>Confirm reauthentication</h1>
+                <p>You have requested to make a change to your QRky account.</p>
+
+                <p>Enter the One Time Pin (OTP):</p>
+                <div class="otp-container">
+                    {{ .Token }}
+                </div>
+
+                <div class="alert-box">
+                    If you did not make this change, please secure your account immediately or contact support.
+                </div>
             </div>
         </div>
         <div class="footer">
