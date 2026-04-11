@@ -10,13 +10,28 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* ./
-RUN pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 # 2. Build stage
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# Declare build args from Coolify
+# NEXT_PUBLIC_* vars must be baked in at build time for Next.js
+ARG NEXT_PUBLIC_SUPABASE_URL
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+ARG NEXT_PUBLIC_SUPABASE_ADMIN_KEY
+ARG NEXT_PUBLIC_APP_URL
+ARG SUPABASE_ADMIN_KEY
+ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
+ENV NEXT_PUBLIC_SUPABASE_ADMIN_KEY=$NEXT_PUBLIC_SUPABASE_ADMIN_KEY
+ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+ENV SUPABASE_ADMIN_KEY=$SUPABASE_ADMIN_KEY
+
+# Non-NEXT_PUBLIC_ vars (APP_URL, GEOIP_DB_PATH, etc.) are injected by Coolify at runtime
 
 # Next.js collects anonymous telemetry data. Disable it during the build.
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -26,6 +41,8 @@ RUN pnpm build
 # 3. Runner stage
 FROM base AS runner
 WORKDIR /app
+
+RUN apk add --no-cache curl wget
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
