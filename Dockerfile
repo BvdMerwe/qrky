@@ -18,6 +18,19 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Declare build args from Coolify
+# NEXT_PUBLIC_* vars must be baked in at build time for Next.js
+ARG NEXT_PUBLIC_SUPABASE_URL
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+ARG NEXT_PUBLIC_SUPABASE_ADMIN_KEY
+ARG NEXT_PUBLIC_APP_URL
+ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
+ENV NEXT_PUBLIC_SUPABASE_ADMIN_KEY=$NEXT_PUBLIC_SUPABASE_ADMIN_KEY
+ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+
+# Non-NEXT_PUBLIC_ vars (APP_URL, GEOIP_DB_PATH, etc.) are injected by Coolify at runtime
+
 # Next.js collects anonymous telemetry data. Disable it during the build.
 ENV NEXT_TELEMETRY_DISABLED=1
 
