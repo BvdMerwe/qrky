@@ -41,7 +41,7 @@ describe('Auth Callback Route', () => {
         // Import after mocks are set up
         const { GET } = await import('./route');
         
-        const request = new Request('http://localhost:3000/auth/callback?code=test-code&next=/dashboard');
+        const request = new Request('http://localhost:3000/auth/callback?code=test-code&redirect_to=/dashboard');
         await GET(request);
 
         expect(mockExchangeCodeForSession).toHaveBeenCalledWith('test-code');
@@ -53,7 +53,7 @@ describe('Auth Callback Route', () => {
 
         const { GET } = await import('./route');
         
-        const request = new Request('http://localhost:3000/auth/callback?code=test-code&next=/dashboard/user');
+        const request = new Request('http://localhost:3000/auth/callback?code=test-code&redirect_to=/dashboard/user');
         await GET(request);
 
         expect(mockRedirect).toHaveBeenCalledWith('/dashboard/user');

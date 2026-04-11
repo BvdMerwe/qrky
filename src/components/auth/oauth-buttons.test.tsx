@@ -1,4 +1,4 @@
-import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {fireEvent, render, screen, waitFor} from '@testing-library/react';
 import OAuthButtons from '@/components/auth/oauth-buttons';
 
@@ -23,9 +23,17 @@ Object.defineProperty(window, 'location', {
 });
 
 describe('OAuthButtons', () => {
+    let tmpEnv: NodeJS.ProcessEnv ;
+
     beforeEach(() => {
         vi.clearAllMocks();
+        tmpEnv = process.env;
+        process.env.NEXT_PUBLIC_APP_URL = "http://localhost:3000"
     });
+
+    afterEach(() => {
+        process.env = tmpEnv;
+    })
 
     it('renders Google and GitHub buttons', () => {
         render(<OAuthButtons />);

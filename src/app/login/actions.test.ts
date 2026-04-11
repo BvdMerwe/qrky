@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import {describe, it, expect, vi, beforeEach, afterEach} from 'vitest';
 
 // Mock next/navigation
 const mockRedirect = vi.fn();
@@ -40,8 +40,13 @@ vi.mock('@/lib/supabase/server', () => ({
 }));
 
 describe('login action', () => {
+    let tmpEnv: NodeJS.ProcessEnv ;
+
     beforeEach(() => {
         vi.clearAllMocks();
+        tmpEnv = process.env;
+        process.env.NEXT_PUBLIC_APP_URL = "http://localhost:3000"
+        process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co';
         process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co';
         process.env.SUPABASE_ADMIN_KEY = 'test-key';
         process.env.NEXT_PUBLIC_SITE_URL = 'http://localhost:3000';
@@ -49,6 +54,10 @@ describe('login action', () => {
             throw { url, type: 'redirect' };
         });
     });
+
+    afterEach(() => {
+        process.env = tmpEnv;
+    })
 
     it('returns success and redirects on valid login', async () => {
         mockSignInWithPassword.mockResolvedValue({ error: null });
@@ -141,6 +150,7 @@ describe('login action', () => {
 describe('resetPassword action', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        process.env.NEXT_PUBLIC_APP_URL = "http://localhost:3000"
         process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co';
         process.env.SUPABASE_ADMIN_KEY = 'test-key';
         process.env.NEXT_PUBLIC_SITE_URL = 'http://localhost:3000';
@@ -163,7 +173,7 @@ describe('resetPassword action', () => {
         expect(result.message).toBe('A password reset message has been sent to your email address.');
         expect(mockResetPasswordForEmail).toHaveBeenCalledWith(
             'test@example.com',
-            { redirectTo: '/login/reset-password' }
+            { redirectTo: 'http://localhost:3000/login/reset-password' }
         );
     });
 
