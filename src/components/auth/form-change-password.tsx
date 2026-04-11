@@ -9,6 +9,7 @@ import Input from "@/components/ui/form/input";
 import SuccessMessageComponent from "@/components/ui/alert/success-message";
 import InfoMessageComponent from "@/components/ui/alert/info-message";
 import {stringIsValid} from "@/lib/strings";
+import Link from "next/link";
 
 const initialState = {message: "", success: false};
 
@@ -66,7 +67,10 @@ export default function FormChangePassword() {
                 }
 
                 {changePasswordState?.message && changePasswordState?.success
-                    ? <SuccessMessageComponent message={changePasswordState.message} className="col-span-2"/>
+                    ? <div className="flex flex-col gap-4">
+                        <SuccessMessageComponent message={changePasswordState.message} className="col-span-2"/>
+                        <Link href="/login" className="btn btn-primary">Log in</Link>
+                    </div>
                     : null
                 }
             </form>
