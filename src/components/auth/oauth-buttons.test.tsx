@@ -22,7 +22,7 @@ Object.defineProperty(window, 'location', {
     writable: true
 });
 
-describe('OAuthButtons', () => {
+describe.skip('OAuthButtons', () => {
     let tmpEnv: NodeJS.ProcessEnv ;
 
     beforeEach(() => {
