@@ -1,15 +1,15 @@
-import {createClient} from "@/lib/supabase/server";
-import {redirect} from "next/navigation";
-import Link from "next/link";
-import FormRegisterComponent from "@/components/auth/form-register";
-import OAuthButtons from "@/components/auth/oauth-buttons";
+import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
+import Link from 'next/link';
+import FormRegisterComponent from '@/components/auth/form-register';
+import OAuthButtons from '@/components/auth/oauth-buttons';
 
 export default async function RegisterPage() {
-    const supabase = await createClient()
-    const {data} = await supabase.auth.getUser();
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
 
     if (data?.user) {
-        redirect("/dashboard/user");
+        redirect('/dashboard/user');
     }
 
     return (
@@ -17,7 +17,7 @@ export default async function RegisterPage() {
             <h1 className="text-3xl font-bold self-center">Register to get QRky</h1>
 
             <span className="self-center">
-                Already have an account?{" "}
+                Already have an account?{' '}
                 <Link href="/login" className="link link-secondary">Log in</Link>
             </span>
 
@@ -28,5 +28,5 @@ export default async function RegisterPage() {
             <FormRegisterComponent />
 
         </div>
-    )
+    );
 }

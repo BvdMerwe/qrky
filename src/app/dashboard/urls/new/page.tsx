@@ -1,9 +1,9 @@
-"use client"
+'use client';
 
-import React from "react";
-import Input from "@/components/ui/form/input";
-import {TbLink} from "react-icons/tb";
-import {createUrl} from "@/app/dashboard/urls/new/actions-browser";
+import React from 'react';
+import Input from '@/components/ui/form/input';
+import { TbLink } from 'react-icons/tb';
+import { createUrl } from '@/app/dashboard/urls/new/actions-browser';
 
 export default function NewUrl(): React.ReactNode {
     return (

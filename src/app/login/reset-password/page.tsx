@@ -1,5 +1,5 @@
-import React from "react";
-import FormChangePassword from "@/components/auth/form-change-password";
+import React from 'react';
+import FormChangePassword from '@/components/auth/form-change-password';
 
 export default function ResetPasswordPage(): React.ReactNode {
 

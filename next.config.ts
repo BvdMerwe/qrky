@@ -1,4 +1,4 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
     output: 'standalone',
@@ -6,15 +6,15 @@ const nextConfig: NextConfig = {
     images: {
         localPatterns: [
             {
-                pathname: "/qr/**",
+                pathname: '/qr/**',
             },
         ],
         remotePatterns: [
             {
-                protocol: "http",
-                hostname: "localhost",
-                port: "3000",
-                pathname: "/qr/**",
+                protocol: 'http',
+                hostname: 'localhost',
+                port: '3000',
+                pathname: '/qr/**',
             },
         ],
     },

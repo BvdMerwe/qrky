@@ -1,6 +1,6 @@
-import React from "react";
-import {fetchUrlsServer} from "@/app/dashboard/urls/actions-server";
-import UrlTableComponent from "@/app/dashboard/urls/components/UrlTable";
+import React from 'react';
+import { fetchUrlsServer } from '@/app/dashboard/urls/actions-server';
+import UrlTableComponent from '@/app/dashboard/urls/components/UrlTable';
 
 export default async function UrlsPage(): Promise<React.ReactNode> {
     const urls = await fetchUrlsServer();

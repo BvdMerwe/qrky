@@ -1,29 +1,29 @@
-import type {Metadata} from "next";
-import {DynaPuff, Funnel_Sans} from "next/font/google";
-import "./globals.css";
-import FooterComponent from "@/components/ui/footer";
+import type { Metadata } from 'next';
+import { DynaPuff, Funnel_Sans } from 'next/font/google';
+import './globals.css';
+import FooterComponent from '@/components/ui/footer';
 
-const ENV = process.env.NODE_ENV || "development";
+const ENV = process.env.NODE_ENV || 'development';
 
 const sans = DynaPuff({
-    variable: "--font-sans",
-    subsets: ["latin"],
+    variable: '--font-sans',
+    subsets: ['latin'],
 });
 
 const mono = Funnel_Sans({
-    variable: "--font-mono",
-    subsets: ["latin"],
+    variable: '--font-mono',
+    subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-    title: "QRky - Beautiful QR Codes & Smart URL Shortening",
-    description: "Generate custom-styled QR codes with rounded corners and embedded logos. Shorten URLs and track every scan with powerful analytics. Built with Next.js and Supabase.",
-    keywords: ["QR code generator", "URL shortener", "custom QR codes", "analytics", "link tracking"],
-    authors: [{ name: "Bernardus van der Merwe", url: "https://github.com/BvdMerwe" }],
+    title: 'QRky - Beautiful QR Codes & Smart URL Shortening',
+    description: 'Generate custom-styled QR codes with rounded corners and embedded logos. Shorten URLs and track every scan with powerful analytics. Built with Next.js and Supabase.',
+    keywords: ['QR code generator', 'URL shortener', 'custom QR codes', 'analytics', 'link tracking'],
+    authors: [{ name: 'Bernardus van der Merwe', url: 'https://github.com/BvdMerwe' }],
     openGraph: {
-        title: "QRky - Beautiful QR Codes & Smart URL Shortening",
-        description: "Generate custom-styled QR codes with rounded corners and embedded logos. Track every scan with powerful analytics.",
-        type: "website",
+        title: 'QRky - Beautiful QR Codes & Smart URL Shortening',
+        description: 'Generate custom-styled QR codes with rounded corners and embedded logos. Track every scan with powerful analytics.',
+        type: 'website',
     },
 };
 
@@ -34,7 +34,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            {ENV === "production" &&
+            {ENV === 'production' &&
                 <head>
                     <script defer src="https://overarch.bernardus.dev/overarch" data-website-id="438f3f32-4ded-419a-b07b-21831bc4e14c"></script>
                 </head>

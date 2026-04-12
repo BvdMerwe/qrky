@@ -1,5 +1,5 @@
-import React from "react";
-import FormForgotPassword from "@/components/auth/form-forgot-password";
+import React from 'react';
+import FormForgotPassword from '@/components/auth/form-forgot-password';
 
 export default function ForgotPasswordPage(): React.ReactNode {
     return <div className="prose mx-auto mt-20">

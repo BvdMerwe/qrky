@@ -1,10 +1,10 @@
 'use client';
 
-import { createClient } from "@/lib/supabase/browser";
-import { FaGithub, FaGoogle } from "react-icons/fa6";
+import { createClient } from '@/lib/supabase/browser';
+import { FaGithub, FaGoogle } from 'react-icons/fa6';
 
 export default function OAuthButtons() {
-    if (process.env.NEXT_PUBLIC_OAUTH_ENABLED !== "true") {
+    if (process.env.NEXT_PUBLIC_OAUTH_ENABLED !== 'true') {
         return null;
     }
 

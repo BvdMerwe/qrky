@@ -1,15 +1,15 @@
-import {createClient} from "@/lib/supabase/server";
-import redirectUser from "@/lib/redirectUser";
+import { createClient } from '@/lib/supabase/server';
+import redirectUser from '@/lib/redirectUser';
 
 export default async function Page({
     params
 }:{
-    params: Promise<{ slug: string}>
+    params: Promise<{ slug: string }>
 }): Promise<void> {
     const { slug } = await params;
-    const supabase = await createClient()
+    const supabase = await createClient();
     const { data, error } = await supabase
-        .from("aliases")
+        .from('aliases')
         .select(`
             id,
             value,
@@ -21,5 +21,5 @@ export default async function Page({
 
 
     // @ts-expect-error -- Supabase not correctly creating the types.
-    await redirectUser(data?.url_objects?.url ?? null, error, "aliases", data?.id);
+    await redirectUser(data?.url_objects?.url ?? null, error, 'aliases', data?.id);
 }

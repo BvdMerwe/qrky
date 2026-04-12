@@ -1,5 +1,5 @@
-import {ECC_H, QRCode} from '@chillerlan/qrcode/dist/js-qrcode-node-src.cjs';
-import {QRkyOptions, QRkySVG} from '@/lib/qrcode';
+import { ECC_H, QRCode } from '@chillerlan/qrcode/dist/js-qrcode-node-src.cjs';
+import { QRkyOptions, QRkySVG } from '@/lib/qrcode';
 import path from 'node:path';
 
 const DEFAULT_LOGO_PATH = path.join(process.cwd(), 'public', 'qrky-logo.svg');

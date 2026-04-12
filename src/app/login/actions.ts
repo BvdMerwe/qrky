@@ -1,29 +1,29 @@
-'use server'
+'use server';
 
-import {revalidatePath} from 'next/cache'
-import {redirect} from 'next/navigation'
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 
-import {createClient} from '@/lib/supabase/server'
-import {stringIsValid} from "@/lib/strings";
-import {ActionResponseInterface} from "@/interfaces/action-response";
+import { createClient } from '@/lib/supabase/server';
+import { stringIsValid } from '@/lib/strings';
+import { ActionResponseInterface } from '@/interfaces/action-response';
 
-const TEXT_SUCCESS_PASSWORD_RESET = "A password reset message has been sent to your email address.";
-const TEXT_ERROR_GENERIC = "Email or password is invalid. Please try again.";
-const TEXT_ERROR_EMAIL_REQUIRED = "Email is required.";
+const TEXT_SUCCESS_PASSWORD_RESET = 'A password reset message has been sent to your email address.';
+const TEXT_ERROR_GENERIC = 'Email or password is invalid. Please try again.';
+const TEXT_ERROR_EMAIL_REQUIRED = 'Email is required.';
 
 export async function login(_state: ActionResponseInterface, formData: FormData): Promise<ActionResponseInterface> {
-    const supabase = await createClient()
+    const supabase = await createClient();
 
     const data = {
         email: formData.get('email') as string,
         password: formData.get('password') as string,
-    }
+    };
 
     if (!stringIsValid(data.email) || !stringIsValid(data.password)) {
         return { message: TEXT_ERROR_GENERIC, success: false };
     }
 
-    const { error } = await supabase.auth.signInWithPassword(data)
+    const { error } = await supabase.auth.signInWithPassword(data);
 
     if (error) {
         if (error.code === 'invalid_credentials') {

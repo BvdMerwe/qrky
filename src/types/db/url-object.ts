@@ -1,5 +1,5 @@
-import {QrCode} from "@/types/db/qr-code";
-import {Alias} from "@/types/db/alias";
+import { QrCode } from '@/types/db/qr-code';
+import { Alias } from '@/types/db/alias';
 
 export interface UrlObject {
     id: number;

@@ -62,7 +62,7 @@ function generateMockSupabase({
         auth: { getUser: vi.fn(() => ({ data: { user: mockUser }, error: null })) }
     };
 
-    return {mockSupabase, mockSupabaseFrom};
+    return { mockSupabase, mockSupabaseFrom };
 }
 
 describe('fetchUrls', () => {

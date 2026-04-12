@@ -1,6 +1,6 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
-import { cache } from "react";
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+import { cache } from 'react';
 
 export const createClient = cache(async () => {
     const cookieStore = await cookies();
@@ -18,7 +18,7 @@ export const createClient = cache(async () => {
                             cookieStore.set(name, value, options)
                         );
                     } catch {
-                        throw new Error("Cookies are not available");
+                        throw new Error('Cookies are not available');
                     }
                 },
             },

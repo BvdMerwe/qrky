@@ -1,18 +1,18 @@
-import {createClient} from "@/lib/supabase/browser";
-import {STRING_TABLE_NAME_URL_OBJECTS} from "@/app/dashboard/urls/constants";
-import {stringIsValid} from "@/lib/strings";
-import {validateAlias, normalizeAlias} from "@/lib/validation";
-import {redirect, RedirectType} from "next/navigation";
+import { createClient } from '@/lib/supabase/browser';
+import { STRING_TABLE_NAME_URL_OBJECTS } from '@/app/dashboard/urls/constants';
+import { stringIsValid } from '@/lib/strings';
+import { validateAlias, normalizeAlias } from '@/lib/validation';
+import { redirect, RedirectType } from 'next/navigation';
 
 export async function createUrl(formData: FormData): Promise<void> {
-    const url = formData.get("url");
-    const alias = formData.get("alias");
+    const url = formData.get('url');
+    const alias = formData.get('alias');
 
     if (
         !stringIsValid(url) ||
-        (!url.startsWith("https://") && !url.startsWith("http://"))
+        (!url.startsWith('https://') && !url.startsWith('http://'))
     ) {
-        throw new Error("Invalid URL");
+        throw new Error('Invalid URL');
     }
 
     const supabase = createClient();
@@ -20,7 +20,7 @@ export async function createUrl(formData: FormData): Promise<void> {
         .insert({
             url: url,
         })
-        .select("id")
+        .select('id')
         .single();
 
     if (error) {
@@ -34,17 +34,17 @@ export async function createUrl(formData: FormData): Promise<void> {
         validateAlias(normalizedAlias);
 
         const { data: existingAlias } = await supabase
-            .from("aliases")
-            .select("id, value")
-            .eq("value", normalizedAlias)
+            .from('aliases')
+            .select('id, value')
+            .eq('value', normalizedAlias)
             .maybeSingle();
 
         if (existingAlias) {
-            throw new Error("Alias already exists");
+            throw new Error('Alias already exists');
         }
 
         const { error: aliasError } = await supabase
-            .from("aliases")
+            .from('aliases')
             .insert({
                 value: normalizedAlias,
                 url_object_id: data.id,
@@ -56,5 +56,5 @@ export async function createUrl(formData: FormData): Promise<void> {
         }
     }
 
-    redirect("/dashboard/urls", RedirectType.push);
+    redirect('/dashboard/urls', RedirectType.push);
 }

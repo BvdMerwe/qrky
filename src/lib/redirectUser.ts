@@ -1,12 +1,12 @@
-import {PostgrestError} from "@supabase/supabase-js";
-import {notFound, redirect, RedirectType} from "next/navigation";
-import recordView from "@/lib/record-view";
-import {headers} from "next/headers";
+import { PostgrestError } from '@supabase/supabase-js';
+import { notFound, redirect, RedirectType } from 'next/navigation';
+import recordView from '@/lib/record-view';
+import { headers } from 'next/headers';
 
 export default async function redirectUser(
     url: string | null,
     error: PostgrestError | null,
-    source: "qr_codes"|"aliases"|"url_objects",
+    source: 'qr_codes'|'aliases'|'url_objects',
     identifier: string,
 ): Promise<void> {
     if (error) {

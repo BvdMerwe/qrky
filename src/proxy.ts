@@ -1,5 +1,5 @@
-import { createServerClient } from "@supabase/ssr";
-import { type NextRequest, NextResponse } from "next/server";
+import { createServerClient } from '@supabase/ssr';
+import { type NextRequest, NextResponse } from 'next/server';
 
 export async function proxy(request: NextRequest) {
     let supabaseResponse = NextResponse.next({
@@ -34,32 +34,32 @@ export async function proxy(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     const isProtectedRoute =
-        request.nextUrl.pathname.startsWith("/dashboard") ||
-        request.nextUrl.pathname.startsWith("/admin");
+        request.nextUrl.pathname.startsWith('/dashboard') ||
+        request.nextUrl.pathname.startsWith('/admin');
 
     if (!user && isProtectedRoute) {
         const url = request.nextUrl.clone();
-        url.pathname = "/login";
+        url.pathname = '/login';
         return NextResponse.redirect(url);
     }
 
     const isWaitingPage = request.nextUrl.pathname.startsWith(
-        "/email-verification-waiting",
+        '/email-verification-waiting',
     );
-    const isAuthRoute = request.nextUrl.pathname.startsWith("/login") ||
-        request.nextUrl.pathname.startsWith("/register") ||
-        request.nextUrl.pathname.startsWith("/auth/") ||
-        request.nextUrl.pathname.startsWith("/email-verification-waiting");
+    const isAuthRoute = request.nextUrl.pathname.startsWith('/login') ||
+        request.nextUrl.pathname.startsWith('/register') ||
+        request.nextUrl.pathname.startsWith('/auth/') ||
+        request.nextUrl.pathname.startsWith('/email-verification-waiting');
 
     if (user && !user.email_confirmed_at && !isAuthRoute && isProtectedRoute) {
         const url = request.nextUrl.clone();
-        url.pathname = "/email-verification-waiting";
+        url.pathname = '/email-verification-waiting';
         return NextResponse.redirect(url);
     }
 
     if (user && user.email_confirmed_at && isWaitingPage) {
         const url = request.nextUrl.clone();
-        url.pathname = "/dashboard/user";
+        url.pathname = '/dashboard/user';
         return NextResponse.redirect(url);
     }
 
@@ -68,6 +68,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
     matcher: [
-        "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+        '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
     ],
 };

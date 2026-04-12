@@ -1,4 +1,4 @@
-import {describe, it, expect, vi, beforeEach, afterEach} from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Mock next/navigation
 const mockRedirect = vi.fn();
@@ -45,7 +45,7 @@ describe('login action', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         tmpEnv = process.env;
-        process.env.NEXT_PUBLIC_APP_URL = "http://localhost:3000"
+        process.env.NEXT_PUBLIC_APP_URL = 'http://localhost:3000';
         process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co';
         process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co';
         process.env.SUPABASE_ADMIN_KEY = 'test-key';
@@ -57,7 +57,7 @@ describe('login action', () => {
 
     afterEach(() => {
         process.env = tmpEnv;
-    })
+    });
 
     it('returns success and redirects on valid login', async () => {
         mockSignInWithPassword.mockResolvedValue({ error: null });
@@ -150,7 +150,7 @@ describe('login action', () => {
 describe('resetPassword action', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        process.env.NEXT_PUBLIC_APP_URL = "http://localhost:3000"
+        process.env.NEXT_PUBLIC_APP_URL = 'http://localhost:3000';
         process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co';
         process.env.SUPABASE_ADMIN_KEY = 'test-key';
         process.env.NEXT_PUBLIC_SITE_URL = 'http://localhost:3000';

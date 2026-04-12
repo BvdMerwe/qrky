@@ -1,5 +1,5 @@
-import TopNavbar from "@/components/ui/top-navbar";
-import React from "react";
+import TopNavbar from '@/components/ui/top-navbar';
+import React from 'react';
 
 export default function DashboardLayout({
     children,
@@ -10,5 +10,5 @@ export default function DashboardLayout({
         <TopNavbar>
             {children}
         </TopNavbar>
-    )
+    );
 }

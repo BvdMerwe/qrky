@@ -1,8 +1,8 @@
-import Link from "next/link";
+import Link from 'next/link';
 
 export const metadata = {
-  title: "Terms and Conditions - QRky",
-  description: "Terms and Conditions for using QRky URL shortening and QR code generation services.",
+  title: 'Terms and Conditions - QRky',
+  description: 'Terms and Conditions for using QRky URL shortening and QR code generation services.',
 };
 
 export default function TermsPage() {
