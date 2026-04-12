@@ -1,13 +1,13 @@
-import {DOMParser} from "@xmldom/xmldom";
-import {generateQrCode} from "@/lib/qrcode";
-import sharp from "sharp";
-import {createClient} from "@/lib/supabase/server";
-import {notFound, redirect, RedirectType} from "next/navigation";
-import {NextRequest} from "next/server";
-import {buildQrCodeUrl} from "@/lib/qrcode/buildQrCodeUrl";
+import { DOMParser } from '@xmldom/xmldom';
+import { generateQrCode } from '@/lib/qrcode';
+import sharp from 'sharp';
+import { createClient } from '@/lib/supabase/server';
+import { notFound, redirect, RedirectType } from 'next/navigation';
+import { NextRequest } from 'next/server';
+import { buildQrCodeUrl } from '@/lib/qrcode/buildQrCodeUrl';
 
-const DEFAULT_FG_COLOR = "#000000";
-const DEFAULT_BG_COLOR = "#ffffff";
+const DEFAULT_FG_COLOR = '#000000';
+const DEFAULT_BG_COLOR = '#ffffff';
 const DEFAULT_CORNER_RADIUS = 0.45;
 const DEFAULT_LOGO_SCALE = 0.2;
 
@@ -20,7 +20,7 @@ interface QrCodeSettings {
     clearLogoSpace: boolean | null;
 }
 
-if (typeof globalThis.DOMParser === "undefined") {
+if (typeof globalThis.DOMParser === 'undefined') {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Need to use any for polyfill.
     (globalThis as any).DOMParser = DOMParser;
 }
@@ -33,24 +33,24 @@ export async function GET(request: NextRequest, {
     const { uuid } = await params;
     const { searchParams } = new URL(request.url);
 
-    const previewMode = searchParams.get("preview") === "true";
+    const previewMode = searchParams.get('preview') === 'true';
     const supabase = await createClient();
 
     const query = supabase
-        .from("qr_codes")
+        .from('qr_codes')
         .select(`
             id,
             settings,
             url_objects!inner(enabled)
         `)
-        .eq("id", uuid)
+        .eq('id', uuid)
         .single();
 
     const { data: qrCodeData, error: qrCodeError } = await query;
 
     if (qrCodeError || !qrCodeData) {
         console.error(qrCodeError);
-        return redirect("/500", RedirectType.push);
+        return redirect('/500', RedirectType.push);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase type inference doesn't handle embedded relations well
@@ -72,21 +72,21 @@ export async function GET(request: NextRequest, {
     let logoClearSpace: boolean;
 
     if (previewMode) {
-        fgColor = searchParams.get("fg")
-            ? `#${searchParams.get("fg")}`
+        fgColor = searchParams.get('fg')
+            ? `#${searchParams.get('fg')}`
             : (savedSettings?.fgColor || DEFAULT_FG_COLOR);
-        bgColor = searchParams.get("bg")
-            ? `#${searchParams.get("bg")}`
+        bgColor = searchParams.get('bg')
+            ? `#${searchParams.get('bg')}`
             : (savedSettings?.bgColor || DEFAULT_BG_COLOR);
-        const crStr = searchParams.get("cr");
+        const crStr = searchParams.get('cr');
         cornerRadius = crStr !== null && crStr !== ''
             ? parseFloat(crStr)
             : (savedSettings?.cornerRadius ?? DEFAULT_CORNER_RADIUS);
-        logoScale = parseFloat(searchParams.get("ls") || "") ||
+        logoScale = parseFloat(searchParams.get('ls') || '') ||
             (savedSettings?.logoScale ?? DEFAULT_LOGO_SCALE);
-        logoUrl = searchParams.get("logo") ||
+        logoUrl = searchParams.get('logo') ||
             (savedSettings?.logoUrl || undefined);
-        logoClearSpace = searchParams.get("cls") === "1" || (savedSettings?.clearLogoSpace ?? false);
+        logoClearSpace = searchParams.get('cls') === '1' || (savedSettings?.clearLogoSpace ?? false);
     } else {
         fgColor = savedSettings?.fgColor || DEFAULT_FG_COLOR;
         bgColor = savedSettings?.bgColor || DEFAULT_BG_COLOR;
@@ -109,10 +109,10 @@ export async function GET(request: NextRequest, {
         }) as BodyInit,
         {
             headers: {
-                "Content-Type": "image/jpeg",
-                "Cache-Control": previewMode
-                    ? "no-cache, no-store"
-                    : "public, max-age=31536000, immutable",
+                'Content-Type': 'image/jpeg',
+                'Cache-Control': previewMode
+                    ? 'no-cache, no-store'
+                    : 'public, max-age=31536000, immutable',
             },
         },
     );
@@ -146,6 +146,6 @@ async function generateQrCodeResponse(data: string, options?: {
             .toBuffer();
     } catch (e: unknown) {
         console.error(e);
-        redirect("/500", RedirectType.push);
+        redirect('/500', RedirectType.push);
     }
 }

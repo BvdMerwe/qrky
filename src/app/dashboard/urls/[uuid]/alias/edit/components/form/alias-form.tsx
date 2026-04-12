@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import React, { useActionState } from "react";
-import Input from "@/components/ui/form/input";
-import { TbLink } from "react-icons/tb";
-import { updateAlias } from "../../actions";
-import Link from "next/link";
-import ErrorMessageComponent from "@/components/ui/alert/error-message";
+import React, { useActionState } from 'react';
+import Input from '@/components/ui/form/input';
+import { TbLink } from 'react-icons/tb';
+import { updateAlias } from '../../actions';
+import Link from 'next/link';
+import ErrorMessageComponent from '@/components/ui/alert/error-message';
 
-const initialState = { message: "", success: false };
+const initialState = { message: '', success: false };
 
 interface EditAliasFormProps {
     aliasId: string;

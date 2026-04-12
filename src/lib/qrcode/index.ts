@@ -5,7 +5,7 @@
  */
 
 export { QRkySVG } from './QRkySVG';
-export {QRkyOptions} from './QRkyOptions';
+export { QRkyOptions } from './QRkyOptions';
 export type { QRkyOptionsInterface } from './QRkyOptions';
 export { ModuleTypeEnum } from './module-type.enum';
 export { generateQrCode, validateLogoScale, clampLogoScale } from './generate';

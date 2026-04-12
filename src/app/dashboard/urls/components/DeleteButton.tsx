@@ -1,13 +1,13 @@
-"use client"
+'use client';
 
-import React, {useRef} from "react";
-import {TbTrash} from "react-icons/tb";
+import React, { useRef } from 'react';
+import { TbTrash } from 'react-icons/tb';
 
 interface Props {
     onClick: () => void;
 }
 
-export default function DeleteButtonComponent({onClick}: Props): React.ReactNode {
+export default function DeleteButtonComponent({ onClick }: Props): React.ReactNode {
     const confirmationModalRef = useRef<HTMLDialogElement>(null);
 
     return (

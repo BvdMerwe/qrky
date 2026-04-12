@@ -5,8 +5,8 @@
  * Extended QR code options with SVG logo support and customization
  */
 
-import {QRCodeException, QROptions, QROptionsInterface} from '@chillerlan/qrcode/dist/js-qrcode-node-src.cjs';
-import {accessSync, constants, existsSync} from 'fs';
+import { QRCodeException, QROptions, QROptionsInterface } from '@chillerlan/qrcode/dist/js-qrcode-node-src.cjs';
+import { accessSync, constants, existsSync } from 'fs';
 
 export interface QRkyOptionsInterface extends QROptionsInterface {
     svgLogo?: string | null;

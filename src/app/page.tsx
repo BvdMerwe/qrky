@@ -1,7 +1,7 @@
-import Link from "next/link";
-import {TbQrcode, TbLink, TbChartBar, TbSparkles, TbLock, TbBolt} from "react-icons/tb";
-import Image from "next/image";
-import StatsSection from "@/components/home/stats-section";
+import Link from 'next/link';
+import { TbQrcode, TbLink, TbChartBar, TbSparkles, TbLock, TbBolt } from 'react-icons/tb';
+import Image from 'next/image';
+import StatsSection from '@/components/home/stats-section';
 
 export default function Home() {
 

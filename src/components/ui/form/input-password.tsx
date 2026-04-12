@@ -1,8 +1,8 @@
-import React, {useState} from "react";
-import {TbEye, TbLockPassword,} from "react-icons/tb";
-import Input, {InputProps} from "@/components/ui/form/input";
+import React, { useState } from 'react';
+import { TbEye, TbLockPassword, } from 'react-icons/tb';
+import Input, { InputProps } from '@/components/ui/form/input';
 
-export default function InputPassword({value, onChange, name, placeholder, icon}: InputProps): React.ReactNode {
+export default function InputPassword({ value, onChange, name, placeholder, icon }: InputProps): React.ReactNode {
     const [showPassword, setShowPassword] = useState(false);
 
     return (
@@ -12,7 +12,7 @@ export default function InputPassword({value, onChange, name, placeholder, icon}
             name={name}
             placeholder={placeholder}
             icon={icon ?? <TbLockPassword />}
-            type={showPassword ? "text" : "password"}
+            type={showPassword ? 'text' : 'password'}
             renderAfterInput={
                 <span
                     className="label cursor-pointer"

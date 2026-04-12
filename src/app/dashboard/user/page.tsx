@@ -1,19 +1,19 @@
-"use client"
+'use client';
 
-import {createClient} from '@/lib/supabase/browser'
-import {TbMail, TbUser} from "react-icons/tb";
-import {saveUser} from "@/app/dashboard/user/actions";
-import {useActionState, useEffect, useState} from "react";
-import {User, AuthError} from "@supabase/auth-js";
-import ErrorMessageComponent from "@/components/ui/alert/error-message";
-import LayoutChangePassword from "@/components/auth/layout-change-password";
-import InfoMessageComponent from "@/components/ui/alert/info-message";
-import {redirect} from "next/navigation";
+import { createClient } from '@/lib/supabase/browser';
+import { TbMail, TbUser } from 'react-icons/tb';
+import { saveUser } from '@/app/dashboard/user/actions';
+import { useActionState, useEffect, useState } from 'react';
+import { User, AuthError } from '@supabase/auth-js';
+import ErrorMessageComponent from '@/components/ui/alert/error-message';
+import LayoutChangePassword from '@/components/auth/layout-change-password';
+import InfoMessageComponent from '@/components/ui/alert/info-message';
+import { redirect } from 'next/navigation';
 
 const initialState = {
     message: '',
     success: true,
-}
+};
 
 const supabase = createClient();
 
@@ -26,7 +26,7 @@ export default function DashboardUserPage() {
         supabase.auth.getUser()
             .then(({ data, error }: { data: { user: User | null }; error: AuthError | null }) => {
                 if (error || !data?.user) {
-                    redirect('/login')
+                    redirect('/login');
                 } else {
                     setUser(data.user);
                 }
@@ -37,7 +37,7 @@ export default function DashboardUserPage() {
 
     return (
         <div className="prose mx-auto pt-20">
-            <h1 className="text-center">Hello {user?.user_metadata?.first_name ?? user?.email ?? "friend"}!</h1>
+            <h1 className="text-center">Hello {user?.user_metadata?.first_name ?? user?.email ?? 'friend'}!</h1>
             <form className="grid gap-4 grid-cols-2">
                 <label className="input input-info w-full col-span-2">
                     <span className="label"><TbMail/></span>
@@ -46,12 +46,12 @@ export default function DashboardUserPage() {
 
                 <label className="input input-info w-full">
                     <span className="label"><TbUser/></span>
-                    <input className="" name="firstName" type="text" placeholder="Luke" defaultValue={user?.user_metadata?.first_name ?? ""}/>
+                    <input className="" name="firstName" type="text" placeholder="Luke" defaultValue={user?.user_metadata?.first_name ?? ''}/>
                 </label>
 
                 <label className="input input-info w-full">
                     <span className="label"><TbUser/></span>
-                    <input className="" name="lastName" type="text" placeholder="Skywalker" defaultValue={user?.user_metadata?.last_name ?? ""}/>
+                    <input className="" name="lastName" type="text" placeholder="Skywalker" defaultValue={user?.user_metadata?.last_name ?? ''}/>
                 </label>
 
                 {saveUserState?.message && !saveUserState.success

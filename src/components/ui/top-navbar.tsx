@@ -1,17 +1,17 @@
-"use client"
+'use client';
 
-import Link from "next/link";
-import {createClient} from "@/lib/supabase/browser";
-import React, {useEffect, useState} from "react";
-import {User, AuthError} from "@supabase/auth-js";
-import {usePathname} from "next/navigation";
-import {signOut} from "@/app/actions/auth";
+import Link from 'next/link';
+import { createClient } from '@/lib/supabase/browser';
+import React, { useEffect, useState } from 'react';
+import { User, AuthError } from '@supabase/auth-js';
+import { usePathname } from 'next/navigation';
+import { signOut } from '@/app/actions/auth';
 
 interface Props {
     children?: React.ReactNode;
 }
 
-export default function TopNavbar({children}: Props) {
+export default function TopNavbar({ children }: Props) {
     const supabase = createClient();
     const [user, setUser] = useState<User>();
     const [userName, setUserName] = useState<string>();
@@ -19,11 +19,11 @@ export default function TopNavbar({children}: Props) {
 
     useEffect(() => {
         supabase.auth.getUser()
-            .then(({data, error}: { data: { user: User | null }; error: AuthError | null }) => {
+            .then(({ data, error }: { data: { user: User | null }; error: AuthError | null }) => {
                 if (error) throw error;
                 setUser(data.user ?? undefined);
                 setUserName(renderName(data.user ?? null));
-            })
+            });
     }, [supabase]);
 
     const isActive = (path: string) => pathname === path;
@@ -39,9 +39,9 @@ export default function TopNavbar({children}: Props) {
                         <Link
                             href="/dashboard/urls"
                             className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                                isActive("/dashboard/urls") 
-                                    ? "bg-primary text-primary-content shadow-sm" 
-                                    : "text-base-content hover:bg-base-100"
+                                isActive('/dashboard/urls') 
+                                    ? 'bg-primary text-primary-content shadow-sm' 
+                                    : 'text-base-content hover:bg-base-100'
                             }`}
                         >
                             URLs
@@ -54,12 +54,12 @@ export default function TopNavbar({children}: Props) {
                     <div className="dropdown dropdown-end">
                         <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
                             <div className="w-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                                <span className="text-sm font-bold text-white">{userName ?? "??"}</span>
+                                <span className="text-sm font-bold text-white">{userName ?? '??'}</span>
                             </div>
                         </div>
                         <ul tabIndex={-1} className="menu menu-sm dropdown-content bg-base-100 rounded-box z-10 mt-3 w-52 p-2 shadow-lg border border-base-300">
                             <li className="menu-title px-3 py-2 border-b border-base-200">
-                                <span className="font-medium text-base-content">{user?.user_metadata?.first_name ?? "User"} {user?.user_metadata?.last_name ?? ""}</span>
+                                <span className="font-medium text-base-content">{user?.user_metadata?.first_name ?? 'User'} {user?.user_metadata?.last_name ?? ''}</span>
                                 <span className="text-xs text-base-content/60 block">{user?.email}</span>
                             </li>
                             <li><Link href="/dashboard/user">User Preferences</Link></li>
@@ -77,5 +77,5 @@ export default function TopNavbar({children}: Props) {
 }
 
 function renderName(user: User | null): string {
-    return `${user?.user_metadata?.first_name?.[0] ?? "Q"}${user?.user_metadata?.last_name?.[0] ?? "R"}`;
+    return `${user?.user_metadata?.first_name?.[0] ?? 'Q'}${user?.user_metadata?.last_name?.[0] ?? 'R'}`;
 }

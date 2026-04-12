@@ -1,7 +1,7 @@
-import React, {useEffect, useState} from "react";
-import {copyToClipboard} from "@/lib/clipboard";
-import cc from "classcat";
-import {TbCopy} from "react-icons/tb";
+import React, { useEffect, useState } from 'react';
+import { copyToClipboard } from '@/lib/clipboard';
+import cc from 'classcat';
+import { TbCopy } from 'react-icons/tb';
 
 interface Props {
     value: string;
@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default function CopyToClipboardComponent({
-    value = "",
+    value = '',
     children,
     className,
 }: Props) : React.ReactNode {
@@ -19,18 +19,18 @@ export default function CopyToClipboardComponent({
     useEffect(() => {
         setTimeout(() => {
             setIsCopied(() => false);
-        }, 3000)
+        }, 3000);
     }, [isCopied]);
 
     return (
         <span
-            className={cc(["tooltip tooltip-top text-accent font-bold underline cursor-pointer", className])}
+            className={cc(['tooltip tooltip-top text-accent font-bold underline cursor-pointer', className])}
             onClick={async (e) => {
                 e.preventDefault();
                 await copyToClipboard(value);
                 setIsCopied(true);
             }}
-            data-tip={isCopied ? "Copied to clipboard!" : "Copy to clipboard"}
+            data-tip={isCopied ? 'Copied to clipboard!' : 'Copy to clipboard'}
         >
             {children} <TbCopy className="inline"/>
         </span>

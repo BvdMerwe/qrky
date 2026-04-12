@@ -1,6 +1,6 @@
 export const metadata = {
-  title: "Privacy Policy - QRky",
-  description: "Privacy Policy for QRky URL shortening and QR code generation services.",
+  title: 'Privacy Policy - QRky',
+  description: 'Privacy Policy for QRky URL shortening and QR code generation services.',
 };
 
 export default function PrivacyPage() {

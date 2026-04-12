@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from 'next/link';
 
 export default function ErrorPage() {
     return (
@@ -10,5 +10,5 @@ export default function ErrorPage() {
             </p>
             <Link href="/" className="btn">Return Home</Link>
         </div>
-    )
+    );
 }

@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
     const supabase = createClient(
@@ -10,9 +10,9 @@ export async function GET() {
     );
 
     const [visitResult, urlResult, userResult] = await Promise.all([
-        supabase.from("visits").select("*", { count: "planned", head: true }),
-        supabase.from("url_objects").select("*", { count: "planned", head: true }),
-        supabase.from("url_objects").select("*", { count: "exact", head: true }),
+        supabase.from('visits').select('*', { count: 'planned', head: true }),
+        supabase.from('url_objects').select('*', { count: 'planned', head: true }),
+        supabase.from('url_objects').select('*', { count: 'exact', head: true }),
     ]);
 
     return NextResponse.json({

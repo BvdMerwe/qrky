@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 interface Stats {
     visitCount: number;
@@ -12,7 +12,7 @@ export default function StatsSection() {
     const [stats, setStats] = useState<Stats | null>(null);
 
     useEffect(() => {
-        fetch("/api/stats")
+        fetch('/api/stats')
             .then((res) => res.json())
             .then(setStats)
             .catch(() => {
@@ -20,9 +20,9 @@ export default function StatsSection() {
             });
     }, []);
 
-    const urlCount = stats?.urlCount ?? "—";
-    const visitCount = stats?.visitCount ?? "—";
-    const userCount = stats?.userCount ?? "—";
+    const urlCount = stats?.urlCount ?? '—';
+    const visitCount = stats?.visitCount ?? '—';
+    const userCount = stats?.userCount ?? '—';
 
     return (
         <section className="py-16 bg-base-100">

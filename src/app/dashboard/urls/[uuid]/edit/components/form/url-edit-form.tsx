@@ -1,10 +1,10 @@
-"use client"
+'use client';
 
-import React, {useState} from "react";
-import Input from "@/components/ui/form/input";
-import {TbLink} from "react-icons/tb";
-import {updateUrl} from "@/app/dashboard/urls/[uuid]/edit/actions-browser";
-import {UrlObject} from "@/types/db/url-object";
+import React, { useState } from 'react';
+import Input from '@/components/ui/form/input';
+import { TbLink } from 'react-icons/tb';
+import { updateUrl } from '@/app/dashboard/urls/[uuid]/edit/actions-browser';
+import { UrlObject } from '@/types/db/url-object';
 
 interface UrlEditFormProps {
     urlObject: UrlObject;

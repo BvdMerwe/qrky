@@ -1,17 +1,17 @@
-"use client"
+'use client';
 
-import Link from "next/link";
-import {useEffect, useState} from "react";
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 export default function NotFound() {
     const facts = [
-        "being scanned.",
-        "redirecting URL traffic.",
-        "shortening URLs.",
-        "driving campaigns.",
-        "creating custom QR codes.",
-        "fitting business requirements.",
-    ]
+        'being scanned.',
+        'redirecting URL traffic.',
+        'shortening URLs.',
+        'driving campaigns.',
+        'creating custom QR codes.',
+        'fitting business requirements.',
+    ];
     const [currentFact, setCurrentFact] = useState(0);
 
     useEffect(() => {
@@ -35,5 +35,5 @@ export default function NotFound() {
             <Link href="/" className="btn btn-primary w-full">Return home</Link>
             <p className="text-sm text-center opacity-30"><sup>*</sup>Enjoy each fact equally.</p>
         </div>
-    )
+    );
 }

@@ -1,10 +1,10 @@
-"use client"
+'use client';
 
-import React, {useEffect, useRef, useState} from "react";
-import Link from "next/link";
-import Image from "next/image";
-import {TbPencil, TbQrcode, TbDownload} from "react-icons/tb";
-import {hashString} from "@/lib/strings";
+import React, { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { TbPencil, TbQrcode, TbDownload } from 'react-icons/tb';
+import { hashString } from '@/lib/strings';
 
 interface Props {
     qrCodeUuid: string;
@@ -20,7 +20,7 @@ export default function QrCodePreview({ qrCodeUuid, urlUuid, cacheKey }: Props):
 
     useEffect(() => {
         hashString(cacheKey).then(setCacheKeyEncoded);
-    }, [cacheKey])
+    }, [cacheKey]);
 
     return (
         <>

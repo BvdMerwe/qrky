@@ -1,11 +1,11 @@
-import {createServerClient} from "@supabase/ssr";
-import {cookies} from "next/headers";
-import {redirect} from "next/navigation";
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 export async function GET(request: Request) {
-    const {searchParams} = new URL(request.url);
-    const code = searchParams.get("code");
-    const next = searchParams.get("redirect_to") ?? "/dashboard";
+    const { searchParams } = new URL(request.url);
+    const code = searchParams.get('code');
+    const next = searchParams.get('redirect_to') ?? '/dashboard';
 
     if (code) {
         const cookieStore = await cookies();
@@ -19,23 +19,23 @@ export async function GET(request: Request) {
                     },
                     setAll(cookiesToSet) {
                         try {
-                            cookiesToSet.forEach(({name, value, options}) =>
+                            cookiesToSet.forEach(({ name, value, options }) =>
                                 cookieStore.set(name, value, options)
                             );
                         } catch {
-                            throw new Error("Cookies are not available");
+                            throw new Error('Cookies are not available');
                         }
                     },
                 },
             }
         );
 
-        const {error} = await supabase.auth.exchangeCodeForSession(code);
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
 
         if (!error) {
             return redirect(next);
         }
     }
 
-    return redirect("/login?error=oauth_error");
+    return redirect('/login?error=oauth_error');
 }

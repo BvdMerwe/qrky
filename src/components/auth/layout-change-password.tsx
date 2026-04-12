@@ -1,17 +1,17 @@
-"use client"
+'use client';
 
-import {useRef, useState} from "react";
-import {createClient} from "@/lib/supabase/browser";
-import {AuthError, User} from "@supabase/auth-js";
-import FormChangePassword from "@/components/auth/form-change-password";
+import { useRef, useState } from 'react';
+import { createClient } from '@/lib/supabase/browser';
+import { AuthError, User } from '@supabase/auth-js';
+import FormChangePassword from '@/components/auth/form-change-password';
 
 export default function LayoutChangePassword() {
     const supabase = createClient();
     const passwordModalRef = useRef<HTMLDialogElement>(null);
-    const [, setFormState] = useState({message: "", success: false});
+    const [, setFormState] = useState({ message: '', success: false });
 
     const initiatePasswordChange = () => {
-        setFormState({message: "", success: false});
+        setFormState({ message: '', success: false });
 
         supabase.auth.reauthenticate()
             .then(({ error, data }: { data: { user: User | null }; error: AuthError | null }) => {
@@ -47,5 +47,5 @@ export default function LayoutChangePassword() {
                 </form>
             </dialog>
         </>
-    )
+    );
 }

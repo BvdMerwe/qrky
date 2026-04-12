@@ -1,5 +1,5 @@
-import React from "react";
-import {TbPencil} from "react-icons/tb";
+import React from 'react';
+import { TbPencil } from 'react-icons/tb';
 
 export interface InputProps {
     name: string;
@@ -9,7 +9,7 @@ export interface InputProps {
     placeholder?: string;
     icon?: React.ReactNode;
     renderAfterInput?: React.ReactNode;
-    type?: "password" | "email" | "text" | "hidden";
+    type?: 'password' | 'email' | 'text' | 'hidden';
 }
 
 export default function Input({
@@ -26,7 +26,7 @@ export default function Input({
         <label className="input w-full">
             <span className="label">{icon ?? <TbPencil/>}</span>
             <input
-                type={type ?? "text"}
+                type={type ?? 'text'}
                 className=""
                 name={name}
                 placeholder={placeholder}

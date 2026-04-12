@@ -1,14 +1,14 @@
-import {UrlObject} from "@/types/db/url-object";
-import {createClient} from "@/lib/supabase/browser";
-import {STRING_TABLE_NAME_URL_OBJECTS} from "@/app/dashboard/urls/constants";
-import {fetchUrls} from "@/app/dashboard/urls/actions";
+import { UrlObject } from '@/types/db/url-object';
+import { createClient } from '@/lib/supabase/browser';
+import { STRING_TABLE_NAME_URL_OBJECTS } from '@/app/dashboard/urls/constants';
+import { fetchUrls } from '@/app/dashboard/urls/actions';
 
 export async function toggleEnabled(uuid: string): Promise<UrlObject[]> {
     const supabase = createClient();
     const { data: urlCurrent, error: urlError } = await supabase
         .from(STRING_TABLE_NAME_URL_OBJECTS)
-        .select("id, enabled")
-        .eq("uuid", uuid)
+        .select('id, enabled')
+        .eq('uuid', uuid)
         .maybeSingle();
 
     if (urlError || urlCurrent === null) {
@@ -20,8 +20,8 @@ export async function toggleEnabled(uuid: string): Promise<UrlObject[]> {
         .update({
             enabled: !urlCurrent.enabled
         })
-        .select("*")
-        .eq("id", urlCurrent.id)
+        .select('*')
+        .eq('id', urlCurrent.id);
 
     if (error) {
         throw error;
@@ -35,7 +35,7 @@ export async function deleteUrl(uuid: string): Promise<void> {
     const { error: urlError } = await supabase
         .from(STRING_TABLE_NAME_URL_OBJECTS)
         .delete()
-        .eq("uuid", uuid);
+        .eq('uuid', uuid);
 
     if (urlError) {
         throw urlError;
@@ -44,5 +44,5 @@ export async function deleteUrl(uuid: string): Promise<void> {
 
 export async function fetchUrlsBrowser(): Promise<UrlObject[]> {
     const supabase = createClient();
-    return fetchUrls(supabase)
+    return fetchUrls(supabase);
 }

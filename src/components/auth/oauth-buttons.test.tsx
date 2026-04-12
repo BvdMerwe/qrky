@@ -1,5 +1,5 @@
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {fireEvent, render, screen, waitFor} from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import OAuthButtons from '@/components/auth/oauth-buttons';
 
 // Mock the Supabase browser client
@@ -28,12 +28,12 @@ describe('OAuthButtons', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         tmpEnv = process.env;
-        process.env.NEXT_PUBLIC_APP_URL = "http://localhost:3000"
+        process.env.NEXT_PUBLIC_APP_URL = 'http://localhost:3000';
     });
 
     afterEach(() => {
         process.env = tmpEnv;
-    })
+    });
 
     it('renders Google and GitHub buttons', () => {
         render(<OAuthButtons />);

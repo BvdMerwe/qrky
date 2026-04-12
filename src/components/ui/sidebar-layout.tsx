@@ -1,13 +1,13 @@
-"use client"
+'use client';
 
-import {TbLayoutSidebar, TbLink} from "react-icons/tb";
-import Link from "next/link";
-import {createClient} from "@/lib/supabase/browser";
-import React, {useEffect, useMemo, useState} from "react";
-import {User, AuthError} from "@supabase/auth-js";
-import {usePathname} from "next/navigation";
-import {signOut} from "@/app/actions/auth";
-import cc from "classcat";
+import { TbLayoutSidebar, TbLink } from 'react-icons/tb';
+import Link from 'next/link';
+import { createClient } from '@/lib/supabase/browser';
+import React, { useEffect, useMemo, useState } from 'react';
+import { User, AuthError } from '@supabase/auth-js';
+import { usePathname } from 'next/navigation';
+import { signOut } from '@/app/actions/auth';
+import cc from 'classcat';
 
 interface Props {
     children?: React.ReactNode;
@@ -19,7 +19,7 @@ interface Link {
     icon: React.ReactNode;
 }
 
-export default function SidebarLayout({children}: Props) {
+export default function SidebarLayout({ children }: Props) {
     const supabase = createClient();
     const [user, setUser] = useState<User>();
     const [userName, setUserName] = useState<string>();
@@ -29,20 +29,20 @@ export default function SidebarLayout({children}: Props) {
 
     useEffect(() => {
         supabase.auth.getUser()
-            .then(({data, error}: { data: { user: User | null }; error: AuthError | null }) => {
+            .then(({ data, error }: { data: { user: User | null }; error: AuthError | null }) => {
                 if (error) throw error;
                 setUser(data.user ?? undefined);
                 setUserName(renderName(data.user ?? null));
                 setFirstName(data.user?.user_metadata?.first_name);
                 setLastName(data.user?.user_metadata?.last_name);
-            })
+            });
     }, [supabase]);
 
     const links = useMemo<Link[]>(() => ([
         {
-            name: "URLs",
+            name: 'URLs',
             icon: <TbLink className="min-h-6" />,
-            to: "/dashboard/urls",
+            to: '/dashboard/urls',
         },
     ]), [user]);
 
@@ -62,9 +62,9 @@ export default function SidebarLayout({children}: Props) {
                         {links.map((link: Link) => (
                             <li key={link.name}>
                                 <Link href={link.to} className={cc([
-                                    "is-drawer-close:tooltip is-drawer-close:tooltip-right is-drawer-close:btn-ghost",
+                                    'is-drawer-close:tooltip is-drawer-close:tooltip-right is-drawer-close:btn-ghost',
                                     {
-                                        "menu-active": link.to == pathname
+                                        'menu-active': link.to == pathname
                                     }
                                 ])} data-tip={link.name}>
                                     {link.icon}
@@ -81,8 +81,8 @@ export default function SidebarLayout({children}: Props) {
                                     <div className="bg-neutral text-neutral-content w-8 rounded-full">
                                         <span className="text-xs uppercase">{userName}</span>
                                     </div>
-                                </div>{" "}
-                                <span className="is-drawer-close:hidden">{firstName ?? "QR"} {lastName ?? "ky"}</span>
+                                </div>{' '}
+                                <span className="is-drawer-close:hidden">{firstName ?? 'QR'} {lastName ?? 'ky'}</span>
                             </button>
                             <ul tabIndex={-1} className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm mb-2">
                                 <li><button onClick={() => signOut()}>Log out</button></li>
@@ -105,5 +105,5 @@ export default function SidebarLayout({children}: Props) {
 }
 
 function renderName(user: User | null): string {
-    return `${user?.user_metadata?.first_name?.[0] ?? "Q"}${user?.user_metadata?.last_name?.[0] ?? "R"}`;
+    return `${user?.user_metadata?.first_name?.[0] ?? 'Q'}${user?.user_metadata?.last_name?.[0] ?? 'R'}`;
 }

@@ -18,9 +18,9 @@ import {
 import { ModuleTypeEnum } from './module-type.enum';
 import { QRkyOptions } from './QRkyOptions';
 import { readFileSync } from 'fs';
-import {DOMParser, XMLSerializer} from "@xmldom/xmldom";
-import Mimetics from "mimetics";
-import {imageSize} from "image-size";
+import { DOMParser, XMLSerializer } from '@xmldom/xmldom';
+import Mimetics from 'mimetics';
+import { imageSize } from 'image-size';
 
 export class QRkySVG extends QRMarkupSVG {
     protected declare options: QRkyOptions;
@@ -36,7 +36,7 @@ export class QRkySVG extends QRMarkupSVG {
         const viewBoxSize = this.options.svgViewBoxSize ?? 300;
 
         if (this.options.drawLightModules) {
-            header += `<rect x="0" y="0" width="${viewBoxSize}" height="${viewBoxSize}" fill="${this.options.bgColor}"></rect>`
+            header += `<rect x="0" y="0" width="${viewBoxSize}" height="${viewBoxSize}" fill="${this.options.bgColor}"></rect>`;
         }
 
         return header.replace('>', ` width="${viewBoxSize}" height="${viewBoxSize}">`);
@@ -74,7 +74,7 @@ export class QRkySVG extends QRMarkupSVG {
             case M_DARKMODULE_LIGHT:
             case M_QUIETZONE_DARK:
             case M_LOGO_DARK:
-                return this.options.color ?? super.getModuleValue(M_TYPE)
+                return this.options.color ?? super.getModuleValue(M_TYPE);
 
             default:
                 return super.getModuleValue(M_TYPE);
@@ -192,7 +192,7 @@ export class QRkySVG extends QRMarkupSVG {
         const bottomRight = (roundedCorners & 0b0010) !== 0;
         const bottomLeft = (roundedCorners & 0b0001) !== 0;
 
-        let path = "M ";
+        let path = 'M ';
 
         // Start position (top-left corner)
         if (topLeft) {
@@ -233,7 +233,7 @@ export class QRkySVG extends QRMarkupSVG {
             path += ` v -${1 - (bottomLeft ? radius : 0)}`;
         }
 
-        path += " z";
+        path += ' z';
 
         return path;
     }
@@ -266,17 +266,17 @@ export class QRkySVG extends QRMarkupSVG {
 
                 const svgDom = parser.parseFromString(
                     `<svg viewBox="0 0 ${logoWidth} ${logoHeight}"><image href="data:${mime};base64,${imageContentsBase64}" width="${logoWidth}" height="${logoHeight}" /></svg>`,
-                    "image/svg+xml"
+                    'image/svg+xml'
                 );
                 svgElement = svgDom.documentElement;
             } else {
                 const svgLogoContents = readFileSync(this.options.svgLogo!, 'utf-8');
-                const svgDom = parser.parseFromString(svgLogoContents, "image/svg+xml");
+                const svgDom = parser.parseFromString(svgLogoContents, 'image/svg+xml');
                 svgElement = svgDom.documentElement;
             }
 
-            svgElement.setAttribute("width", logoWidth.toString() ?? this.options.svgViewBoxSize.toString());
-            svgElement.setAttribute("height", logoHeight.toString() ?? this.options.svgViewBoxSize.toString());
+            svgElement.setAttribute('width', logoWidth.toString() ?? this.options.svgViewBoxSize.toString());
+            svgElement.setAttribute('height', logoHeight.toString() ?? this.options.svgViewBoxSize.toString());
 
             const logoScale = this.options.svgLogoScale ?? 0.2;
             const scale = (this.moduleCount * logoScale) / Math.max(logoWidth, logoHeight);

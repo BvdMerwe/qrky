@@ -1,28 +1,28 @@
-"use client"
+'use client';
 
-import {changePassword} from "@/app/dashboard/user/actions";
-import {useActionState, useState} from "react";
-import ErrorMessageComponent from "@/components/ui/alert/error-message";
-import {TbLockCheck, TbMailCheck} from "react-icons/tb";
-import InputPassword from "@/components/ui/form/input-password";
-import Input from "@/components/ui/form/input";
-import SuccessMessageComponent from "@/components/ui/alert/success-message";
-import InfoMessageComponent from "@/components/ui/alert/info-message";
-import {stringIsValid} from "@/lib/strings";
-import Link from "next/link";
+import { changePassword } from '@/app/dashboard/user/actions';
+import { useActionState, useState } from 'react';
+import ErrorMessageComponent from '@/components/ui/alert/error-message';
+import { TbLockCheck, TbMailCheck } from 'react-icons/tb';
+import InputPassword from '@/components/ui/form/input-password';
+import Input from '@/components/ui/form/input';
+import SuccessMessageComponent from '@/components/ui/alert/success-message';
+import InfoMessageComponent from '@/components/ui/alert/info-message';
+import { stringIsValid } from '@/lib/strings';
+import Link from 'next/link';
 
-const initialState = {message: "", success: false};
+const initialState = { message: '', success: false };
 
 export default function FormChangePassword() {
     const [changePasswordState, changePasswordFormAction, changePasswordPending] = useActionState(changePassword, initialState);
-    const [securityCode, setSecurityCode] = useState("");
-    const [newPassword, setNewPassword] = useState("");
-    const [passwordConfirm, setPasswordConfirm] = useState("");
+    const [securityCode, setSecurityCode] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [passwordConfirm, setPasswordConfirm] = useState('');
 
     let authCode = null;
 
-    if (typeof window !== "undefined") {
-        authCode = (new URLSearchParams(window.location.search)).get("code");
+    if (typeof window !== 'undefined') {
+        authCode = (new URLSearchParams(window.location.search)).get('code');
     }
 
     return (
@@ -75,5 +75,5 @@ export default function FormChangePassword() {
                 }
             </form>
         </>
-    )
+    );
 }

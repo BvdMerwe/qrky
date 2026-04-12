@@ -5,5 +5,5 @@ export function authIsPasswordValid(password: string) {
 }
 
 export function authGeneratePasswordFormula() {
-    return "Password should contain at least 8 characters, an uppercase letter and lowercase letter, a number and a symbol.";
+    return 'Password should contain at least 8 characters, an uppercase letter and lowercase letter, a number and a symbol.';
 }

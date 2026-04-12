@@ -1,8 +1,8 @@
-import React from "react";
-import { createClient } from "@/lib/supabase/server";
-import { formatDistanceToNow } from "date-fns";
-import {getName} from 'i18n-iso-countries';
-import {iso31662} from 'iso-3166'
+import React from 'react';
+import { createClient } from '@/lib/supabase/server';
+import { formatDistanceToNow } from 'date-fns';
+import { getName } from 'i18n-iso-countries';
+import { iso31662 } from 'iso-3166';
 
 export default async function UrlAnalyticsPage({
     params
@@ -14,9 +14,9 @@ export default async function UrlAnalyticsPage({
 
     // Fetch URL data
     const { data: url, error: urlError } = await supabase
-        .from("url_objects")
+        .from('url_objects')
         .select()
-        .eq("uuid", uuid)
+        .eq('uuid', uuid)
         .maybeSingle();
 
     if (urlError || !url) {
@@ -30,35 +30,35 @@ export default async function UrlAnalyticsPage({
 
     // Fetch related QR codes and aliases separately
     const { data: qrCodes } = await supabase
-        .from("qr_codes")
-        .select("id")
-        .eq("url_object_id", url.id);
+        .from('qr_codes')
+        .select('id')
+        .eq('url_object_id', url.id);
     
     const { data: aliases } = await supabase
-        .from("aliases")
-        .select("id")
-        .eq("url_object_id", url.id);
+        .from('aliases')
+        .select('id')
+        .eq('url_object_id', url.id);
 
     const qrCodeIds = qrCodes?.map((qr: { id: string }) => qr.id) || [];
     const aliasIds = aliases?.map((alias: { id: string }) => alias.id) || [];
 
     const { data: directVisits } = await supabase
-        .from("visits")
+        .from('visits')
         .select()
-        .eq("url_object_id", url.id);
+        .eq('url_object_id', url.id);
 
     const { data: qrVisits } = qrCodeIds.length > 0
         ? await supabase
-            .from("visits")
+            .from('visits')
             .select()
-            .in("qr_code_id", qrCodeIds)
+            .in('qr_code_id', qrCodeIds)
         : { data: [] };
 
     const { data: aliasVisits } = aliasIds.length > 0
         ? await supabase
-            .from("visits")
+            .from('visits')
             .select()
-            .in("alias_id", aliasIds)
+            .in('alias_id', aliasIds)
         : { data: [] };
 
     const allVisits = [
@@ -114,16 +114,16 @@ export default async function UrlAnalyticsPage({
                                                 )}
                                             </td>
                                             <td>
-                                                {visit.url_object_id ? "Direct" 
-                                                    : visit.qr_code_id ? "QR Code" 
-                                                    : visit.alias_id ? "Alias" 
-                                                    : "Unknown"}
+                                                {visit.url_object_id ? 'Direct' 
+                                                    : visit.qr_code_id ? 'QR Code' 
+                                                    : visit.alias_id ? 'Alias' 
+                                                    : 'Unknown'}
                                             </td>
                                             <td className="max-w-xs truncate" title={visit.user_agent}>
-                                                {visit.user_agent || "Unknown"}
+                                                {visit.user_agent || 'Unknown'}
                                             </td>
-                                            <td><span className="tooltip tooltip-top" data-tip={visit.country}>{getRegionalName(visit.country) || "Unknown"}</span></td>
-                                            <td><span className="tooltip tooltip-top" data-tip={visit.region}>{getRegionalName(visit.region) || "Unknown"}</span></td>
+                                            <td><span className="tooltip tooltip-top" data-tip={visit.country}>{getRegionalName(visit.country) || 'Unknown'}</span></td>
+                                            <td><span className="tooltip tooltip-top" data-tip={visit.region}>{getRegionalName(visit.region) || 'Unknown'}</span></td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -151,4 +151,4 @@ const getRegionalName = (isoCode: string) => {
     nameCache[isoCode] = resolvedName;
 
     return resolvedName;
-}
+};

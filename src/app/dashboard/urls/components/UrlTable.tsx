@@ -1,14 +1,14 @@
-"use client"
+'use client';
 
-import React, {useCallback, useState} from "react";
-import TableComponent, {TableProps} from "@/components/ui/table";
-import {UrlObject} from "@/types/db/url-object";
-import {TbExternalLink, TbGraph, TbPencil, TbPlus} from "react-icons/tb";
-import Link from "next/link";
-import {deleteUrl, fetchUrlsBrowser, toggleEnabled} from "@/app/dashboard/urls/actions-browser";
-import CopyToClipboardComponent from "@/components/ui/copy-to-clipboard";
-import DeleteButtonComponent from "@/app/dashboard/urls/components/DeleteButton";
-import QrCodePreview from "./QrCodePreview";
+import React, { useCallback, useState } from 'react';
+import TableComponent, { TableProps } from '@/components/ui/table';
+import { UrlObject } from '@/types/db/url-object';
+import { TbExternalLink, TbGraph, TbPencil, TbPlus } from 'react-icons/tb';
+import Link from 'next/link';
+import { deleteUrl, fetchUrlsBrowser, toggleEnabled } from '@/app/dashboard/urls/actions-browser';
+import CopyToClipboardComponent from '@/components/ui/copy-to-clipboard';
+import DeleteButtonComponent from '@/app/dashboard/urls/components/DeleteButton';
+import QrCodePreview from './QrCodePreview';
 
 
 interface Props extends TableProps {

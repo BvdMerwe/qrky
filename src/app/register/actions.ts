@@ -1,14 +1,14 @@
-'use server'
+'use server';
 
-import {createClient} from "@/lib/supabase/server";
-import {redirect} from "next/navigation";
-import {revalidatePath} from "next/cache";
-import {stringIsValid} from "@/lib/strings";
-import {ActionResponseInterface} from "@/interfaces/action-response";
-import {authGeneratePasswordFormula, authIsPasswordValid} from "@/lib/auth";
+import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
+import { stringIsValid } from '@/lib/strings';
+import { ActionResponseInterface } from '@/interfaces/action-response';
+import { authGeneratePasswordFormula, authIsPasswordValid } from '@/lib/auth';
 
 export async function register(_state: ActionResponseInterface, formData: FormData): Promise<ActionResponseInterface> {
-    const supabase = await createClient()
+    const supabase = await createClient();
 
     const firstName = formData.get('firstName');
     const lastName = formData.get('lastName');
@@ -21,7 +21,7 @@ export async function register(_state: ActionResponseInterface, formData: FormDa
     } else if (!authIsPasswordValid(password)) {
         return { message: authGeneratePasswordFormula(), success: false };
     } else if (password !== confirmPassword) {
-        return { message: `New passwords do not match.`, success: false };
+        return { message: 'New passwords do not match.', success: false };
     }
 
     const { error, data } = await supabase.auth.signUp({
@@ -34,20 +34,20 @@ export async function register(_state: ActionResponseInterface, formData: FormDa
             },
             emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/confirm`,
         }
-    })
+    });
 
     if (error) {
-        console.error(error)
+        console.error(error);
         return { message: error.message, success: false };
     }
 
     if (data.user && !data.session) {
-        redirect('/email-verification-waiting')
+        redirect('/email-verification-waiting');
     }
 
     if (data.user && data.session) {
-        revalidatePath('/', 'layout')
-        redirect('/dashboard/user')
+        revalidatePath('/', 'layout');
+        redirect('/dashboard/user');
     }
 
     return { message: 'Registration successful! Please check your email to verify your account before logging in.', success: true };

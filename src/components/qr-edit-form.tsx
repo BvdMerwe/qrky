@@ -1,20 +1,20 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect, useTransition, useRef, useCallback, useMemo } from "react";
-import Image from "next/image";
-import { ColorPicker, ColorService, IColor } from "react-color-palette";
-import "react-color-palette/css";
-import { updateQrCode } from "@/app/dashboard/urls/[uuid]/qr/edit/actions";
-import { QrCodeSettings } from "@/types/db/qr-code";
-import { buildQrCodeUrl } from "@/lib/qrcode/buildQrCodeUrl";
+import React, { useState, useEffect, useTransition, useRef, useCallback, useMemo } from 'react';
+import Image from 'next/image';
+import { ColorPicker, ColorService, IColor } from 'react-color-palette';
+import 'react-color-palette/css';
+import { updateQrCode } from '@/app/dashboard/urls/[uuid]/qr/edit/actions';
+import { QrCodeSettings } from '@/types/db/qr-code';
+import { buildQrCodeUrl } from '@/lib/qrcode/buildQrCodeUrl';
 
 interface QrEditFormProps {
     qrCodeId: string;
     initialSettings: QrCodeSettings | null;
 }
 
-const DEFAULT_FG_COLOR = "#000000";
-const DEFAULT_BG_COLOR = "#ffffff";
+const DEFAULT_FG_COLOR = '#000000';
+const DEFAULT_BG_COLOR = '#ffffff';
 const DEFAULT_CORNER_RADIUS = 0.45;
 const DEFAULT_LOGO_SCALE = 0.2;
 
@@ -31,9 +31,9 @@ function ColorSwatchPicker({ label, color, onChange }: ColorSwatchPickerProps) {
     // Derive iColor from hex prop; fall back gracefully on invalid input
     const iColor = useMemo<IColor>(() => {
         if (/^#[0-9A-Fa-f]{6}$/.test(color)) {
-            return ColorService.convert("hex", color);
+            return ColorService.convert('hex', color);
         }
-        return ColorService.convert("hex", "#000000");
+        return ColorService.convert('hex', '#000000');
     }, [color]);
 
     // Close on outside click
@@ -44,8 +44,8 @@ function ColorSwatchPicker({ label, color, onChange }: ColorSwatchPickerProps) {
                 setOpen(false);
             }
         }
-        document.addEventListener("mousedown", handleClick);
-        return () => document.removeEventListener("mousedown", handleClick);
+        document.addEventListener('mousedown', handleClick);
+        return () => document.removeEventListener('mousedown', handleClick);
     }, [open]);
 
     const handlePickerChange = useCallback((c: IColor) => {
@@ -105,8 +105,8 @@ export default function QrEditForm({ qrCodeId, initialSettings }: QrEditFormProp
 
     useEffect(() => {
         const params = new URLSearchParams({
-            fg: fgColor.replace("#", ""),
-            bg: bgColor.replace("#", ""),
+            fg: fgColor.replace('#', ''),
+            bg: bgColor.replace('#', ''),
             cr: cornerRadius.toString(),
             ls: logoScale.toString(),
             data: buildQrCodeUrl(qrCodeId),
@@ -114,10 +114,10 @@ export default function QrEditForm({ qrCodeId, initialSettings }: QrEditFormProp
         // Use logo from new file preview, or existing URL (unless being cleared)
         const effectiveLogoUrl = clearLogo ? null : (logoFile ? null : initialSettings?.logoUrl);
         if (effectiveLogoUrl) {
-            params.set("logo", effectiveLogoUrl);
+            params.set('logo', effectiveLogoUrl);
         }
         if (clearLogoSpace) {
-            params.set("cls", "1");
+            params.set('cls', '1');
         }
         
         const timer = setTimeout(() => {
@@ -131,14 +131,14 @@ export default function QrEditForm({ qrCodeId, initialSettings }: QrEditFormProp
         const file = e.target.files?.[0];
         if (!file) return;
 
-        const validTypes = ["image/svg+xml", "image/png", "image/jpeg", "image/jpg"];
+        const validTypes = ['image/svg+xml', 'image/png', 'image/jpeg', 'image/jpg'];
         if (!validTypes.includes(file.type)) {
-            setError("Only SVG, PNG, and JPG files are allowed");
+            setError('Only SVG, PNG, and JPG files are allowed');
             return;
         }
 
         if (file.size > 500 * 1024) {
-            setError("File size must be less than 500KB");
+            setError('File size must be less than 500KB');
             return;
         }
 
@@ -163,16 +163,16 @@ export default function QrEditForm({ qrCodeId, initialSettings }: QrEditFormProp
         setError(null);
         setSuccess(false);
 
-        formData.append("qr_code_id", qrCodeId);
-        formData.append("fg_color", fgColor);
-        formData.append("bg_color", bgColor);
-        formData.append("corner_radius", cornerRadius.toString());
-        formData.append("logo_scale", logoScale.toString());
-        formData.append("clear_logo", clearLogo.toString());
-        formData.append("clear_logo_space", clearLogoSpace.toString());
+        formData.append('qr_code_id', qrCodeId);
+        formData.append('fg_color', fgColor);
+        formData.append('bg_color', bgColor);
+        formData.append('corner_radius', cornerRadius.toString());
+        formData.append('logo_scale', logoScale.toString());
+        formData.append('clear_logo', clearLogo.toString());
+        formData.append('clear_logo_space', clearLogoSpace.toString());
 
         if (logoFile) {
-            formData.append("logo", logoFile);
+            formData.append('logo', logoFile);
         }
 
         startTransition(async () => {
@@ -180,7 +180,7 @@ export default function QrEditForm({ qrCodeId, initialSettings }: QrEditFormProp
                 await updateQrCode(formData);
                 setSuccess(true);
             } catch (err) {
-                setError(err instanceof Error ? err.message : "Failed to save settings");
+                setError(err instanceof Error ? err.message : 'Failed to save settings');
             }
         });
     };
@@ -312,7 +312,7 @@ export default function QrEditForm({ qrCodeId, initialSettings }: QrEditFormProp
                                 Saving...
                             </>
                         ) : (
-                            "Save Changes"
+                            'Save Changes'
                         )}
                     </button>
                 </div>
