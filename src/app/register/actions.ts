@@ -1,11 +1,11 @@
-"use server";
+'use server';
 
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
-import { stringIsValid } from "@/lib/strings";
-import { ActionResponseInterface } from "@/interfaces/action-response";
-import { authGeneratePasswordFormula, authIsPasswordValid } from "@/lib/auth";
+import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
+import { stringIsValid } from '@/lib/strings';
+import { ActionResponseInterface } from '@/interfaces/action-response';
+import { authGeneratePasswordFormula, authIsPasswordValid } from '@/lib/auth';
 
 export async function register(
     _state: ActionResponseInterface,
@@ -13,11 +13,11 @@ export async function register(
 ): Promise<ActionResponseInterface> {
     const supabase = await createClient();
 
-    const firstName = formData.get("firstName");
-    const lastName = formData.get("lastName");
-    const email = formData.get("email");
-    const password = formData.get("password");
-    const confirmPassword = formData.get("confirmPassword");
+    const firstName = formData.get('firstName');
+    const lastName = formData.get('lastName');
+    const email = formData.get('email');
+    const password = formData.get('password');
+    const confirmPassword = formData.get('confirmPassword');
 
     if (
         !stringIsValid(email) || !stringIsValid(password) ||
@@ -30,7 +30,7 @@ export async function register(
     } else if (!authIsPasswordValid(password)) {
         return { message: authGeneratePasswordFormula(), success: false };
     } else if (password !== confirmPassword) {
-        return { message: "New passwords do not match.", success: false };
+        return { message: 'New passwords do not match.', success: false };
     }
 
     const { error, data } = await supabase.auth.signUp({
@@ -51,17 +51,17 @@ export async function register(
     }
 
     if (data.user && !data.session) {
-        redirect("/email-verification-waiting");
+        redirect('/email-verification-waiting');
     }
 
     if (data.user && data.session) {
-        revalidatePath("/", "layout");
-        redirect("/dashboard");
+        revalidatePath('/', 'layout');
+        redirect('/dashboard');
     }
 
     return {
         message:
-            "Registration successful! Please check your email to verify your account before logging in.",
+            'Registration successful! Please check your email to verify your account before logging in.',
         success: true,
     };
 }
