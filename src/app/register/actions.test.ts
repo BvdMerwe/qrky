@@ -73,7 +73,7 @@ describe('register action', () => {
         } catch (e: unknown) {
             const err = e as { type: string; url: string };
             expect(err.type).toBe('redirect');
-            expect(err.url).toBe('/email-verification-waiting');
+            expect(err.url).toBe('/email-verification-waiting?user=user-123');
         }
 
         expect(mockSignUp).toHaveBeenCalledWith({

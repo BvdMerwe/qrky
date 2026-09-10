@@ -54,6 +54,7 @@ export async function proxy(request: NextRequest) {
     if (user && !user.email_confirmed_at && !isAuthRoute && isProtectedRoute) {
         const url = request.nextUrl.clone();
         url.pathname = '/email-verification-waiting';
+        url.searchParams.set('user', user.id);
         return NextResponse.redirect(url);
     }
 

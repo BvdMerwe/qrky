@@ -51,7 +51,7 @@ export async function register(
     }
 
     if (data.user && !data.session) {
-        redirect('/email-verification-waiting');
+        redirect(`/email-verification-waiting?user=${data.user.id}`);
     }
 
     if (data.user && data.session) {
