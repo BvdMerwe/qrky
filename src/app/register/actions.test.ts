@@ -1,187 +1,203 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock next/navigation
 const mockRedirect = vi.fn();
-vi.mock('next/navigation', () => ({
+vi.mock("next/navigation", () => ({
     redirect: mockRedirect,
     RedirectType: {
-        push: 'push',
-        replace: 'replace'
-    }
+        push: "push",
+        replace: "replace",
+    },
 }));
 
 // Mock next/cache
 const mockRevalidatePath = vi.fn();
-vi.mock('next/cache', () => ({
-    revalidatePath: mockRevalidatePath
+vi.mock("next/cache", () => ({
+    revalidatePath: mockRevalidatePath,
 }));
 
 // Mock next/headers
 const mockCookieStore = {
     getAll: vi.fn(() => []),
-    set: vi.fn()
+    set: vi.fn(),
 };
 
-vi.mock('next/headers', () => ({
-    cookies: vi.fn(() => Promise.resolve(mockCookieStore))
+vi.mock("next/headers", () => ({
+    cookies: vi.fn(() => Promise.resolve(mockCookieStore)),
 }));
 
 // Mock supabase auth methods
 const mockSignUp = vi.fn();
 
-vi.mock('@/lib/supabase/server', () => ({
-    createClient: vi.fn(() => Promise.resolve({
-        auth: {
-            signUp: mockSignUp,
-        }
-    }))
+vi.mock("@/lib/supabase/server", () => ({
+    createClient: vi.fn(() =>
+        Promise.resolve({
+            auth: {
+                signUp: mockSignUp,
+            },
+        })
+    ),
 }));
 
-describe('register action', () => {
+describe("register action", () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co';
-        process.env.SUPABASE_ADMIN_KEY = 'test-key';
-        process.env.NEXT_PUBLIC_SITE_URL = 'http://localhost:3000';
+        process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co";
+        process.env.SUPABASE_ADMIN_KEY = "test-key";
+        process.env.NEXT_PUBLIC_APP_URL = "http://localhost:3000";
         mockRedirect.mockImplementation((url: string) => {
-            throw { url, type: 'redirect' };
+            throw { url, type: "redirect" };
         });
     });
 
-    it('redirects to email-verification-waiting when user created but no session', async () => {
-        mockSignUp.mockResolvedValue({ 
+    it("redirects to email-verification-waiting when user created but no session", async () => {
+        mockSignUp.mockResolvedValue({
             error: null,
             data: {
-                user: { id: 'user-123', email: 'new@example.com' },
-                session: null
-            }
+                user: { id: "user-123", email: "new@example.com" },
+                session: null,
+            },
         });
 
-        const { register } = await import('@/app/register/actions');
-        
+        const { register } = await import("@/app/register/actions");
+
         const formData = new FormData();
-        formData.append('firstName', 'John');
-        formData.append('lastName', 'Doe');
-        formData.append('email', 'new@example.com');
-        formData.append('password', 'ValidPass123!');
-        formData.append('confirmPassword', 'ValidPass123!');
+        formData.append("firstName", "John");
+        formData.append("lastName", "Doe");
+        formData.append("email", "new@example.com");
+        formData.append("password", "ValidPass123!");
+        formData.append("confirmPassword", "ValidPass123!");
 
         try {
-            await register({ message: '', success: false }, formData);
+            await register({ message: "", success: false }, formData);
         } catch (e: unknown) {
             const err = e as { type: string; url: string };
-            expect(err.type).toBe('redirect');
-            expect(err.url).toBe('/email-verification-waiting');
+            expect(err.type).toBe("redirect");
+            expect(err.url).toBe("/email-verification-waiting");
         }
 
         expect(mockSignUp).toHaveBeenCalledWith({
-            email: 'new@example.com',
-            password: 'ValidPass123!',
+            email: "new@example.com",
+            password: "ValidPass123!",
             options: {
                 data: {
-                    first_name: 'John',
-                    last_name: 'Doe',
+                    first_name: "John",
+                    last_name: "Doe",
                 },
-                emailRedirectTo: 'http://localhost:3000/auth/confirm',
-            }
+                emailRedirectTo: "http://localhost:3000/dashboard",
+            },
         });
     });
 
-    it('redirects to dashboard/user when user created with session', async () => {
-        mockSignUp.mockResolvedValue({ 
+    it("redirects to dashboard/user when user created with session", async () => {
+        mockSignUp.mockResolvedValue({
             error: null,
             data: {
-                user: { id: 'user-123', email: 'new@example.com' },
-                session: { access_token: 'token-123' }
-            }
+                user: { id: "user-123", email: "new@example.com" },
+                session: { access_token: "token-123" },
+            },
         });
 
-        const { register } = await import('@/app/register/actions');
-        
+        const { register } = await import("@/app/register/actions");
+
         const formData = new FormData();
-        formData.append('firstName', 'John');
-        formData.append('lastName', 'Doe');
-        formData.append('email', 'new@example.com');
-        formData.append('password', 'ValidPass123!');
-        formData.append('confirmPassword', 'ValidPass123!');
+        formData.append("firstName", "John");
+        formData.append("lastName", "Doe");
+        formData.append("email", "new@example.com");
+        formData.append("password", "ValidPass123!");
+        formData.append("confirmPassword", "ValidPass123!");
 
         try {
-            await register({ message: '', success: false }, formData);
+            await register({ message: "", success: false }, formData);
         } catch (e: unknown) {
             const err = e as { type: string; url: string };
-            expect(err.type).toBe('redirect');
-            expect(err.url).toBe('/dashboard/user');
+            expect(err.type).toBe("redirect");
+            expect(err.url).toBe("/dashboard/user");
         }
 
-        expect(mockRevalidatePath).toHaveBeenCalledWith('/', 'layout');
+        expect(mockRevalidatePath).toHaveBeenCalledWith("/", "layout");
     });
 
-    it('returns error for duplicate email', async () => {
-        mockSignUp.mockResolvedValue({ 
-            error: { message: 'User already registered' },
-            data: null
+    it("returns error for duplicate email", async () => {
+        mockSignUp.mockResolvedValue({
+            error: { message: "User already registered" },
+            data: null,
         });
 
-        const { register } = await import('@/app/register/actions');
-        
-        const formData = new FormData();
-        formData.append('firstName', 'John');
-        formData.append('lastName', 'Doe');
-        formData.append('email', 'existing@example.com');
-        formData.append('password', 'ValidPass123!');
-        formData.append('confirmPassword', 'ValidPass123!');
+        const { register } = await import("@/app/register/actions");
 
-        const result = await register({ message: '', success: false }, formData);
+        const formData = new FormData();
+        formData.append("firstName", "John");
+        formData.append("lastName", "Doe");
+        formData.append("email", "existing@example.com");
+        formData.append("password", "ValidPass123!");
+        formData.append("confirmPassword", "ValidPass123!");
+
+        const result = await register(
+            { message: "", success: false },
+            formData,
+        );
 
         expect(result.success).toBe(false);
-        expect(result.message).toBe('User already registered');
+        expect(result.message).toBe("User already registered");
     });
 
-    it('returns password formula for weak password', async () => {
-        const { register } = await import('@/app/register/actions');
-        
-        const formData = new FormData();
-        formData.append('firstName', 'John');
-        formData.append('lastName', 'Doe');
-        formData.append('email', 'test@example.com');
-        formData.append('password', 'weak');
-        formData.append('confirmPassword', 'weak');
+    it("returns password formula for weak password", async () => {
+        const { register } = await import("@/app/register/actions");
 
-        const result = await register({ message: '', success: false }, formData);
+        const formData = new FormData();
+        formData.append("firstName", "John");
+        formData.append("lastName", "Doe");
+        formData.append("email", "test@example.com");
+        formData.append("password", "weak");
+        formData.append("confirmPassword", "weak");
+
+        const result = await register(
+            { message: "", success: false },
+            formData,
+        );
 
         expect(result.success).toBe(false);
-        expect(result.message).toContain('Password should contain at least 8 characters');
+        expect(result.message).toContain(
+            "Password should contain at least 8 characters",
+        );
     });
 
-    it('returns error for password mismatch', async () => {
-        const { register } = await import('@/app/register/actions');
-        
-        const formData = new FormData();
-        formData.append('firstName', 'John');
-        formData.append('lastName', 'Doe');
-        formData.append('email', 'test@example.com');
-        formData.append('password', 'ValidPass123!');
-        formData.append('confirmPassword', 'DifferentPass123!');
+    it("returns error for password mismatch", async () => {
+        const { register } = await import("@/app/register/actions");
 
-        const result = await register({ message: '', success: false }, formData);
+        const formData = new FormData();
+        formData.append("firstName", "John");
+        formData.append("lastName", "Doe");
+        formData.append("email", "test@example.com");
+        formData.append("password", "ValidPass123!");
+        formData.append("confirmPassword", "DifferentPass123!");
+
+        const result = await register(
+            { message: "", success: false },
+            formData,
+        );
 
         expect(result.success).toBe(false);
-        expect(result.message).toBe('New passwords do not match.');
+        expect(result.message).toBe("New passwords do not match.");
     });
 
-    it('returns error for missing email', async () => {
-        const { register } = await import('@/app/register/actions');
-        
-        const formData = new FormData();
-        formData.append('firstName', 'John');
-        formData.append('lastName', 'Doe');
-        formData.append('email', '');
-        formData.append('password', 'ValidPass123!');
-        formData.append('confirmPassword', 'ValidPass123!');
+    it("returns error for missing email", async () => {
+        const { register } = await import("@/app/register/actions");
 
-        const result = await register({ message: '', success: false }, formData);
+        const formData = new FormData();
+        formData.append("firstName", "John");
+        formData.append("lastName", "Doe");
+        formData.append("email", "");
+        formData.append("password", "ValidPass123!");
+        formData.append("confirmPassword", "ValidPass123!");
+
+        const result = await register(
+            { message: "", success: false },
+            formData,
+        );
 
         expect(result.success).toBe(false);
-        expect(result.message).toContain('Email or password is invalid');
+        expect(result.message).toContain("Email or password is invalid");
     });
 });

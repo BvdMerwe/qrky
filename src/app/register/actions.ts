@@ -1,27 +1,36 @@
-'use server';
+"use server";
 
-import { createClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import { revalidatePath } from 'next/cache';
-import { stringIsValid } from '@/lib/strings';
-import { ActionResponseInterface } from '@/interfaces/action-response';
-import { authGeneratePasswordFormula, authIsPasswordValid } from '@/lib/auth';
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import { stringIsValid } from "@/lib/strings";
+import { ActionResponseInterface } from "@/interfaces/action-response";
+import { authGeneratePasswordFormula, authIsPasswordValid } from "@/lib/auth";
 
-export async function register(_state: ActionResponseInterface, formData: FormData): Promise<ActionResponseInterface> {
+export async function register(
+    _state: ActionResponseInterface,
+    formData: FormData,
+): Promise<ActionResponseInterface> {
     const supabase = await createClient();
 
-    const firstName = formData.get('firstName');
-    const lastName = formData.get('lastName');
-    const email = formData.get('email');
-    const password = formData.get('password');
-    const confirmPassword = formData.get('confirmPassword');
+    const firstName = formData.get("firstName");
+    const lastName = formData.get("lastName");
+    const email = formData.get("email");
+    const password = formData.get("password");
+    const confirmPassword = formData.get("confirmPassword");
 
-    if (!stringIsValid(email) || !stringIsValid(password) || !stringIsValid(confirmPassword)) {
-        return { message: `Email or password is invalid: ${email} ${password}`, success: false };
+    if (
+        !stringIsValid(email) || !stringIsValid(password) ||
+        !stringIsValid(confirmPassword)
+    ) {
+        return {
+            message: `Email or password is invalid: ${email} ${password}`,
+            success: false,
+        };
     } else if (!authIsPasswordValid(password)) {
         return { message: authGeneratePasswordFormula(), success: false };
     } else if (password !== confirmPassword) {
-        return { message: 'New passwords do not match.', success: false };
+        return { message: "New passwords do not match.", success: false };
     }
 
     const { error, data } = await supabase.auth.signUp({
@@ -32,8 +41,8 @@ export async function register(_state: ActionResponseInterface, formData: FormDa
                 first_name: firstName,
                 last_name: lastName,
             },
-            emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/confirm`,
-        }
+            emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
+        },
     });
 
     if (error) {
@@ -42,13 +51,17 @@ export async function register(_state: ActionResponseInterface, formData: FormDa
     }
 
     if (data.user && !data.session) {
-        redirect('/email-verification-waiting');
+        redirect("/email-verification-waiting");
     }
 
     if (data.user && data.session) {
-        revalidatePath('/', 'layout');
-        redirect('/dashboard/user');
+        revalidatePath("/", "layout");
+        redirect("/dashboard");
     }
 
-    return { message: 'Registration successful! Please check your email to verify your account before logging in.', success: true };
+    return {
+        message:
+            "Registration successful! Please check your email to verify your account before logging in.",
+        success: true,
+    };
 }
