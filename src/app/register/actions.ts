@@ -7,7 +7,10 @@ import { stringIsValid } from '@/lib/strings';
 import { ActionResponseInterface } from '@/interfaces/action-response';
 import { authGeneratePasswordFormula, authIsPasswordValid } from '@/lib/auth';
 
-export async function register(_state: ActionResponseInterface, formData: FormData): Promise<ActionResponseInterface> {
+export async function register(
+    _state: ActionResponseInterface,
+    formData: FormData,
+): Promise<ActionResponseInterface> {
     const supabase = await createClient();
 
     const firstName = formData.get('firstName');
@@ -16,8 +19,14 @@ export async function register(_state: ActionResponseInterface, formData: FormDa
     const password = formData.get('password');
     const confirmPassword = formData.get('confirmPassword');
 
-    if (!stringIsValid(email) || !stringIsValid(password) || !stringIsValid(confirmPassword)) {
-        return { message: `Email or password is invalid: ${email} ${password}`, success: false };
+    if (
+        !stringIsValid(email) || !stringIsValid(password) ||
+        !stringIsValid(confirmPassword)
+    ) {
+        return {
+            message: `Email or password is invalid: ${email} ${password}`,
+            success: false,
+        };
     } else if (!authIsPasswordValid(password)) {
         return { message: authGeneratePasswordFormula(), success: false };
     } else if (password !== confirmPassword) {
@@ -32,8 +41,8 @@ export async function register(_state: ActionResponseInterface, formData: FormDa
                 first_name: firstName,
                 last_name: lastName,
             },
-            emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/confirm`,
-        }
+            emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
+        },
     });
 
     if (error) {
@@ -42,13 +51,17 @@ export async function register(_state: ActionResponseInterface, formData: FormDa
     }
 
     if (data.user && !data.session) {
-        redirect('/email-verification-waiting');
+        redirect(`/email-verification-waiting?user=${data.user.id}`);
     }
 
     if (data.user && data.session) {
         revalidatePath('/', 'layout');
-        redirect('/dashboard/user');
+        redirect('/dashboard');
     }
 
-    return { message: 'Registration successful! Please check your email to verify your account before logging in.', success: true };
+    return {
+        message:
+            'Registration successful! Please check your email to verify your account before logging in.',
+        success: true,
+    };
 }

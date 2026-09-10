@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock next/navigation
 const mockRedirect = vi.fn();
@@ -6,35 +6,37 @@ vi.mock('next/navigation', () => ({
     redirect: mockRedirect,
     RedirectType: {
         push: 'push',
-        replace: 'replace'
-    }
+        replace: 'replace',
+    },
 }));
 
 // Mock next/cache
 const mockRevalidatePath = vi.fn();
 vi.mock('next/cache', () => ({
-    revalidatePath: mockRevalidatePath
+    revalidatePath: mockRevalidatePath,
 }));
 
 // Mock next/headers
 const mockCookieStore = {
     getAll: vi.fn(() => []),
-    set: vi.fn()
+    set: vi.fn(),
 };
 
 vi.mock('next/headers', () => ({
-    cookies: vi.fn(() => Promise.resolve(mockCookieStore))
+    cookies: vi.fn(() => Promise.resolve(mockCookieStore)),
 }));
 
 // Mock supabase auth methods
 const mockSignUp = vi.fn();
 
 vi.mock('@/lib/supabase/server', () => ({
-    createClient: vi.fn(() => Promise.resolve({
-        auth: {
-            signUp: mockSignUp,
-        }
-    }))
+    createClient: vi.fn(() =>
+        Promise.resolve({
+            auth: {
+                signUp: mockSignUp,
+            },
+        })
+    ),
 }));
 
 describe('register action', () => {
@@ -42,23 +44,23 @@ describe('register action', () => {
         vi.clearAllMocks();
         process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co';
         process.env.SUPABASE_ADMIN_KEY = 'test-key';
-        process.env.NEXT_PUBLIC_SITE_URL = 'http://localhost:3000';
+        process.env.NEXT_PUBLIC_APP_URL = 'http://localhost:3000';
         mockRedirect.mockImplementation((url: string) => {
             throw { url, type: 'redirect' };
         });
     });
 
     it('redirects to email-verification-waiting when user created but no session', async () => {
-        mockSignUp.mockResolvedValue({ 
+        mockSignUp.mockResolvedValue({
             error: null,
             data: {
                 user: { id: 'user-123', email: 'new@example.com' },
-                session: null
-            }
+                session: null,
+            },
         });
 
         const { register } = await import('@/app/register/actions');
-        
+
         const formData = new FormData();
         formData.append('firstName', 'John');
         formData.append('lastName', 'Doe');
@@ -71,7 +73,7 @@ describe('register action', () => {
         } catch (e: unknown) {
             const err = e as { type: string; url: string };
             expect(err.type).toBe('redirect');
-            expect(err.url).toBe('/email-verification-waiting');
+            expect(err.url).toBe('/email-verification-waiting?user=user-123');
         }
 
         expect(mockSignUp).toHaveBeenCalledWith({
@@ -82,22 +84,22 @@ describe('register action', () => {
                     first_name: 'John',
                     last_name: 'Doe',
                 },
-                emailRedirectTo: 'http://localhost:3000/auth/confirm',
-            }
+                emailRedirectTo: 'http://localhost:3000/dashboard',
+            },
         });
     });
 
-    it('redirects to dashboard/user when user created with session', async () => {
-        mockSignUp.mockResolvedValue({ 
+    it('redirects to dashboard when user created with session', async () => {
+        mockSignUp.mockResolvedValue({
             error: null,
             data: {
                 user: { id: 'user-123', email: 'new@example.com' },
-                session: { access_token: 'token-123' }
-            }
+                session: { access_token: 'token-123' },
+            },
         });
 
         const { register } = await import('@/app/register/actions');
-        
+
         const formData = new FormData();
         formData.append('firstName', 'John');
         formData.append('lastName', 'Doe');
@@ -110,20 +112,20 @@ describe('register action', () => {
         } catch (e: unknown) {
             const err = e as { type: string; url: string };
             expect(err.type).toBe('redirect');
-            expect(err.url).toBe('/dashboard/user');
+            expect(err.url).toBe('/dashboard');
         }
 
         expect(mockRevalidatePath).toHaveBeenCalledWith('/', 'layout');
     });
 
     it('returns error for duplicate email', async () => {
-        mockSignUp.mockResolvedValue({ 
+        mockSignUp.mockResolvedValue({
             error: { message: 'User already registered' },
-            data: null
+            data: null,
         });
 
         const { register } = await import('@/app/register/actions');
-        
+
         const formData = new FormData();
         formData.append('firstName', 'John');
         formData.append('lastName', 'Doe');
@@ -131,7 +133,10 @@ describe('register action', () => {
         formData.append('password', 'ValidPass123!');
         formData.append('confirmPassword', 'ValidPass123!');
 
-        const result = await register({ message: '', success: false }, formData);
+        const result = await register(
+            { message: '', success: false },
+            formData,
+        );
 
         expect(result.success).toBe(false);
         expect(result.message).toBe('User already registered');
@@ -139,7 +144,7 @@ describe('register action', () => {
 
     it('returns password formula for weak password', async () => {
         const { register } = await import('@/app/register/actions');
-        
+
         const formData = new FormData();
         formData.append('firstName', 'John');
         formData.append('lastName', 'Doe');
@@ -147,15 +152,20 @@ describe('register action', () => {
         formData.append('password', 'weak');
         formData.append('confirmPassword', 'weak');
 
-        const result = await register({ message: '', success: false }, formData);
+        const result = await register(
+            { message: '', success: false },
+            formData,
+        );
 
         expect(result.success).toBe(false);
-        expect(result.message).toContain('Password should contain at least 8 characters');
+        expect(result.message).toContain(
+            'Password should contain at least 8 characters',
+        );
     });
 
     it('returns error for password mismatch', async () => {
         const { register } = await import('@/app/register/actions');
-        
+
         const formData = new FormData();
         formData.append('firstName', 'John');
         formData.append('lastName', 'Doe');
@@ -163,7 +173,10 @@ describe('register action', () => {
         formData.append('password', 'ValidPass123!');
         formData.append('confirmPassword', 'DifferentPass123!');
 
-        const result = await register({ message: '', success: false }, formData);
+        const result = await register(
+            { message: '', success: false },
+            formData,
+        );
 
         expect(result.success).toBe(false);
         expect(result.message).toBe('New passwords do not match.');
@@ -171,7 +184,7 @@ describe('register action', () => {
 
     it('returns error for missing email', async () => {
         const { register } = await import('@/app/register/actions');
-        
+
         const formData = new FormData();
         formData.append('firstName', 'John');
         formData.append('lastName', 'Doe');
@@ -179,7 +192,10 @@ describe('register action', () => {
         formData.append('password', 'ValidPass123!');
         formData.append('confirmPassword', 'ValidPass123!');
 
-        const result = await register({ message: '', success: false }, formData);
+        const result = await register(
+            { message: '', success: false },
+            formData,
+        );
 
         expect(result.success).toBe(false);
         expect(result.message).toContain('Email or password is invalid');
