@@ -59,6 +59,17 @@ backup/
 *.db-shm
 db.sqlite
 bd.db
+
+# JSONL export (viewers/interchange only — NOT the sync channel; sync is refs/dolt/data)
+issues.jsonl
+
+# Federation credential key (local-only secret)
+.beads-credential-key
+
+# Runtime artifacts
+.gate.lock
+dolt-server-config.yaml
+*.gate.lock
 # NOTE: Do NOT add negation patterns here.
 # They would override fork protection in .git/info/exclude.
 # Config files (metadata.json, config.yaml) are tracked by git by default
