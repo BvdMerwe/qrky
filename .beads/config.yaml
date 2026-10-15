@@ -7,7 +7,6 @@
 # If not set, bd init will auto-detect from directory name
 # Example: issue-prefix: "myproject" creates issues like "myproject-1", "myproject-2", etc.
 issue-prefix: "qrky"
-
 # Use no-db mode: JSONL-only, no Dolt database
 # When true, bd will use .beads/issues.jsonl as the source of truth
 # no-db: false
@@ -52,5 +51,14 @@ issue-prefix: "qrky"
 # - linear.api-key
 # - github.org
 # - github.repo
+dolt:
+    mode: embedded
+export:
+    auto: false
+    git-add: false
+import:
+    auto: false
+sync:
+    remote: "git+ssh://git@github.com/BvdMerwe/qrky.git"
 
-dolt.shared-server: true
+# remote: "git+https://github.com/BvdMerwe/qrky.git"
