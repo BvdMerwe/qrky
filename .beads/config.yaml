@@ -59,4 +59,6 @@ export:
 import:
     auto: false
 sync:
-    # remote: "git+https://github.com/BvdMerwe/qrky.git"
+    remote: "git+ssh://git@github.com/BvdMerwe/qrky.git"
+
+# remote: "git+https://github.com/BvdMerwe/qrky.git"
