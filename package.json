@@ -25,7 +25,7 @@
     "classcat": "^5.0.5",
     "date-fns": "^4.1.0",
     "i18n-iso-countries": "^7.14.0",
-    "image-size": "^2.0.2",
+    "image-size": "^2.0.3",
     "iso-3166": "^4.4.0",
     "mimetics": "^1.0.5",
     "next": "16.3.3",
