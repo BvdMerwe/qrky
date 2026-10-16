@@ -28,10 +28,32 @@ export async function login(_state: ActionResponseInterface, formData: FormData)
     if (error) {
         if (error.code === 'invalid_credentials') {
             return { message: error.message, success: false };
-        } else {
-            console.error(error);
-            redirect('/500');
         }
+
+        if (error.code === 'email_not_confirmed') {
+            // signInWithPassword does not return the user object on this error,
+            // so generate a signup confirmation link via the admin API to obtain
+            // the user id. The link is generated (not emailed) purely to resolve
+            // the user; we never send it — the waiting page has its own resend.
+            const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+                type: 'signup',
+                email: data.email,
+                password: data.password,
+                options: {
+                    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/confirm`,
+                },
+            });
+
+            if (linkError || !linkData.user) {
+                console.error(linkError ?? error);
+                return { message: TEXT_ERROR_GENERIC, success: false };
+            }
+
+            redirect(`/email-verification-waiting?user=${linkData.user.id}`);
+        }
+
+        console.error(error);
+        redirect('/500');
     }
 
     revalidatePath('/', 'layout');

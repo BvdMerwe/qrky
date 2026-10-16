@@ -29,12 +29,16 @@ vi.mock('next/headers', () => ({
 // Mock supabase auth methods
 const mockSignInWithPassword = vi.fn();
 const mockResetPasswordForEmail = vi.fn();
+const mockGenerateLink = vi.fn();
 
 vi.mock('@/lib/supabase/server', () => ({
     createClient: vi.fn(() => Promise.resolve({
         auth: {
             signInWithPassword: mockSignInWithPassword,
             resetPasswordForEmail: mockResetPasswordForEmail,
+            admin: {
+                generateLink: mockGenerateLink,
+            },
         }
     }))
 }));
@@ -144,6 +148,64 @@ describe('login action', () => {
             expect(err.type).toBe('redirect');
             expect(err.url).toBe('/500');
         }
+    });
+
+    it('redirects to email-verification-waiting for unconfirmed email', async () => {
+        mockSignInWithPassword.mockResolvedValue({ 
+            error: { code: 'email_not_confirmed', message: 'Email not confirmed' } 
+        });
+        mockGenerateLink.mockResolvedValue({
+            data: { 
+                user: { id: 'user-456', email: 'test@example.com' },
+                properties: { action_link: 'https://example.com/confirm?token=abc' },
+            },
+            error: null,
+        });
+
+        const { login } = await import('@/app/login/actions');
+        
+        const formData = new FormData();
+        formData.append('email', 'test@example.com');
+        formData.append('password', 'ValidPass123!');
+
+        try {
+            await login({ message: '', success: false }, formData);
+        } catch (e: unknown) {
+            const err = e as { type: string; url: string };
+            expect(err.type).toBe('redirect');
+            expect(err.url).toBe('/email-verification-waiting?user=user-456');
+        }
+
+        expect(mockGenerateLink).toHaveBeenCalledWith(expect.objectContaining({
+            type: 'signup',
+            email: 'test@example.com',
+            password: 'ValidPass123!',
+        }));
+    });
+
+    it('returns generic error when user lookup fails for unconfirmed email', async () => {
+        mockSignInWithPassword.mockResolvedValue({ 
+            error: { code: 'email_not_confirmed', message: 'Email not confirmed' } 
+        });
+        mockGenerateLink.mockResolvedValue({
+            data: { user: null, properties: null },
+            error: { message: 'User not found' },
+        });
+
+        const { login } = await import('@/app/login/actions');
+        
+        const formData = new FormData();
+        formData.append('email', 'test@example.com');
+        formData.append('password', 'ValidPass123!');
+
+        const result = await login({ message: '', success: false }, formData);
+
+        expect(result.success).toBe(false);
+        expect(result.message).toBe('Email or password is invalid. Please try again.');
+        expect(mockGenerateLink).toHaveBeenCalledWith(expect.objectContaining({
+            type: 'signup',
+            email: 'test@example.com',
+        }));
     });
 });
 
