@@ -24,23 +24,26 @@ export default function OAuthButtons() {
     };
 
     return (
-        <div className="flex flex-col gap-2">
-            <button
-                type="button"
-                className="btn btn-neutral"
-                onClick={() => handleOAuthSignIn('google')}
-            >
-                <FaGoogle />
-                Continue with Google
-            </button>
-            <button
-                type="button"
-                className="btn btn-neutral"
-                onClick={() => handleOAuthSignIn('github')}
-            >
-                <FaGithub />
-                Continue with Github
-            </button>
-        </div>
+        <>
+            <div className="flex flex-col gap-2">
+                <button
+                    type="button"
+                    className="btn btn-neutral"
+                    onClick={() => handleOAuthSignIn('google')}
+                >
+                    <FaGoogle />
+                    Continue with Google
+                </button>
+                <button
+                    type="button"
+                    className="btn btn-neutral"
+                    onClick={() => handleOAuthSignIn('github')}
+                >
+                    <FaGithub />
+                    Continue with Github
+                </button>
+                <div className="divider">OR</div>
+            </div>
+        </>
     );
 }

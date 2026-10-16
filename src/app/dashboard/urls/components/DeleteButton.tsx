@@ -12,20 +12,20 @@ export default function DeleteButtonComponent({ onClick }: Props): React.ReactNo
 
     return (
         <div className="">
-            <button className="btn btn-xs btn-soft btn-error join-item tooltip tooltip-top" onClick={() => confirmationModalRef?.current?.showModal()} data-tip="Delete">
+            <button className="btn btn-xs btn-outline btn-error tooltip tooltip-top" onClick={() => confirmationModalRef?.current?.showModal()} data-tip="Delete">
                 <TbTrash/>
             </button>
             <dialog id="password-modal" className="modal" ref={confirmationModalRef}>
-                <div className="modal-box">
+                <div className="modal-box prose">
                     <h2 className="text-center">Are you sure you want to delete this URL?</h2>
                     <p className="alert alert-error">This operation is permanent and cannot be undone.</p>
 
-                    <button className="btn btn-error rounded w-full" onClick={onClick}>
+                    <button className="btn btn-error rounded-full w-full" onClick={onClick}>
                         Yes I am sure
                     </button>
 
                     <form method="dialog">
-                        <button className="btn btn-ghost w-full mt-4">No, go back</button>
+                        <button className="btn btn-ghost rounded-full w-full mt-4">No, go back</button>
                     </form>
                 </div>
 

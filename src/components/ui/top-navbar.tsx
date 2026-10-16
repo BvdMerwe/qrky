@@ -6,6 +6,8 @@ import React, { useEffect, useState } from 'react';
 import { User, AuthError } from '@supabase/auth-js';
 import { usePathname } from 'next/navigation';
 import { signOut } from '@/app/actions/auth';
+import cc from 'classcat';
+import Image from 'next/image';
 
 interface Props {
     children?: React.ReactNode;
@@ -30,19 +32,20 @@ export default function TopNavbar({ children }: Props) {
 
     return (
         <div className="min-h-screen bg-base-200">
-            <div className="navbar bg-base-100 shadow-sm border-b border-base-300 px-6">
+            <div className="navbar bg-base-300 shadow-sm border-b border-base-300 px-6">
                 <div className="navbar-start gap-6">
-                    <Link href="/dashboard/urls" className="font-sans text-xl font-bold text-primary tracking-tight">
-                        QRky
+                    <Link href="/" className="hover:aura hover:aura-rainbow font-sans text-xl font-bold text-primary tracking-tight rounded-lg p-0.5">
+                        <Image src="/qrky-logotype.svg"
+                            width={70}
+                            height={40}
+                            alt="logo" className="h-10 " />
                     </Link>
-                    <div className="flex bg-base-200 rounded-lg p-1">
+                    <div className="flex gap-2">
                         <Link
                             href="/dashboard/urls"
-                            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                                isActive('/dashboard/urls') 
-                                    ? 'bg-primary text-primary-content shadow-sm' 
-                                    : 'text-base-content hover:bg-base-100'
-                            }`}
+                            className={cc(['btn', isActive('/dashboard/urls')
+                                ? 'btn-accent'
+                                : 'btn-soft btn-neutral'])}
                         >
                             URLs
                         </Link>
@@ -52,9 +55,9 @@ export default function TopNavbar({ children }: Props) {
                 <div className="navbar-end">
 
                     <div className="dropdown dropdown-end">
-                        <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
-                            <div className="w-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                                <span className="text-sm font-bold text-white">{userName ?? '??'}</span>
+                        <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar avatar-placeholder ring ring-primary ring-offset-base-100">
+                            <div className="bg-neutral text-neutral-content w-12 rounded-full">
+                                <span>{userName ?? '??'}</span>
                             </div>
                         </div>
                         <ul tabIndex={-1} className="menu menu-sm dropdown-content bg-base-100 rounded-box z-10 mt-3 w-52 p-2 shadow-lg border border-base-300">

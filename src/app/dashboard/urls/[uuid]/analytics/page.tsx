@@ -80,10 +80,10 @@ export default async function UrlAnalyticsPage({
                 <p className="text-base-content/70">{url.url}</p>
             </div>
 
-            <div className="stats shadow mb-6">
+            <div className="stats bg-base-100 shadow mb-6">
                 <div className="stat">
                     <div className="stat-title">Total Visits</div>
-                    <div className="stat-value text-secondary">{totalVisits}</div>
+                    <div className="stat-value">{totalVisits}</div>
                 </div>
             </div>
 

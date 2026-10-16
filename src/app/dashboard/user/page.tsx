@@ -1,7 +1,7 @@
 'use client';
 
 import { createClient } from '@/lib/supabase/browser';
-import { TbMail, TbUser } from 'react-icons/tb';
+import { TbMail, TbUser, TbUserFilled } from 'react-icons/tb';
 import { saveUser } from '@/app/dashboard/user/actions';
 import { useActionState, useEffect, useState } from 'react';
 import { User, AuthError } from '@supabase/auth-js';
@@ -9,6 +9,7 @@ import ErrorMessageComponent from '@/components/ui/alert/error-message';
 import LayoutChangePassword from '@/components/auth/layout-change-password';
 import InfoMessageComponent from '@/components/ui/alert/info-message';
 import { redirect } from 'next/navigation';
+import Input from '@/components/ui/form/input';
 
 const initialState = {
     message: '',
@@ -39,20 +40,28 @@ export default function DashboardUserPage() {
         <div className="prose mx-auto pt-20">
             <h1 className="text-center">Hello {user?.user_metadata?.first_name ?? user?.email ?? 'friend'}!</h1>
             <form className="grid gap-4 grid-cols-2">
-                <label className="input input-info w-full col-span-2">
-                    <span className="label"><TbMail/></span>
-                    <input className="" type="email" placeholder="Email" disabled defaultValue={user?.email}/>
-                </label>
+                <Input
+                    className="col-span-2"
+                    name="email"
+                    icon={<TbMail/>}
+                    type="email"
+                    defaultValue={user?.email} disabled
+                />
+                <Input
+                    name="firstName"
+                    icon={<TbUser/>}
+                    type="text"
+                    placeholder="First Name"
+                    defaultValue={user?.user_metadata?.first_name}
+                />
+                <Input
+                    name="lastName"
+                    icon={<TbUserFilled/>}
+                    type="text"
+                    placeholder="Last Name"
+                    defaultValue={user?.user_metadata?.last_name}
+                />
 
-                <label className="input input-info w-full">
-                    <span className="label"><TbUser/></span>
-                    <input className="" name="firstName" type="text" placeholder="Luke" defaultValue={user?.user_metadata?.first_name ?? ''}/>
-                </label>
-
-                <label className="input input-info w-full">
-                    <span className="label"><TbUser/></span>
-                    <input className="" name="lastName" type="text" placeholder="Skywalker" defaultValue={user?.user_metadata?.last_name ?? ''}/>
-                </label>
 
                 {saveUserState?.message && !saveUserState.success
                     ? <div className="col-span-2"><ErrorMessageComponent message={saveUserState.message} /></div>

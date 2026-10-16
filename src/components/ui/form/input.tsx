@@ -1,5 +1,6 @@
 import React from 'react';
 import { TbPencil } from 'react-icons/tb';
+import cc from 'classcat';
 
 export interface InputProps {
     name: string;
@@ -10,6 +11,8 @@ export interface InputProps {
     icon?: React.ReactNode;
     renderAfterInput?: React.ReactNode;
     type?: 'password' | 'email' | 'text' | 'hidden';
+    disabled?: boolean;
+    className?: string;
 }
 
 export default function Input({
@@ -20,19 +23,21 @@ export default function Input({
     icon,
     type,
     renderAfterInput,
-    defaultValue
+    defaultValue,
+    disabled = false,
+    className
 }: InputProps): React.ReactNode {
     return (
-        <label className="input w-full">
+        <label className={cc(['input w-full', className])}>
             <span className="label">{icon ?? <TbPencil/>}</span>
             <input
                 type={type ?? 'text'}
-                className=""
                 name={name}
                 placeholder={placeholder}
                 value={value}
                 defaultValue={defaultValue}
                 onChange={(event) => onChange?.(event.target.value)}
+                disabled={disabled}
             />
             {renderAfterInput}
         </label>

@@ -24,7 +24,7 @@ export default function CopyToClipboardComponent({
 
     return (
         <span
-            className={cc(['tooltip tooltip-top text-accent font-bold underline cursor-pointer', className])}
+            className={cc(['tooltip tooltip-top font-bold underline cursor-pointer', className])}
             onClick={async (e) => {
                 e.preventDefault();
                 await copyToClipboard(value);

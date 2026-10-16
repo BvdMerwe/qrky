@@ -40,7 +40,7 @@ export default function RootLayout({
                 </head>
             }
             <body
-                className={`${sans.variable} ${mono.variable} antialiased min-h-screen`}
+                className={`${sans.variable} ${mono.variable} antialiased min-h-screen bg-base-300`}
             >
                 <div className="flex flex-col justify-start min-h-screen">
                     <div>{children}</div>
