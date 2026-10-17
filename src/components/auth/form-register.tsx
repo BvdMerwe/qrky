@@ -7,6 +7,7 @@ import cc from 'classcat';
 import InputPassword from '@/components/ui/form/input-password';
 import ErrorMessageComponent from '@/components/ui/alert/error-message';
 import SuccessMessageComponent from '@/components/ui/alert/success-message';
+import Input from '@/components/ui/form/input';
 
 const initialState = { message: '', success: false };
 
@@ -19,63 +20,54 @@ export default function FormRegisterComponent() {
     const [state, registerAction, pending] = useActionState(register, initialState);
 
     return (<form className="flex flex-col gap-4">
-        <label className="input w-full">
-            <span className="label"><TbMail/></span>
-            <input
-                className=""
-                name="email"
-                placeholder="luke@rebels.space"
-                value={email}
-                type="email"
-                onChange={(e) => setEmail(e.target.value)}
-            />
-        </label>
+        <Input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={email}
+            onChange={setEmail}
+            icon={<TbMail />}
+        />
 
-        <label className="input w-full">
-            <span className="label"><TbUser/></span>
-            <input
-                className=""
-                name="firstName"
-                placeholder="Luke"
-                value={firstName}
-                type="text"
-                onChange={(e) => setFirstName(e.target.value)}
-            />
-        </label>
+        <Input
+            type="text"
+            name="firstName"
+            placeholder="First Name"
+            value={firstName}
+            onChange={setFirstName}
+            icon={<TbUser />}
+        />
 
-        <label className="input w-full">
-            <span className="label"><TbUserFilled/></span>
-            <input
-                className=""
-                name="lastName"
-                placeholder="Skywalker"
-                value={lastName}
-                type="text"
-                onChange={(e) => setLastName(e.target.value)}
-            />
-        </label>
+        <Input
+            type="text"
+            name="lastName"
+            placeholder="Last Name"
+            value={lastName}
+            onChange={setLastName}
+            icon={<TbUserFilled />}
+        />
 
         <div className="tooltip tooltip-top md:tooltip-right">
             <div className="tooltip-content p-4 rounded-box">
                 <div className="prose text-left">
-                    <h3 className="text-white">Password requirements:</h3>
-                    <ul className="leading-tight text-white">
+                    <h3 className="text-base-100">Requirements:</h3>
+                    <ol className="leading-tight text-base-100 marker:text-green-500">
                         <li className={
-                            cc(['text-green-500', { 'text-red-500': !meetsCondition(password, 'length') }])}
+                            cc(['text-green-500', { 'marker:text-red-500 text-red-500': !meetsCondition(password, 'length') }])}
                         >At least 8 characters.</li>
                         <li className={
-                            cc(['text-green-500', { 'text-red-500': !meetsCondition(password, 'uppercase') }])}
+                            cc(['text-green-500', { 'marker:text-red-500 text-red-500': !meetsCondition(password, 'uppercase') }])}
                         >At least 1 uppercase letter.</li>
                         <li className={
-                            cc(['text-green-500', { 'text-red-500': !meetsCondition(password, 'lowercase') }])}
+                            cc(['text-green-500', { 'marker:text-red-500 text-red-500': !meetsCondition(password, 'lowercase') }])}
                         >At least 1 lowercase letter.</li>
                         <li className={
-                            cc(['text-green-500', { 'text-red-500': !meetsCondition(password, 'digit') }])}
+                            cc(['text-green-500', { 'marker:text-red-500 text-red-500': !meetsCondition(password, 'digit') }])}
                         >At least 1 number.</li>
                         <li className={
-                            cc(['text-green-500', { 'text-red-500': !meetsCondition(password, 'special') }])}
+                            cc(['text-green-500', { 'marker:text-red-500 text-red-500': !meetsCondition(password, 'special') }])}
                         >At least 1 special character.</li>
-                    </ul>
+                    </ol>
                 </div>
             </div>
             <InputPassword value={password} onChange={setPassword} name="password" placeholder="Password"/>

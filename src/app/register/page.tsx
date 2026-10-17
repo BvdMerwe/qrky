@@ -16,17 +16,17 @@ export default async function RegisterPage() {
         <div className="flex flex-col gap-4 rounded-box bg-base-200 p-6 max-w-md mx-auto my-20">
             <h1 className="text-3xl font-bold self-center">Register to get QRky</h1>
 
-            <span className="self-center">
-                Already have an account?{' '}
-                <Link href="/login" className="link link-secondary">Log in</Link>
-            </span>
-
             <OAuthButtons />
-
-            <div className="divider">OR</div>
 
             <FormRegisterComponent />
 
+            <div className="divider m-0"></div>
+
+            <span className="self-center">
+                Already have an account?
+            </span>
+
+            <Link href="/login" className="btn btn-secondary">Log in</Link>
         </div>
     );
 }

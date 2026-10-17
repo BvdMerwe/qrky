@@ -8,7 +8,7 @@ export default function Home() {
     return (
         <div className="flex flex-col">
             {/* Hero Section */}
-            <section className="hero min-h-[80vh] bg-gradient-to-br from-primary/10 via-base-100 to-secondary/10">
+            <section className="hero min-h-[80vh] bg-base-100">
                 <div className="hero-content text-center flex-col gap-8 max-w-5xl">
                     <Image
                         src="/qrky-logotype.svg"
@@ -31,10 +31,12 @@ export default function Home() {
                         </p>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md mb-4">
-                        <Link href="/register" className="btn btn-primary btn-lg flex-1">
-                            <TbSparkles className="w-5 h-5" />
-                            Get Started Free
-                        </Link>
+                        <div className="aura rainbow">
+                            <Link href="/register" className="btn btn-primary btn-lg flex-1">
+                                <TbSparkles className="w-5 h-5" />
+                                Get Started Free
+                            </Link>
+                        </div>
                         <Link href="/login" className="btn btn-outline btn-lg flex-1">
                             Login
                         </Link>
@@ -141,7 +143,7 @@ export default function Home() {
             </section>
 
             {/* CTA Section */}
-            <section className="py-20 bg-gradient-to-br from-primary to-secondary text-primary-content">
+            <section className="py-20 bg-linear-to-br from-base-300 to-base-200 text-primary-content">
                 <div className="container mx-auto px-4 text-center">
                     <div className="max-w-3xl mx-auto">
                         <h2 className="text-4xl lg:text-5xl font-bold mb-6">
@@ -150,10 +152,12 @@ export default function Home() {
                         <p className="text-xl mb-8 opacity-90">
                             Join thousands of users creating beautiful, trackable QR codes and short links.
                         </p>
-                        <Link href="/register" className="btn btn-lg bg-base-100 text-primary hover:bg-base-200 border-none">
-                            <TbSparkles className="w-6 h-6" />
-                            Create Your Free Account
-                        </Link>
+                        <span className="aura rainbow">
+                            <Link href="/register" className="btn btn-lg btn-primary">
+                                <TbSparkles className="w-6 h-6" />
+                                Create Your Free Account
+                            </Link>
+                        </span>
                     </div>
                 </div>
             </section>

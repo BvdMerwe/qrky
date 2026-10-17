@@ -39,23 +39,25 @@ export default function UrlTableComponent({
                 <th>QR Code</th>
                 <th>Alias</th>
                 <th>
-                    <Link className="btn btn-primary btn-xs" href="/dashboard/urls/new">
-                        <TbPlus/>
-                        Add A URL
-                    </Link>
+                    {urls?.length === 0 || <Link className="btn btn-primary btn-xs" href="/dashboard/urls/new">
+                        <TbPlus/> Add A URL
+                    </Link>}
                 </th>
             </tr>
             </thead>
             <tbody>
             {urls?.length === 0 &&
                 <tr>
-                    <td colSpan={100} className="text-center">
-                        <h2>You don&apos;t have any URLs!</h2>
+                    <td colSpan={100}>
+                        <div className="prose mb-4 max-w-full text-center">
+                            <h2>You don&apos;t have any URLs!</h2>
 
-                        <Link className="btn btn-soft btn-primary btn-xs" href="/dashboard/urls/new">
-                            <TbPlus/>
-                            Add A URL
-                        </Link>
+                            <div className="aura aura-rainbow">
+                                <Link className="btn btn-primary" href="/dashboard/urls/new">
+                                    <TbPlus/> Add A URL
+                                </Link>
+                            </div>
+                        </div>
                     </td>
                 </tr>
             }
@@ -64,7 +66,7 @@ export default function UrlTableComponent({
                 <tr key={url.uuid}>
                     <td>
                         <Link
-                            className="text-accent font-bold text-nowrap"
+                            className="font-bold text-nowrap"
                             href={url.url}
                             title={url.url}
                             prefetch={false}
@@ -75,7 +77,7 @@ export default function UrlTableComponent({
                     </td>
 
                     <td>
-                        <input type="checkbox" checked={url.enabled} className="toggle toggle-success" onChange={() => toggleUrlEnabled(url.uuid)}/>
+                        <input type="checkbox" checked={url.enabled} className="toggle toggle-primary" onChange={() => toggleUrlEnabled(url.uuid)}/>
                     </td>
 
                     <td>
@@ -96,7 +98,7 @@ export default function UrlTableComponent({
                                 urlUuid={url.uuid}
                                 cacheKey={JSON.stringify(url.qr_codes[0].settings)}
                             />
-                            : <Link className="btn btn-soft btn-primary btn-xs tooltip tooltip-top" data-tip="Add a QR code" href={`/dashboard/urls/${url.uuid}/qr/new`}>
+                            : <Link className="btn btn-outline btn-primary btn-xs tooltip tooltip-top" data-tip="Add a QR code" href={`/dashboard/urls/${url.uuid}/qr/new`}>
                                 <TbPlus/>
                             </Link>}
                     </td>
@@ -109,17 +111,17 @@ export default function UrlTableComponent({
                                     <TbPencil className="w-3 h-3" />
                                 </Link>
                               </div>
-                            : <Link className="btn btn-soft btn-primary btn-xs tooltip tooltip-top" data-tip="Add an alias" href={`/dashboard/urls/${url.uuid}/alias/new`}>
+                            : <Link className="btn btn-outline btn-primary btn-xs tooltip tooltip-top" data-tip="Add an alias" href={`/dashboard/urls/${url.uuid}/alias/new`}>
                                 <TbPlus/>
                             </Link>}
                     </td>
 
                     <td>
                         <div className="join join-horizontal">
-                            <Link className="btn btn-xs btn-soft btn-primary join-item tooltip tooltip-top" href={`/dashboard/urls/${url.uuid}/analytics`} data-tip="Analytics">
+                            <Link className="btn btn-xs btn-outline btn-primary join-item tooltip tooltip-top" href={`/dashboard/urls/${url.uuid}/analytics`} data-tip="Analytics">
                                 <TbGraph/>
                             </Link>
-                            <Link className="btn btn-xs btn-soft btn-primary join-item tooltip tooltip-top" href={`/dashboard/urls/${url.uuid}/edit`} data-tip="Edit">
+                            <Link className="btn btn-xs btn-outline btn-primary join-item tooltip tooltip-top" href={`/dashboard/urls/${url.uuid}/edit`} data-tip="Edit">
                                 <TbPencil/>
                             </Link>
                             <DeleteButtonComponent onClick={() => deleteUrlAction(url.uuid)} />

@@ -2,13 +2,48 @@
 
 @plugin "@tailwindcss/typography";
 @plugin "daisyui" {
-    themes: light --default, dark --prefersdark, cupcake;
+    themes: cupcake --default, cupcake-dark --prefersdark;
+}
+
+@plugin "daisyui/theme" {
+    name: "cupcake-dark";
+    default: false;
+    prefersdark: true;
+    color-scheme: "dark";
+    --color-base-100: oklch(37% 0.044 257.287);
+    --color-base-200: oklch(27% 0.041 260.031);
+    --color-base-300: oklch(20% 0.042 265.755);
+    --color-base-content: oklch(98% 0.022 95.277);
+    --color-primary: oklch(70% 0.14 182.503);
+    --color-primary-content: oklch(43% 0.078 188.216);
+    --color-secondary: oklch(89% 0.061 343.231);
+    --color-secondary-content: oklch(45% 0.187 3.815);
+    --color-accent: oklch(70% 0.213 47.604);
+    --color-accent-content: oklch(40% 0.123 38.172);
+    --color-neutral: oklch(55% 0.046 257.417);
+    --color-neutral-content: oklch(98% 0 0);
+    --color-info: oklch(68% 0.169 237.323);
+    --color-info-content: oklch(29% 0.066 243.157);
+    --color-success: oklch(69% 0.17 162.48);
+    --color-success-content: oklch(26% 0.051 172.552);
+    --color-warning: oklch(68% 0.162 75.834);
+    --color-warning-content: oklch(28% 0.066 53.813);
+    --color-error: oklch(64% 0.246 16.439);
+    --color-error-content: oklch(27% 0.105 12.094);
+    --radius-selector: 1rem;
+    --radius-field: 2rem;
+    --radius-box: 1rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 2px;
+    --depth: 1;
+    --noise: 0;
 }
 
 :root {
     --bg-pos-x: 0;
     --animation-duration: 20s;
-    --bg-size-x: 20em;
+    --bg-size-x: 10em;
     --text-w: 20em;
 }
 
@@ -28,12 +63,7 @@ h1, h2, h3, h4, h5, h6 {
     @apply bg-clip-text text-transparent;
 
     background-size: var(--bg-size-x) 100%;
-    background-image: linear-gradient(
-            to left in hsl,
-            hsl(359deg, 100%, 50%),
-            hsl(180deg, 100%, 50%),
-            hsl(0deg, 100%, 50%)
-    );
+    background-image: linear-gradient(to right, oklch(82% .17 327), oklch(75% .12 274), oklch(82% .11 191), oklch(91% .11 105), oklch(88% .08 68), oklch(82% .17 327) 100%);
     animation: animate-bg-rainbow var(--animation-duration) infinite linear;
 }
 

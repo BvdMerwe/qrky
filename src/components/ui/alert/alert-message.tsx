@@ -11,7 +11,7 @@ export interface AlertMessageProps {
 
 export default function AlertMessageComponent({ className, message }: AlertMessageProps): React.ReactNode {
     if (stringIsValid(message)) {
-        return <p role="alert" className={cc(['alert alert-soft', className])}>
+        return <p role="alert" className={cc(['alert', className])}>
             <span>{message}</span>
         </p>;
     } else {

@@ -73,7 +73,7 @@ describe('login action', () => {
         } catch (e: unknown) {
             const err = e as { type: string; url: string };
             expect(err.type).toBe('redirect');
-            expect(err.url).toBe('/dashboard/urls');
+            expect(err.url).toBe('/dashboard');
         }
 
         expect(mockSignInWithPassword).toHaveBeenCalledWith({
