@@ -67,7 +67,7 @@ export default async function UrlAnalyticsPage({
         ...(aliasVisits || [])
     ];
     const visits = allVisits || [];
-    const totalVisits = visits.length;
+    const totalVisits = url.click_count ?? 0;
 
     const sortedVisits = [...visits].sort(
         (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()

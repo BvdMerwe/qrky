@@ -91,6 +91,7 @@ describe('Analytics Page', () => {
             id: 1,
             uuid: 'test-uuid',
             url: 'https://example.com',
+            click_count: 0,
             qr_codes: [],
             aliases: []
         };
@@ -134,6 +135,58 @@ describe('Analytics Page', () => {
         expect(screen.getByText('https://example.com')).toBeInTheDocument();
         // Verify no visits message is shown
         expect(screen.getByText('No visits yet.')).toBeInTheDocument();
+        // Verify the total comes from click_count
+        expect(screen.getByText('Total Visits').nextElementSibling).toHaveTextContent('0');
+    });
+
+    it('renders Total Visits from url_objects.click_count rather than visit rows', async () => {
+        const mockUrl = {
+            id: 1,
+            uuid: 'test-uuid',
+            url: 'https://example.com',
+            click_count: 1234,
+            qr_codes: [],
+            aliases: []
+        };
+
+        const { createClient } = await import('@/lib/supabase/server');
+        vi.mocked(createClient).mockReturnValue({
+            from: vi.fn((table: string) => {
+                if (table === 'url_objects') {
+                    return {
+                        select: vi.fn(() => ({
+                            eq: vi.fn(() => ({
+                                maybeSingle: vi.fn(() => Promise.resolve({ data: mockUrl, error: null }))
+                            }))
+                        }))
+                    };
+                }
+                if (table === 'visits') {
+                    return {
+                        select: vi.fn(() => ({
+                            eq: vi.fn(() => Promise.resolve({
+                                data: [
+                                    { id: 1, url_object_id: 1, created_at: '2024-01-01', user_agent: 'Test' }
+                                ]
+                            })),
+                            in: vi.fn(() => Promise.resolve({ data: [] }))
+                        }))
+                    };
+                }
+                return { select: mockSelect };
+            })
+        } as any);
+
+        vi.resetModules();
+        const { default: UrlAnalyticsPage } = await import('./page');
+
+        const params = Promise.resolve({ uuid: 'test-uuid' });
+        const result = await UrlAnalyticsPage({ params });
+        render(result);
+
+        expect(screen.getByText('Total Visits').nextElementSibling).toHaveTextContent('1234');
+        // Recent Visits table is still built from the visits queries
+        expect(screen.getByText('Direct')).toBeInTheDocument();
     });
 
     it('fetches visits for QR codes associated with URL', async () => {
@@ -141,6 +194,7 @@ describe('Analytics Page', () => {
             id: 1,
             uuid: 'test-uuid',
             url: 'https://example.com',
+            click_count: 1,
             qr_codes: [{ id: 'qr-1' }, { id: 'qr-2' }],
             aliases: []
         };
@@ -197,6 +251,7 @@ describe('Analytics Page', () => {
             id: 1,
             uuid: 'test-uuid',
             url: 'https://example.com',
+            click_count: 1,
             qr_codes: [],
             aliases: [{ id: 'alias-1' }]
         };
