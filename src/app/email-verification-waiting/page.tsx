@@ -71,7 +71,7 @@ export default function EmailVerificationWaiting({
                                 Request a new verification email
                             </button>
                             || <button className="btn" disabled>
-                                Request a new verification email (in {countdown / 1000}s)
+                                Request a new verification email (in {Math.round(countdown / 1000)}s)
                             </button>
                     }
 
