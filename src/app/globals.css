@@ -40,6 +40,11 @@
     --noise: 0;
 }
 
+@theme inline {
+    --font-title: var(--font-title);
+    --font-body: var(--font-body);
+}
+
 :root {
     --bg-pos-x: 0;
     --animation-duration: 20s;
@@ -48,11 +53,11 @@
 }
 
 body > * {
-    @apply font-mono;
+    @apply font-body;
 }
 
 h1, h2, h3, h4, h5, h6 {
-    @apply font-sans;
+    @apply font-title;
 }
 
 .input {
