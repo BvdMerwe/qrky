@@ -47,7 +47,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.0.1",
-    "@vitest/coverage-v8": "^4.1.0",
+    "@vitest/coverage-v8": "^4.1.11",
     "daisyui": "^5.7.37",
     "eslint": "^9",
     "eslint-config-next": "16.0.0",
@@ -56,14 +56,29 @@
     "supabase": "^2.84.6",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^4.1.0"
+    "vitest": "^4.1.11"
   },
   "browserslist": "> 1%",
   "pnpm": {
     "overrides": {
+      "ajv": "^6.14.0",
+      "brace-expansion": "^1.1.21",
+      "browserslist": "^4.28.7",
       "flatted": "3.4.2",
+      "js-yaml": "^4.3.2",
       "minimatch": "3.1.5",
-      "picomatch": "2.3.2"
+      "nanoid": "^3.3.12",
+      "picomatch": "2.3.2",
+      "postcss": "^8.5.23",
+      "source-map-js": "^1.2.2",
+      "tar": "^7.5.21",
+      "undici": "^7.29.1",
+      "vite": "^8.0.16",
+      "ws": "^8.21.0",
+      "@babel/core": "^7.29.6",
+      "@humanfs/node": "^0.16.8",
+      "@supabase/supabase-js": "2.76.1",
+      "@supabase/postgrest-js": "2.76.1"
     }
   }
 }
