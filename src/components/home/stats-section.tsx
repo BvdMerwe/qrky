@@ -25,23 +25,23 @@ export default function StatsSection() {
     const userCount = stats?.userCount ?? '—';
 
     return (
-        <section className="py-16 bg-base-100">
+        <section className="py-16 bg-base-300 font-title">
             <div className="container mx-auto px-4">
-                <div className="stats stats-vertical lg:stats-horizontal shadow w-full">
+                <div className="stats stats-vertical lg:stats-horizontal shadow-lg bg-base-100 w-full">
                     <div className="stat place-items-center">
-                        <div className="stat-title">URLs Shortened</div>
-                        <div className="stat-value text-primary">{urlCount}</div>
-                        <div className="stat-desc">And counting</div>
+                        <div className="stat-title font-semibold">URLs Shortened</div>
+                        <div className="stat-value text-primary-content">{urlCount}</div>
+                        <div className="stat-desc">and counting</div>
                     </div>
                     <div className="stat place-items-center">
-                        <div className="stat-title">Total Visits</div>
-                        <div className="stat-value text-secondary">{visitCount}</div>
-                        <div className="stat-desc">Across all URLs</div>
+                        <div className="stat-title font-semibold">Total Redirects</div>
+                        <div className="stat-value text-secondary-content">{visitCount}</div>
+                        <div className="stat-desc">across all URLs</div>
                     </div>
                     <div className="stat place-items-center">
-                        <div className="stat-title">Active Users</div>
-                        <div className="stat-value text-accent">{userCount}</div>
-                        <div className="stat-desc">Worldwide</div>
+                        <div className="stat-title font-semibold">Active Users</div>
+                        <div className="stat-value text-accent-content">{userCount}</div>
+                        <div className="stat-desc">worldwide</div>
                     </div>
                 </div>
             </div>

@@ -8,6 +8,7 @@ import { usePathname } from 'next/navigation';
 import { signOut } from '@/app/actions/auth';
 import cc from 'classcat';
 import Image from 'next/image';
+import NavbarHome from '@/components/home/navbar-home';
 
 interface Props {
     children?: React.ReactNode;

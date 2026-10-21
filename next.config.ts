@@ -5,9 +5,8 @@ const nextConfig: NextConfig = {
     /* config options here */
     images: {
         localPatterns: [
-            {
-                pathname: '/qr/**',
-            },
+            { pathname: '/qr/**' },
+            { pathname: '/**' },
         ],
         remotePatterns: [
             {
