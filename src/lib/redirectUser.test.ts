@@ -103,4 +103,21 @@ describe('redirectUser', () => {
 
         expect(mockRecordView).not.toHaveBeenCalled();
     });
+
+    it('still redirects when recordView throws', async () => {
+        mockRecordView.mockRejectedValueOnce(new Error('Analytics RPC failed'));
+
+        const { default: redirectUser } = await import('@/lib/redirectUser');
+
+        await expect(
+            redirectUser('https://example.com', null, 'url_objects', 'test-uuid')
+        ).rejects.toThrow('REDIRECT:https://example.com');
+
+        expect(mockRecordView).toHaveBeenCalledWith(
+            expect.any(Headers),
+            'url_objects',
+            'test-uuid'
+        );
+        expect(mockRedirect).toHaveBeenCalledWith('https://example.com', 'replace');
+    });
 });

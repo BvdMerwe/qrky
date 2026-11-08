@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import redirectUser from '@/lib/redirectUser';
 
 export default async function Page({
@@ -7,7 +7,7 @@ export default async function Page({
     params: Promise<{ identifier: string }>
 }): Promise<void> {
     const { identifier } = await params;
-    const supabase = await createClient();
+    const supabase = createServiceClient();
     const { data, error } = await supabase
         .from('url_objects')
         .select('id, url')
