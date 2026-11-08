@@ -32,20 +32,23 @@ vi.mock('@/lib/record-view', () => ({
 }));
 
 // Mock the server supabase client
-vi.mock('@/lib/supabase/server', () => ({
-    createClient: vi.fn(() => ({
-        from: vi.fn(() => ({
-            select: vi.fn(() => ({
+const mockServiceClient = {
+    from: vi.fn(() => ({
+        select: vi.fn(() => ({
+            eq: vi.fn(() => ({
                 eq: vi.fn(() => ({
-                    eq: vi.fn(() => ({
-                        maybeSingle: vi.fn(() => Promise.resolve(mockMaybeSingleResult))
-                    })),
                     maybeSingle: vi.fn(() => Promise.resolve(mockMaybeSingleResult))
-                }))
+                })),
+                maybeSingle: vi.fn(() => Promise.resolve(mockMaybeSingleResult))
             }))
         })),
         rpc: vi.fn(() => Promise.resolve({ error: null }))
     }))
+};
+
+vi.mock('@/lib/supabase/server', () => ({
+    createServiceClient: vi.fn(() => mockServiceClient),
+    createClient: vi.fn(() => mockServiceClient),
 }));
 
 describe('Alias Redirect Page', () => {
@@ -70,7 +73,7 @@ describe('Alias Redirect Page', () => {
         });
     });
 
-    it('redirects to target URL for valid alias', async () => {
+    it('redirects to target URL for valid alias (anonymous)', async () => {
         mockMaybeSingleResult = {
             data: {
                 id: 'url-123',
@@ -87,6 +90,30 @@ describe('Alias Redirect Page', () => {
         await expect(Page({ params })).rejects.toThrow('REDIRECT:https://example.com/alias-target');
         
         // Verify recordView was called with correct parameters
+        expect(mockRecordView).toHaveBeenCalled();
+    });
+
+    it('redirects to target URL for valid alias (authenticated)', async () => {
+        // The page uses createServiceClient, so auth state of the requester
+        // must not affect the lookup result.
+        mockMaybeSingleResult = {
+            data: {
+                id: 'url-123',
+                url: 'https://example.com/alias-target',
+            },
+            error: null
+        };
+
+        vi.resetModules();
+        const { default: Page } = await import('./page');
+        
+        const params = Promise.resolve({ identifier: 'my-alias' });
+        
+        await expect(Page({ params })).rejects.toThrow('REDIRECT:https://example.com/alias-target');
+        
+        // Verify the service client (not cookie-bound) was used
+        const { createServiceClient } = await import('@/lib/supabase/server');
+        expect(createServiceClient).toHaveBeenCalled();
         expect(mockRecordView).toHaveBeenCalled();
     });
 

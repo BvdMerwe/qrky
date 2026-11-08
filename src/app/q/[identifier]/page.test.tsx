@@ -32,20 +32,23 @@ vi.mock('@/lib/record-view', () => ({
 }));
 
 // Mock the server supabase client
-vi.mock('@/lib/supabase/server', () => ({
-    createClient: vi.fn(() => ({
-        from: vi.fn(() => ({
-            select: vi.fn(() => ({
+const mockServiceClient = {
+    from: vi.fn(() => ({
+        select: vi.fn(() => ({
+            eq: vi.fn(() => ({
                 eq: vi.fn(() => ({
-                    eq: vi.fn(() => ({
-                        maybeSingle: vi.fn(() => Promise.resolve(mockMaybeSingleResult))
-                    })),
                     maybeSingle: vi.fn(() => Promise.resolve(mockMaybeSingleResult))
-                }))
+                })),
+                maybeSingle: vi.fn(() => Promise.resolve(mockMaybeSingleResult))
             }))
         })),
         rpc: vi.fn(() => Promise.resolve({ error: null }))
     }))
+};
+
+vi.mock('@/lib/supabase/server', () => ({
+    createServiceClient: vi.fn(() => mockServiceClient),
+    createClient: vi.fn(() => mockServiceClient),
 }));
 
 describe('QR Code Redirect Page', () => {
@@ -70,7 +73,7 @@ describe('QR Code Redirect Page', () => {
         });
     });
 
-    it('redirects to target URL for valid QR code', async () => {
+    it('redirects to target URL for valid QR code (anonymous)', async () => {
         mockMaybeSingleResult = {
             data: {
                 id: 'qr-123',
@@ -94,6 +97,33 @@ describe('QR Code Redirect Page', () => {
         expect(mockRecordView).toHaveBeenCalled();
     });
 
+    it('redirects to target URL for valid QR code (authenticated)', async () => {
+        // The page uses createServiceClient, so auth state of the requester
+        // must not affect the lookup result.
+        mockMaybeSingleResult = {
+            data: {
+                id: 'qr-123',
+                url_objects: {
+                    url: 'https://example.com/page',
+                    enabled: true
+                }
+            },
+            error: null
+        };
+
+        vi.resetModules();
+        const { default: Page } = await import('./page');
+        
+        const params = Promise.resolve({ identifier: 'qr-123' });
+        
+        await expect(Page({ params })).rejects.toThrow('REDIRECT:https://example.com/page');
+        
+        // Verify the service client (not cookie-bound) was used
+        const { createServiceClient } = await import('@/lib/supabase/server');
+        expect(createServiceClient).toHaveBeenCalled();
+        expect(mockRecordView).toHaveBeenCalled();
+    });
+
     it('returns 404 for non-existent QR code', async () => {
         mockMaybeSingleResult = { data: null, error: null };
 
@@ -106,6 +136,18 @@ describe('QR Code Redirect Page', () => {
         
         // Verify recordView was NOT called
         expect(mockRecordView).not.toHaveBeenCalled();
+    });
+
+    it('returns 404 for disabled QR code', async () => {
+        // The query filters by url_objects.enabled = true, so disabled rows return null
+        mockMaybeSingleResult = { data: null, error: null };
+
+        vi.resetModules();
+        const { default: Page } = await import('./page');
+        
+        const params = Promise.resolve({ identifier: 'qr-disabled' });
+        
+        await expect(Page({ params })).rejects.toThrow('NOT_FOUND');
     });
 
     it('redirects to 500 on database error', async () => {

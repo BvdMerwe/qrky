@@ -17,7 +17,12 @@ export default async function redirectUser(
         notFound();
     } else {
         // record view and redirect to actual URL
-        await recordView(await headers(), source, identifier);
+        // Failure must never block the redirect — analytics are best-effort.
+        try {
+            await recordView(await headers(), source, identifier);
+        } catch (e) {
+            console.error('recordView failed:', e);
+        }
         redirect(url, RedirectType.replace);
     }
 }
