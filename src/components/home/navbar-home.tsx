@@ -4,11 +4,11 @@ import React from 'react';
 import { LuMenu, LuSparkles } from 'react-icons/lu';
 
 export default function NavbarHome() {
-    const links = [
-        { text: 'Features', href: '#features' },
-        { text: 'How it works', href: '#how-it-works' },
-        { text: 'Analytics', href: '#analytics' },
-        { text: 'Pricing', href: '#pricing' },
+    const links: { text: string, href: string }[] = [
+        // { text: 'Features', href: '#features' },
+        // { text: 'How it works', href: '#how-it-works' },
+        // { text: 'Analytics', href: '#analytics' },
+        // { text: 'Pricing', href: '#pricing' },
     ];
 
     return (

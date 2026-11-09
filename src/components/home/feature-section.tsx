@@ -5,7 +5,7 @@ export default function FeatureSection() {
         <section className="py-20 bg-base-100">
             <div className="container mx-auto px-4">
                 <div className="flex gap-4 flex-col items-center justify-center text-center mb-16">
-                    <div className="badge badge-primary badge-soft badge-lg text-primary-content font-bold"><LuHeart/> Why makers love QRky</div>
+                    <div className="badge badge-primary badge-lg text-primary-content font-bold"><LuHeart/> Why makers love QRky</div>
                     <h2 className="text-4xl font-bold">Everything you need, nothing you don&#39;t</h2>
                     <p className="text-lg text-base-content/70 max-w-2xl mx-auto">
                         Create it, share it, and see exactly how it performs. All in one bubbly little dashboard.
@@ -15,7 +15,7 @@ export default function FeatureSection() {
                 <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
                     <div className="card bg-base-200 border-2 border-base-300 md:col-span-2">
                         <div className="card-body items-start">
-                            <div className="bg-primary/10 p-4 rounded-full mb-4">
+                            <div className="bg-primary/30 p-4 rounded-full mb-4">
                                 <LuQrCode className="w-8 h-8 text-primary-content-content"/>
                             </div>
                             <h3 className="card-title text-2xl">QR codes in your colours</h3>
@@ -41,59 +41,55 @@ export default function FeatureSection() {
 
                     <div className="card bg-base-200 border-2 border-base-300">
                         <div className="card-body items-start">
-                            <div className="bg-secondary/10 p-4 rounded-full mb-4">
-                                <LuLink2 className="w-8 h-8 text-secondary-content"/>
+                            <div className="bg-accent/30 p-4 rounded-full mb-4">
+                                <LuLink2 className="w-8 h-8 text-accent-content"/>
                             </div>
-                            <h3 className="card-title text-2xl">Smart URL Shortening</h3>
+                            <h3 className="card-title text-2xl">Links worth sharing</h3>
                             <p className="text-base-content/70">
-                                Create memorable short links with custom identifiers.
-                                Multiple URL patterns for maximum flexibility.
+                                Claim a short, memorable slug and point it anywhere. Change the destination later. The code never changes.
                             </p>
                         </div>
                     </div>
 
                     <div className="card bg-base-200 border-2 border-base-300">
                         <div className="card-body items-start">
-                            <div className="bg-accent/10 p-4 rounded-full mb-4">
-                                <LuChartBar className="w-8 h-8 text-accent-content"/>
+                            <div className="bg-primary/30 p-4 rounded-full mb-4">
+                                <LuChartBar className="w-8 h-8 text-primary-content"/>
                             </div>
                             <h3 className="card-title text-2xl">Powerful Analytics</h3>
                             <p className="text-base-content/70">
-                                Track every scan and click. View detailed analytics including location,
-                                device type, and time-based insights.
+                                Location, device and time-of-day insights on every single scan.
                             </p>
                         </div>
                     </div>
 
                     <div className="card bg-base-200 border-2 border-base-300">
                         <div className="card-body items-start">
-                            <div className="bg-success/10 p-4 rounded-full mb-4">
-                                <LuBolt className="w-8 h-8 text-success-content"/>
+                            <div className="bg-secondary/30 p-4 rounded-full mb-4">
+                                <LuBolt className="w-8 h-8 text-secondary-content"/>
                             </div>
-                            <h3 className="card-title text-2xl">Lightning Fast</h3>
+                            <h3 className="card-title text-2xl">Blink-fast redirects</h3>
                             <p className="text-base-content/70">
-                                Built on the latest technology for instant redirects.
-                                Your users won&apos;t wait.
+                                Edge-cached everywhere, so nobody waits on a loading screen.
                             </p>
                         </div>
                     </div>
 
                     <div className="card bg-base-200 border-2 border-base-300">
                         <div className="card-body items-start">
-                            <div className="bg-warning/10 p-4 rounded-full mb-4">
-                                <LuLock className="w-8 h-8 text-warning-content"/>
+                            <div className="bg-accent/30 p-4 rounded-full mb-4">
+                                <LuLock className="w-8 h-8 text-accent-content"/>
                             </div>
-                            <h3 className="card-title text-2xl">Secure & Private</h3>
+                            <h3 className="card-title text-2xl">Safe and private</h3>
                             <p className="text-base-content/70">
-                                Enterprise-grade security with Supabase Auth.
-                                Your data is encrypted and protected.
+                                Safely stored behind trusted authentication. Your links stay yours.
                             </p>
                         </div>
                     </div>
 
                     <div className="card bg-base-200 border-2 border-base-300">
                         <div className="card-body items-start">
-                            <div className="bg-accent/10 p-4 rounded-full mb-4">
+                            <div className="bg-accent/30 p-4 rounded-full mb-4">
                                 <LuGift className="w-8 h-8 text-accent-content"/>
                             </div>
                             <h3 className="card-title text-2xl">Free to start</h3>
@@ -109,7 +105,7 @@ export default function FeatureSection() {
 
                     <div className="card bg-base-200 border-2 border-base-300 md:col-span-2">
                         <div className="card-body items-start">
-                            <div className="bg-primary/10 p-4 rounded-full mb-4">
+                            <div className="bg-primary/30 p-4 rounded-full mb-4">
                                 <LuSparkles className="w-8 h-8 text-primary-content"/>
                             </div>
                             <h3 className="card-title text-2xl">A dashboard you&#39;ll actually open</h3>

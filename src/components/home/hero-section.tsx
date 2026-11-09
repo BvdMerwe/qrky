@@ -1,4 +1,4 @@
-import { LuCopy, LuLink, LuPartyPopper, LuScanLine, LuSparkles, LuStar, LuTrendingUp, LuZap } from 'react-icons/lu';
+import { LuCopy, LuLink, LuPartyPopper, LuScanLine, LuSparkles, LuTrendingUp, LuZap } from 'react-icons/lu';
 import Title from '@/components/typography/title';
 import Image from 'next/image';
 import React from 'react';
@@ -18,51 +18,51 @@ export default function HeroSection() {
                     ></div>
                 </div>
             </div>
-            <div className="flex md:flex-row flex-col align-middle justify-center gap-14">
+            <div className="relative z-1 flex md:flex-row flex-col align-middle justify-center gap-14">
                 <div className="flex flex-col gap-7 md:max-w-1/2">
                     <div className="badge badge-lg badge-accent font-bold">
                         <LuPartyPopper/> <span>Free forever<span className="font-light">*</span> · no credit card</span>
                     </div>
                     <Title isLarge>
                         Scan-worthy QR codes,<br/>
-                        <span className="text-primary-content">seriously smart links.</span>
+                        <span className="text-primary-content dark:text-secondary-content">seriously smart links.</span>
                     </Title>
                     <p>Design QR codes in your colours with your logo baked in, shorten any URL, and watch every scan land in a dashboard that&#39;s actually fun to open.</p>
                     <div className="flex gap-3.5">
                         <div className="aura aura-holo">
-                        <Link className="btn btn-primary" href="/register"><LuSparkles/>Get started free</Link>
+                            <Link className="btn btn-primary" href="/register"><LuSparkles/>Get started free</Link>
                         </div>
                     </div>
-                    <div className="flex gap-3.5 items-center">
-                        <div className="avatar-group -space-x-6">
+                    <div className="flex gap-3.5 items-center w-full">
+                        <div className="avatar-group -space-x-5">
                             <div className="avatar">
                                 <div className="w-9 h-9 bg-primary text-primary-content font-title flex text-center font-bold flex-col justify-center">
-                                    #
+                                    Q
                                 </div>
                             </div>
                             <div className="avatar">
                                 <div className="w-9 h-9 bg-secondary text-secondary-content font-title flex text-center font-bold flex-col justify-center">
-                                    #
+                                    R
                                 </div>
                             </div>
                             <div className="avatar">
                                 <div className="w-9 h-9 bg-accent text-accent-content font-title flex text-center font-bold flex-col justify-center">
-                                    #
+                                    k
                                 </div>
                             </div>
                             <div className="avatar">
                                 <div className="w-9 h-9 bg-base-300 text-base-content font-title flex text-center font-bold flex-col justify-center">
-                                    #
+                                    y
                                 </div>
                             </div>
                         </div>
-                        <span className="text-base-content/70 leading-4">2,400+ makers already&nbsp;scanning</span>
+                        <span className="text-base-content/70 leading-4 text-sm">Be one of the makers already&nbsp;scanning</span>
                     </div>
                 </div>
                 <div className="flex flex-col gap-14 md:max-w-1/2">
                     <div className="box-border w-full md:w-125 shrink-0 h-125 relative">
                         <div
-                            className="box-border max-w-86 h-fit [box-shadow:0px_14px_34px_#29133426] absolute md:left-15 left-0 top-11 flex flex-col gap-4 p-6 justify-start items-center bg-[#faf7f5] [outline:2px_solid_#e7e2df] -outline-offset-1 rounded-2xl z-1"
+                            className="box-border max-w-86 h-fit [box-shadow:0px_14px_34px_var(--color-base-200)] box-sh absolute md:left-15 left-0 top-11 flex flex-col gap-4 p-6 justify-start items-center bg-base-100 [outline:2px_solid] outline-base-200 -outline-offset-1 rounded-2xl z-1"
                         >
                             <div className="box-border w-full shrink-0 relative">
                                 <Image
@@ -73,9 +73,9 @@ export default function HeroSection() {
                                     className="rounded-2xl"
                                 />
                             </div>
-                            <div className="box-border w-full h-fit shrink-0 flex flex-row gap-2.5 p-[10px_14px] justify-start items-center bg-[#efeae6] rounded-[9999px]">
+                            <div className="box-border w-full h-fit shrink-0 flex flex-row text-base-content gap-2.5 p-[10px_14px] justify-start items-center bg-base-200 rounded-[9999px]">
                                 <LuLink/>
-                                <div className="text-[16px]/[normal] box-border flex-[1_1_0] text-[#291334] font-['Nunito_Sans',system-ui,sans-serif] font-bold text-left">
+                                <div className="text-[16px]/[normal] box-border flex-[1_1_0]  font-bold text-left">
                                     qrky.app/register
                                 </div>
                                 <LuCopy/>
