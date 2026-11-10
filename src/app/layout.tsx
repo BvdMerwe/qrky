@@ -1,17 +1,17 @@
 import type { Metadata } from 'next';
-import { DynaPuff, Funnel_Sans } from 'next/font/google';
+import { Fredoka, Nunito_Sans } from 'next/font/google';
 import './globals.css';
 import FooterComponent from '@/components/ui/footer';
 
 const ENV = process.env.NODE_ENV || 'development';
 
-const sans = DynaPuff({
-    variable: '--font-sans',
+const fontTitle = Fredoka({
+    variable: '--font-title',
     subsets: ['latin'],
 });
 
-const mono = Funnel_Sans({
-    variable: '--font-mono',
+const fontBody = Nunito_Sans({
+    variable: '--font-body',
     subsets: ['latin'],
 });
 
@@ -40,7 +40,7 @@ export default function RootLayout({
                 </head>
             }
             <body
-                className={`${sans.variable} ${mono.variable} antialiased min-h-screen bg-base-300`}
+                className={`${fontTitle.variable} ${fontBody.variable} antialiased min-h-screen bg-base-300`}
             >
                 <div className="flex flex-col justify-start min-h-screen">
                     <div>{children}</div>
