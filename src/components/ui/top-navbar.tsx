@@ -3,12 +3,11 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/browser';
 import React, { useEffect, useState } from 'react';
-import { User, AuthError } from '@supabase/auth-js';
+import { AuthError, User } from '@supabase/auth-js';
 import { usePathname } from 'next/navigation';
 import { signOut } from '@/app/actions/auth';
 import cc from 'classcat';
 import Image from 'next/image';
-import NavbarHome from '@/components/home/navbar-home';
 
 interface Props {
     children?: React.ReactNode;
